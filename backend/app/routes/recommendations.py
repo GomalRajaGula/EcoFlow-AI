@@ -1,0 +1,157 @@
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+from datetime import datetime
+from app.core.database import get_db
+from app.core.auth import get_current_user
+from app.models.base import User, FermentationBatch, FermentationLog, ProductRecommendation
+from app.schemas.base import APIResponse
+from app.services.product_recommendation import ProductRecommendationService
+from app.services.business_analysis import BusinessAnalysisService
+from pydantic import BaseModel
+
+router = APIRouter(prefix="/api/v1", tags=["recommendations"])
+
+class RecommendationRequest(BaseModel):
+    harvest_date: datetime
+    harvest_volume_liters: float
+    final_color: str
+    aroma_intensity: str
+    user_intent: str = "household"
+
+class BusinessAnalysisRequest(BaseModel):
+    product_name: str
+    production_volume_liters: float
+    target_market: str
+    packaging_type: str
+    distribution_channel: str
+    raw_material_cost: float
+    packaging_cost: float
+    labor_cost: float
+    overhead_cost: float
+    monthly_fixed_costs: float
+    regional_average_price: float = None
+
+@router.post("/batches/{batch_id}/recommendation", response_model=APIResponse)
+async def get_product_recommendation(
+    batch_id: int,
+    rec_request: RecommendationRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+    
+    try:
+        recommendations = ProductRecommendationService.get_ranked_recommendations(
+            final_color=rec_request.final_color,
+            aroma_intensity=rec_request.aroma_intensity,
+            final_volume_liters=rec_request.harvest_volume_liters,
+            user_intent=rec_request.user_intent
+        )
+        
+        batch.final_volume_liters = rec_request.harvest_volume_liters
+        batch.final_color = rec_request.final_color
+        batch.final_aroma_intensity = rec_request.aroma_intensity
+        batch.status = "harvested"
+        
+        prod_rec = ProductRecommendation(
+            batch_id=batch_id,
+            recommended_products_json=recommendations,
+            is_commercial_orientation=(rec_request.user_intent == "commercial")
+        )
+        db.add(prod_rec)
+        db.commit()
+        
+        return APIResponse(
+            status="success",
+            message="Product recommendations generated",
+            data={"recommendations": recommendations}
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post("/batches/{batch_id}/business-analysis", response_model=APIResponse)
+async def run_business_analysis(
+    batch_id: int,
+    analysis_request: BusinessAnalysisRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+    
+    try:
+        analysis = BusinessAnalysisService.run_analysis(
+            production_volume_liters=analysis_request.production_volume_liters,
+            raw_material_cost=analysis_request.raw_material_cost,
+            packaging_cost=analysis_request.packaging_cost,
+            labor_cost=analysis_request.labor_cost,
+            overhead_cost=analysis_request.overhead_cost,
+            monthly_fixed_costs=analysis_request.monthly_fixed_costs,
+            regional_average_price=analysis_request.regional_average_price
+        )
+        
+        prod_rec = db.query(ProductRecommendation).filter(
+            ProductRecommendation.batch_id == batch_id
+        ).first()
+        
+        if prod_rec:
+            prod_rec.business_analysis_json = analysis
+            db.commit()
+        
+        return APIResponse(
+            status="success",
+            message="Business analysis completed",
+            data=analysis
+        )
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.get("/batches/{batch_id}/dashboard", response_model=APIResponse)
+async def get_user_dashboard(
+    batch_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+    
+    logs = db.query(FermentationLog).filter(FermentationLog.batch_id == batch_id).order_by(FermentationLog.log_date.desc()).all()
+    
+    latest_log = logs[0] if logs else None
+    incubation_days = (datetime.utcnow().date() - batch.start_date.date()).days if batch.start_date else 0
+    
+    return APIResponse(
+        status="success",
+        data={
+            "batch_id": batch.id,
+            "batch_name": batch.name,
+            "status": batch.status,
+            "waste_diverted_kg": batch.waste_weight_kg,
+            "incubation_days": incubation_days,
+            "expected_harvest_date": batch.harvest_date.isoformat() if batch.harvest_date else None,
+            "latest_status": latest_log.ai_status if latest_log else None,
+            "latest_health_score": latest_log.ai_confidence if latest_log else None,
+            "total_logs": len(logs),
+            "upcoming_milestones": [
+                {"day": 30, "description": "Mid-fermentation check"},
+                {"day": 60, "description": "Color development check"},
+                {"day": 90, "description": "Expected harvest readiness"}
+            ]
+        }
+    )

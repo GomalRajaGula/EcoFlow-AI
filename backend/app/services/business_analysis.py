@@ -1,0 +1,166 @@
+from typing import Dict
+
+class BusinessAnalysisService:
+    @staticmethod
+    def calculate_cogs(
+        production_volume_liters: float,
+        raw_material_cost: float,
+        packaging_cost: float,
+        labor_cost: float,
+        overhead_cost: float
+    ) -> dict:
+        total_cost = raw_material_cost + packaging_cost + labor_cost + overhead_cost
+        cogs_per_liter = total_cost / production_volume_liters if production_volume_liters > 0 else 0
+        
+        return {
+            "total_cost": total_cost,
+            "cogs_per_liter": round(cogs_per_liter, 2)
+        }
+    
+    @staticmethod
+    def calculate_srp(
+        cogs_per_liter: float,
+        regional_average_price: float = None,
+        markup_multiplier: float = 1.5
+    ) -> float:
+        base_srp = cogs_per_liter * markup_multiplier
+        
+        if regional_average_price:
+            conservative_srp = regional_average_price * 0.9
+            final_srp = max(base_srp, conservative_srp)
+        else:
+            final_srp = base_srp
+        
+        return round(final_srp, 2)
+    
+    @staticmethod
+    def calculate_margins(
+        cogs_per_liter: float,
+        srp_per_liter: float,
+        production_volume_liters: float
+    ) -> dict:
+        gross_margin_per_unit = srp_per_liter - cogs_per_liter
+        gross_margin_percentage = (gross_margin_per_unit / srp_per_liter * 100) if srp_per_liter > 0 else 0
+        total_revenue = srp_per_liter * production_volume_liters
+        total_gross_profit = gross_margin_per_unit * production_volume_liters
+        
+        return {
+            "gross_margin_per_liter": round(gross_margin_per_unit, 2),
+            "gross_margin_percentage": round(gross_margin_percentage, 2),
+            "total_revenue": round(total_revenue, 2),
+            "total_gross_profit": round(total_gross_profit, 2)
+        }
+    
+    @staticmethod
+    def calculate_break_even(
+        cogs_per_liter: float,
+        srp_per_liter: float,
+        fixed_costs: float
+    ) -> dict:
+        contribution_margin = srp_per_liter - cogs_per_liter
+        break_even_units = fixed_costs / contribution_margin if contribution_margin > 0 else 0
+        break_even_revenue = break_even_units * srp_per_liter
+        
+        return {
+            "break_even_units_liters": round(break_even_units, 2),
+            "break_even_revenue": round(break_even_revenue, 2)
+        }
+    
+    @staticmethod
+    def calculate_12month_projection(
+        production_volume_liters: float,
+        srp_per_liter: float,
+        cogs_per_liter: float,
+        monthly_fixed_costs: float
+    ) -> dict:
+        monthly_revenue = (production_volume_liters / 12) * srp_per_liter
+        monthly_cogs = (production_volume_liters / 12) * cogs_per_liter
+        monthly_gross_profit = monthly_revenue - monthly_cogs
+        monthly_net_profit = monthly_gross_profit - monthly_fixed_costs
+        yearly_net_profit = monthly_net_profit * 12
+        
+        return {
+            "monthly_revenue": round(monthly_revenue, 2),
+            "monthly_cogs": round(monthly_cogs, 2),
+            "monthly_gross_profit": round(monthly_gross_profit, 2),
+            "monthly_net_profit": round(monthly_net_profit, 2),
+            "yearly_net_profit": round(yearly_net_profit, 2),
+            "breakeven_months": round(monthly_fixed_costs / (monthly_gross_profit + 0.01), 1) if monthly_gross_profit > 0 else None
+        }
+    
+    @staticmethod
+    def sensitivity_analysis(
+        yearly_net_profit: float,
+        variance_percentage: float = 0.1
+    ) -> dict:
+        variance = yearly_net_profit * variance_percentage
+        pessimistic = yearly_net_profit - variance
+        optimistic = yearly_net_profit + variance
+        
+        return {
+            "base_case": round(yearly_net_profit, 2),
+            "pessimistic": round(pessimistic, 2),
+            "optimistic": round(optimistic, 2),
+            "variance_percentage": variance_percentage * 100
+        }
+    
+    @staticmethod
+    def determine_viability(
+        yearly_net_profit: float,
+        gross_margin_percentage: float,
+        breakeven_months: float = None
+    ) -> str:
+        if yearly_net_profit > 5000 and gross_margin_percentage > 30:
+            return "Viable"
+        elif yearly_net_profit > 1000 and gross_margin_percentage > 20:
+            return "Marginal"
+        else:
+            return "Not Viable"
+    
+    @staticmethod
+    def run_analysis(
+        production_volume_liters: float,
+        raw_material_cost: float,
+        packaging_cost: float,
+        labor_cost: float,
+        overhead_cost: float,
+        monthly_fixed_costs: float,
+        regional_average_price: float = None
+    ) -> dict:
+        cogs_data = BusinessAnalysisService.calculate_cogs(
+            production_volume_liters, raw_material_cost, packaging_cost, labor_cost, overhead_cost
+        )
+        cogs_per_liter = cogs_data["cogs_per_liter"]
+        
+        srp_per_liter = BusinessAnalysisService.calculate_srp(cogs_per_liter, regional_average_price)
+        
+        margins = BusinessAnalysisService.calculate_margins(cogs_per_liter, srp_per_liter, production_volume_liters)
+        
+        break_even = BusinessAnalysisService.calculate_break_even(cogs_per_liter, srp_per_liter, monthly_fixed_costs * 12)
+        
+        projection = BusinessAnalysisService.calculate_12month_projection(
+            production_volume_liters, srp_per_liter, cogs_per_liter, monthly_fixed_costs
+        )
+        
+        sensitivity = BusinessAnalysisService.sensitivity_analysis(projection["yearly_net_profit"])
+        
+        viability = BusinessAnalysisService.determine_viability(
+            projection["yearly_net_profit"], margins["gross_margin_percentage"], projection["breakeven_months"]
+        )
+        
+        return {
+            "cogs_per_liter": cogs_per_liter,
+            "suggested_retail_price": srp_per_liter,
+            "gross_margin_per_liter": margins["gross_margin_per_liter"],
+            "gross_margin_percentage": margins["gross_margin_percentage"],
+            "total_revenue": margins["total_revenue"],
+            "total_gross_profit": margins["total_gross_profit"],
+            "break_even_units_liters": break_even["break_even_units_liters"],
+            "break_even_revenue": break_even["break_even_revenue"],
+            "monthly_revenue": projection["monthly_revenue"],
+            "monthly_net_profit": projection["monthly_net_profit"],
+            "yearly_net_profit": projection["yearly_net_profit"],
+            "breakeven_months": projection["breakeven_months"],
+            "sensitivity_analysis": sensitivity,
+            "viability_rating": viability
+        }
