@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime
 from app.core.database import get_db, engine, Base
@@ -12,12 +13,48 @@ from app.schemas.base import (
 from app.services.eco_enzyme import EcoEnzymeService
 from app.services.fermentation_assistant import FermentationAssistantService
 from app.routes.recommendations import router as rec_router
+from app.routes.impact import router as impact_router
+from app.routes.roadmap import router as roadmap_router
+from app.routes.admin import router as admin_router
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="EcoFlow API", version="0.1.0")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(rec_router)
+app.include_router(impact_router)
+app.include_router(roadmap_router)
+app.include_router(admin_router)
+
+
+@app.on_event("startup")
+def seed_product_templates():
+    from app.core.database import SessionLocal
+    db = SessionLocal()
+    try:
+        if db.query(ProductTemplate).count() == 0:
+            templates = [
+                ProductTemplate(id=1, name="Household Cleaner", description="Multi-purpose eco-enzyme cleaner for household surfaces", processing_instructions="Dilute 1:10 with water. Spray on surfaces and wipe clean.", ingredients=["eco-enzyme", "water"], equipment=["spray bottle", "cloth"], time_estimate_hours=0.5, safety_warnings="Avoid contact with eyes."),
+                ProductTemplate(id=2, name="Disinfectant", description="Eco-enzyme based disinfectant for sanitizing", processing_instructions="Dilute 1:5 with water. Apply to surfaces, let sit 10 minutes.", ingredients=["eco-enzyme", "water"], equipment=["spray bottle", "gloves"], time_estimate_hours=0.5, safety_warnings="Use gloves when handling concentrated solution."),
+                ProductTemplate(id=3, name="Liquid Fertilizer", description="Organic liquid fertilizer from eco-enzyme", processing_instructions="Dilute 1:100 with water. Apply to soil around plants.", ingredients=["eco-enzyme", "water"], equipment=["watering can"], time_estimate_hours=0.25, safety_warnings="Do not apply to edible plant parts directly."),
+                ProductTemplate(id=4, name="Pest Repellent", description="Natural pest repellent using eco-enzyme", processing_instructions="Dilute 1:10 with water. Spray on plant leaves.", ingredients=["eco-enzyme", "water"], equipment=["spray bottle"], time_estimate_hours=0.25, safety_warnings="Test on small area first."),
+                ProductTemplate(id=5, name="Drain Cleaner", description="Eco-enzyme drain cleaner and deodorizer", processing_instructions="Pour undiluted into drain. Let sit overnight.", ingredients=["eco-enzyme"], equipment=["measuring cup"], time_estimate_hours=0.1, safety_warnings="Do not mix with chemical cleaners."),
+                ProductTemplate(id=6, name="Odor Neutralizer", description="Natural odor neutralizer for rooms and fabrics", processing_instructions="Dilute 1:20 with water. Mist in air or on fabrics.", ingredients=["eco-enzyme", "water"], equipment=["mist spray bottle"], time_estimate_hours=0.25, safety_warnings="Test on inconspicuous area of fabric first."),
+                ProductTemplate(id=7, name="Cosmetic Base", description="Eco-enzyme base for natural cosmetic products", processing_instructions="Filter thoroughly. Mix with carrier ingredients per recipe.", ingredients=["eco-enzyme", "carrier oil", "essential oil"], equipment=["filter", "mixing bowl", "containers"], time_estimate_hours=2.0, safety_warnings="Perform patch test before use. Not for ingestion."),
+                ProductTemplate(id=8, name="Animal Feed Additive", description="Eco-enzyme additive for animal feed supplementation", processing_instructions="Dilute 1:200 with water. Mix into animal feed.", ingredients=["eco-enzyme", "water"], equipment=["measuring cup", "mixing bucket"], time_estimate_hours=0.25, safety_warnings="Consult veterinarian for dosage. Start with small amounts."),
+            ]
+            db.add_all(templates)
+            db.commit()
+    finally:
+        db.close()
 
 @app.post("/api/v1/batches", response_model=APIResponse)
 async def create_batch(
@@ -39,6 +76,9 @@ async def create_batch(
             status="pending_start"
         )
         db.add(new_batch)
+        
+        current_user.waste_diverted_kg = (current_user.waste_diverted_kg or 0.0) + batch_data.waste_weight_kg
+        
         db.commit()
         db.refresh(new_batch)
         

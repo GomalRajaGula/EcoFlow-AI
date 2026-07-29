@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models.base import User, FermentationBatch, FermentationLog, ProductRecommendation
@@ -153,7 +153,7 @@ async def get_user_dashboard(
     logs = db.query(FermentationLog).filter(FermentationLog.batch_id == batch_id).order_by(FermentationLog.log_date.desc()).all()
     
     latest_log = logs[0] if logs else None
-    incubation_days = (datetime.utcnow().date() - batch.start_date.date()).days if batch.start_date else 0
+    incubation_days = (datetime.now(timezone.utc).date() - batch.start_date.date()).days if batch.start_date else 0
     
     latest_health_score = None
     if latest_log:

@@ -101,6 +101,31 @@ class ProductRecommendation(BaseModel):
     class Config:
         from_attributes = True
 
+class RoadmapStep(BaseModel):
+    title: str
+    description: str
+    details: str
+    completed: bool = False
+
+class RoadmapCreate(BaseModel):
+    product_template_id: int
+
+class RoadmapUpdate(BaseModel):
+    completed: bool
+
+class RoadmapSummary(BaseModel):
+    id: int
+    batch_id: int
+    product_template_id: int
+    status: str
+    current_step: int
+    total_steps: int
+    completed_steps: int
+    progress_percentage: float
+    steps: List[RoadmapStep]
+    started_at: Optional[str] = None
+    completed_at: Optional[str] = None
+
 class APIResponse(BaseModel):
     status: str
     message: Optional[str] = None
