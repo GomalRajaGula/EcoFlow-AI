@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional, List
 
@@ -20,14 +20,14 @@ class User(UserBase):
 
 class FermentationBatchBase(BaseModel):
     name: str
-    waste_weight_kg: float
+    waste_weight_kg: float = Field(gt=0, description="Waste weight must be positive")
 
 class FermentationBatchCreate(FermentationBatchBase):
     start_date: datetime
 
 class FermentationBatchUpdate(BaseModel):
-    water_liters: Optional[float] = None
-    sugar_kg: Optional[float] = None
+    water_liters: Optional[float] = Field(None, ge=0, description="Water liters must be non-negative")
+    sugar_kg: Optional[float] = Field(None, ge=0, description="Sugar kg must be non-negative")
 
 class FermentationBatch(FermentationBatchBase):
     id: int
@@ -50,7 +50,7 @@ class FermentationLogBase(BaseModel):
     aroma: str
     color: str
     gas_presence: bool
-    temperature_c: float
+    temperature_c: float = Field(ge=-50, le=100, description="Temperature must be between -50 and 100 Celsius")
     notes: Optional[str] = None
 
 class FermentationLogCreate(FermentationLogBase):
@@ -73,9 +73,9 @@ class ProductTemplateBase(BaseModel):
     processing_instructions: str
     ingredients: dict
     equipment: dict
-    time_estimate_hours: float
+    time_estimate_hours: float = Field(gt=0, description="Time estimate must be positive")
     safety_warnings: str
-    base_compatibility_score: float = 0.5
+    base_compatibility_score: float = Field(default=0.5, ge=0, le=1)
 
 class ProductTemplate(ProductTemplateBase):
     id: int

@@ -26,7 +26,7 @@ async def create_batch(
     db: Session = Depends(get_db)
 ):
     try:
-        calc = EcoEnzymeService.calculate_ingredients(batch_data.waste_weight_kg)
+        calc = EcoEnzymeService.calculate_ingredients(batch_data.waste_weight_kg, batch_data.start_date)
         
         new_batch = FermentationBatch(
             user_id=current_user.id,

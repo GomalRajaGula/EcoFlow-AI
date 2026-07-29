@@ -75,7 +75,7 @@ class ProductRecommendation(Base):
     __tablename__ = "product_recommendations"
     
     id = Column(Integer, primary_key=True, index=True)
-    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), unique=True)
+    batch_id = Column(Integer, ForeignKey("fermentation_batches.id"), index=True)
     recommended_products_json = Column(JSON)
     selected_product_id = Column(Integer, ForeignKey("product_templates.id"), nullable=True)
     selection_date = Column(DateTime, nullable=True)

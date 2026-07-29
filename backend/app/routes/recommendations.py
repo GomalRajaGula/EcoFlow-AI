@@ -59,12 +59,21 @@ async def get_product_recommendation(
         batch.final_aroma_intensity = rec_request.aroma_intensity
         batch.status = "harvested"
         
-        prod_rec = ProductRecommendation(
-            batch_id=batch_id,
-            recommended_products_json=recommendations,
-            is_commercial_orientation=(rec_request.user_intent == "commercial")
-        )
-        db.add(prod_rec)
+        prod_rec = db.query(ProductRecommendation).filter(
+            ProductRecommendation.batch_id == batch_id
+        ).first()
+        
+        if prod_rec:
+            prod_rec.recommended_products_json = recommendations
+            prod_rec.is_commercial_orientation = (rec_request.user_intent == "commercial")
+        else:
+            prod_rec = ProductRecommendation(
+                batch_id=batch_id,
+                recommended_products_json=recommendations,
+                is_commercial_orientation=(rec_request.user_intent == "commercial")
+            )
+            db.add(prod_rec)
+        
         db.commit()
         
         return APIResponse(
@@ -107,7 +116,15 @@ async def run_business_analysis(
         
         if prod_rec:
             prod_rec.business_analysis_json = analysis
-            db.commit()
+        else:
+            prod_rec = ProductRecommendation(
+                batch_id=batch_id,
+                recommended_products_json=[],
+                business_analysis_json=analysis
+            )
+            db.add(prod_rec)
+        
+        db.commit()
         
         return APIResponse(
             status="success",
@@ -123,6 +140,8 @@ async def get_user_dashboard(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    from app.services.fermentation_assistant import FermentationAssistantService
+    
     batch = db.query(FermentationBatch).filter(
         FermentationBatch.id == batch_id,
         FermentationBatch.user_id == current_user.id
@@ -136,6 +155,12 @@ async def get_user_dashboard(
     latest_log = logs[0] if logs else None
     incubation_days = (datetime.utcnow().date() - batch.start_date.date()).days if batch.start_date else 0
     
+    latest_health_score = None
+    if latest_log:
+        latest_health_score = round(FermentationAssistantService.calculate_health_score(
+            latest_log.ai_status, latest_log.ai_confidence, incubation_days
+        ), 2)
+    
     return APIResponse(
         status="success",
         data={
@@ -146,7 +171,7 @@ async def get_user_dashboard(
             "incubation_days": incubation_days,
             "expected_harvest_date": batch.harvest_date.isoformat() if batch.harvest_date else None,
             "latest_status": latest_log.ai_status if latest_log else None,
-            "latest_health_score": latest_log.ai_confidence if latest_log else None,
+            "latest_health_score": latest_health_score,
             "total_logs": len(logs),
             "upcoming_milestones": [
                 {"day": 30, "description": "Mid-fermentation check"},

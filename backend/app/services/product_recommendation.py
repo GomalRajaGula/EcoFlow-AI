@@ -29,7 +29,7 @@ class ProductRecommendationService:
         color_match = ProductRecommendationService._color_similarity(final_color, product["ideal_color"])
         aroma_match = ProductRecommendationService._aroma_similarity(aroma_intensity, product["ideal_aroma"])
         volume_match = min(final_volume_liters / 10, 1.0)
-        intent_bonus = 1.0 if (user_intent == "commercial" and product_id not in [6, 7]) else 1.0
+        intent_bonus = 1.2 if (user_intent == "commercial" and product_id not in [6, 7]) else 1.0
         
         score = (color_match * 0.4 + aroma_match * 0.4 + volume_match * 0.2) * intent_bonus
         return min(100, max(0, score * 100))

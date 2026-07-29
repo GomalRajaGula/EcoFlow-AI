@@ -2,15 +2,17 @@ from datetime import datetime, timedelta
 
 class EcoEnzymeService:
     @staticmethod
-    def calculate_ingredients(waste_kg: float) -> dict:
+    def calculate_ingredients(waste_kg: float, start_date: datetime = None) -> dict:
         ideal_water = waste_kg * 3
         ideal_sugar = waste_kg * 1
         expected_harvest_days = 90
         
+        base_date = start_date if start_date else datetime.utcnow()
+        
         return {
             "ideal_water_liters": ideal_water,
             "ideal_sugar_kg": ideal_sugar,
-            "expected_harvest_date": datetime.utcnow() + timedelta(days=expected_harvest_days)
+            "expected_harvest_date": base_date + timedelta(days=expected_harvest_days)
         }
     
     @staticmethod
