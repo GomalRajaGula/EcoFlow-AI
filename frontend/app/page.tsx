@@ -1,255 +1,266 @@
 'use client';
 
 import Link from 'next/link';
-import { Box, Button, Container, Heading, Text, VStack, HStack, Grid, Icon } from '@chakra-ui/react';
-import { FiTrendingUp, FiCheckCircle, FiZap } from 'react-icons/fi';
-import { BiBot, BiChart } from 'react-icons/bi';
 
 export default function Home() {
   const features = [
     {
-      icon: BiBot,
-      title: 'AI Fermentation Assistant',
-      description: 'Real-time monitoring dengan AI untuk prediksi status fermentasi (Normal, Caution, Failed)'
+      icon: "🤖",
+      title: 'Asisten Fermentasi AI',
+      description: 'Pemantauan real-time dengan AI untuk prediksi status fermentasi (Normal, Hati-hati, Gagal)'
     },
     {
-      icon: FiCheckCircle,
-      title: 'Smart Product Recommendation',
+      icon: "✅",
+      title: 'Rekomendasi Produk Cerdas',
       description: 'Rekomendasi produk otomatis berdasarkan karakteristik hasil fermentasi eco-enzyme'
     },
     {
-      icon: BiChart,
-      title: 'Business Analysis',
-      description: 'Analisis kelayakan bisnis lengkap: COGS, margin profit, break-even, dan proyeksi revenue'
+      icon: "📊",
+      title: 'Analisis Bisnis',
+      description: 'Analisis kelayakan bisnis lengkap: COGS, margin profit, break-even, dan proyeksi pendapatan'
     },
     {
-      icon: FiTrendingUp,
-      title: 'Batch Management',
-      description: 'Kelola seluruh siklus fermentasi dari pembuatan batch hingga panen dengan tracking detail'
+      icon: "📈",
+      title: 'Manajemen Batch',
+      description: 'Kelola seluruh siklus fermentasi dari pembuatan batch hingga panen dengan pelacakan detail'
     },
     {
-      icon: FiZap,
-      title: 'Automated Calculations',
-      description: 'Perhitungan otomatis kebutuhan air & gula, estimasi panen 90 hari, dan health score'
+      icon: "⚡",
+      title: 'Perhitungan Otomatis',
+      description: 'Kalkulasi otomatis kebutuhan air & gula, estimasi panen 90 hari, dan skor kesehatan'
     },
     {
-      icon: BiBot,
-      title: 'Smart Insights',
-      description: 'Dashboard komprehensif dengan milestone tracking dan rekomendasi aksi preventif'
+      icon: "💡",
+      title: 'Wawasan Cerdas',
+      description: 'Dasbor komprehensif dengan pelacakan pencapaian dan rekomendasi tindakan preventif'
     }
   ];
 
   return (
-    <Box bg="white" minH="100vh">
-      <Container maxW="100%" px={0}>
-        <VStack spacing={0}>
-          <Box w="100%" bg="linear-gradient(135deg, #34A853 0%, #2a8a42 100%)" color="white" py={{ base: '16', md: '24' }} px={{ base: '4', md: '8' }}>
-            <Container maxW="6xl" mx="auto">
-              <VStack spacing={{ base: '6', md: '8' }} align="start">
-                <VStack spacing={{ base: '2', md: '4' }} align="start" w="100%">
-                  <Heading size="2xl" fontWeight="bold" maxW="2xl">
-                    Smart Eco-Enzyme Fermentation Assistant
-                  </Heading>
-                  <Text fontSize={{ base: 'lg', md: 'xl' }} opacity={0.95} maxW="2xl">
-                    Optimalkan proses pembuatan eco-enzyme dengan AI-powered monitoring, product recommendations, dan business analysis. Dari rumahan hingga skala komersial.
-                  </Text>
-                </VStack>
+    <div className="min-h-screen bg-slate-50 font-sans text-gray-900 selection:bg-green-100 selection:text-green-900">
+      
+      {/* NAVBAR */}
+      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-xl">
+                E
+              </div>
+              <span className="font-bold text-xl tracking-tight text-gray-900">
+                EcoFlow
+              </span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors">
+                Masuk
+              </Link>
+              <Link href="/login" className="text-sm font-medium bg-green-600 text-white px-5 py-2.5 rounded-full shadow-sm hover:bg-green-700 hover:shadow transition-all hover:-translate-y-0.5">
+                Mulai Sekarang
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-                <HStack spacing={{ base: '3', md: '4' }} pt={{ base: '4', md: '8' }} w={{ base: '100%', md: 'auto' }}>
-                  <Link href="/login">
-                    <Button
-                      bg="white"
-                      color="#34A853"
-                      size={{ base: 'md', md: 'lg' }}
-                      fontWeight="bold"
-                      _hover={{ bg: 'gray.100', transform: 'translateY(-2px)' }}
-                      transition="all 0.2s"
-                    >
-                      Mulai Sekarang
-                    </Button>
-                  </Link>
-                  <Link href="/login">
-                    <Button
-                      bg="transparent"
-                      color="white"
-                      borderWidth="2px"
-                      borderColor="white"
-                      size={{ base: 'md', md: 'lg' }}
-                      fontWeight="bold"
-                      _hover={{ bg: 'whiteAlpha.100', transform: 'translateY(-2px)' }}
-                      transition="all 0.2s"
-                    >
-                      Login
-                    </Button>
-                  </Link>
-                </HStack>
-              </VStack>
-            </Container>
-          </Box>
+      {/* HERO SECTION */}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+        {/* Background Decorative Elements */}
+        <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3">
+          <div className="w-96 h-96 bg-green-100/50 rounded-full blur-3xl" />
+        </div>
+        <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3">
+          <div className="w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl" />
+        </div>
 
-          <Box w="100%" py={{ base: '16', md: '24' }} px={{ base: '4', md: '8' }} bg="gray.50">
-            <Container maxW="6xl" mx="auto">
-              <VStack spacing={{ base: '12', md: '16' }}>
-                <VStack spacing={{ base: '2', md: '4' }} textAlign="center">
-                  <Heading size="xl" color="gray.900">
-                    Fitur Utama EcoFlow
-                  </Heading>
-                  <Text fontSize="lg" color="gray.600" maxW="2xl">
-                    Platform lengkap untuk mengelola fermentasi eco-enzyme dengan teknologi AI terdepan
-                  </Text>
-                </VStack>
-
-                <Grid
-                  templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }}
-                  gap={{ base: '6', md: '8' }}
-                  w="100%"
-                >
-                  {features.map((feature, idx) => (
-                    <Box
-                      key={idx}
-                      bg="white"
-                      p={{ base: '6', md: '8' }}
-                      borderRadius="lg"
-                      boxShadow="sm"
-                      _hover={{ boxShadow: 'md', transform: 'translateY(-4px)' }}
-                      transition="all 0.3s"
-                    >
-                      <VStack align="start" spacing="4">
-                        <Box
-                          p="3"
-                          bg="#E8F5E9"
-                          borderRadius="lg"
-                          color="#34A853"
-                          fontSize="24px"
-                        >
-                          <Icon as={feature.icon} />
-                        </Box>
-                        <Heading size="md" color="gray.900">
-                          {feature.title}
-                        </Heading>
-                        <Text fontSize="sm" color="gray.600" lineHeight="1.6">
-                          {feature.description}
-                        </Text>
-                      </VStack>
-                    </Box>
-                  ))}
-                </Grid>
-              </VStack>
-            </Container>
-          </Box>
-
-          <Box w="100%" py={{ base: '16', md: '24' }} px={{ base: '4', md: '8' }} bg="white">
-            <Container maxW="6xl" mx="auto">
-              <VStack spacing={{ base: '12', md: '16' }}>
-                <VStack spacing={{ base: '2', md: '4' }} textAlign="center">
-                  <Heading size="xl" color="gray.900">
-                    Bagaimana Cara Kerjanya?
-                  </Heading>
-                  <Text fontSize="lg" color="gray.600" maxW="2xl">
-                    4 langkah sederhana untuk memulai proses fermentasi yang optimal
-                  </Text>
-                </VStack>
-
-                <Grid
-                  templateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
-                  gap={{ base: '8', md: '10' }}
-                  w="100%"
-                >
-                  {[
-                    { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik dan tanggal mulai. Sistem otomatis hitung kebutuhan air & gula.' },
-                    { num: '2', title: 'Monitor Fermentasi', desc: 'Catat observasi harian (aroma, warna, gas, suhu). AI prediksi status & kesehatan batch.' },
-                    { num: '3', title: 'Dapatkan Rekomendasi', desc: 'Setelah panen, AI rekomendasikan produk terbaik berdasarkan karakteristik hasil.' },
-                    { num: '4', title: 'Analisis Bisnis', desc: 'Lihat kelayakan bisnis: COGS, margin, break-even point, dan proyeksi profit 12 bulan.' }
-                  ].map((step, idx) => (
-                    <Box
-                      key={idx}
-                      display="flex"
-                      gap="6"
-                      alignItems="flex-start"
-                    >
-                      <Box
-                        minW="50px"
-                        h="50px"
-                        borderRadius="full"
-                        bg="#34A853"
-                        color="white"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        fontWeight="bold"
-                        fontSize="xl"
-                        flexShrink={0}
-                      >
-                        {step.num}
-                      </Box>
-                      <VStack align="start" spacing="2">
-                        <Heading size="md" color="gray.900">
-                          {step.title}
-                        </Heading>
-                        <Text fontSize="sm" color="gray.600" lineHeight="1.6">
-                          {step.desc}
-                        </Text>
-                      </VStack>
-                    </Box>
-                  ))}
-                </Grid>
-              </VStack>
-            </Container>
-          </Box>
-
-          <Box w="100%" bg="linear-gradient(135deg, #34A853 0%, #2a8a42 100%)" color="white" py={{ base: '12', md: '16' }} px={{ base: '4', md: '8' }}>
-            <Container maxW="6xl" mx="auto">
-              <VStack spacing={{ base: '4', md: '6' }} textAlign="center">
-                <Heading size="lg">
-                  Siap Memulai Fermentasi Cerdas?
-                </Heading>
-                <Text fontSize="lg" opacity={0.95} maxW="2xl">
-                  Bergabunglah dengan entrepreneur eco-enzyme yang menggunakan EcoFlow untuk meningkatkan efisiensi dan profitabilitas.
-                </Text>
-                <Link href="/login">
-                  <Button
-                    bg="white"
-                    color="#34A853"
-                    size="lg"
-                    fontWeight="bold"
-                    mt="4"
-                    _hover={{ bg: 'gray.100', transform: 'translateY(-2px)' }}
-                    transition="all 0.2s"
-                  >
-                    Mulai Gratis Sekarang
-                  </Button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* Left Content */}
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-700 text-sm font-medium mb-6">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Tersedia Sekarang v0.1.0
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
+                Kelola Fermentasi Eco-Enzyme Lebih Cerdas dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">AI</span>
+              </h1>
+              <p className="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed">
+                Platform inovatif untuk memonitor kesehatan fermentasi, mendapatkan rekomendasi produk turunan, dan menghitung analisis bisnis secara otomatis.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/login" className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                  Buat Batch Pertamamu
                 </Link>
-              </VStack>
-            </Container>
-          </Box>
+                <a href="#fitur" className="inline-flex justify-center items-center px-6 py-3.5 border border-gray-200 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 transition-all">
+                  Pelajari Fitur
+                </a>
+              </div>
+            </div>
 
-          <Box w="100%" bg="gray.900" color="gray.300" py="8" px={{ base: '4', md: '8' }}>
-            <Container maxW="6xl" mx="auto">
-              <VStack spacing="4" align="start">
-                <Text fontSize="sm" fontWeight="bold" color="white">
-                  EcoFlow AI v0.1.0
-                </Text>
-                <Text fontSize="xs">
-                  Smart Eco-Enzyme Fermentation Assistant — Optimize your fermentation process with AI-powered insights.
-                </Text>
-                <HStack spacing="8" pt="4" fontSize="xs">
-                  <Link href="/">
-                    <Text _hover={{ color: 'white' }} cursor="pointer">
-                      Home
-                    </Text>
-                  </Link>
-                  <Link href="/login">
-                    <Text _hover={{ color: 'white' }} cursor="pointer">
-                      Dashboard
-                    </Text>
-                  </Link>
-                  <Text>© 2026 EcoFlow AI. All rights reserved.</Text>
-                </HStack>
-              </VStack>
-            </Container>
-          </Box>
-        </VStack>
-      </Container>
-    </Box>
+            {/* Right Mockup/Illustration */}
+            <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
+              <div className="relative rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-500 ease-out">
+                {/* Mockup Top Bar */}
+                <div className="bg-gray-50 border-b border-gray-100 px-4 py-3 flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-400" />
+                  <div className="w-3 h-3 rounded-full bg-amber-400" />
+                  <div className="w-3 h-3 rounded-full bg-green-400" />
+                </div>
+                {/* Mockup Content */}
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <div>
+                      <div className="h-2 w-20 bg-gray-200 rounded-full mb-2" />
+                      <div className="h-4 w-32 bg-gray-300 rounded-full" />
+                    </div>
+                    <div className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
+                      SEDANG DIPROSES
+                    </div>
+                  </div>
+                  <div className="space-y-4 mb-6">
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-500 font-medium">Progres Fermentasi</span>
+                        <span className="text-gray-500">Hari 45 dari 90</span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div className="bg-green-500 h-2 rounded-full w-1/2" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <div className="text-xs text-gray-500 mb-1">Bahan Baku</div>
+                        <div className="font-bold text-gray-900">3.0 kg</div>
+                      </div>
+                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <div className="text-xs text-gray-500 mb-1">Kebutuhan Air</div>
+                        <div className="font-bold text-gray-900">30.0 L</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
+                    <div className="text-xl">🤖</div>
+                    <div>
+                      <div className="text-xs font-bold text-blue-900 mb-1">Status AI: Sehat</div>
+                      <div className="text-xs text-blue-700">Fermentasi berjalan normal. Lanjutkan pemantauan gas mingguan.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FITUR SECTION */}
+      <section id="fitur" className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-base text-green-600 font-semibold tracking-wide uppercase mb-2">Platform Terpadu</h2>
+            <h3 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Fitur Utama EcoFlow</h3>
+            <p className="text-lg text-gray-600">
+              Semua yang Anda butuhkan untuk memproduksi eco-enzyme berkualitas tinggi dengan tingkat keberhasilan maksimal.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, idx) => (
+              <div 
+                key={idx} 
+                className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="w-12 h-12 inline-flex items-center justify-center rounded-xl bg-green-50 text-2xl mb-6 shadow-sm border border-green-100">
+                  {feature.icon}
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h4>
+                <p className="text-gray-600 leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CARA KERJA SECTION */}
+      <section className="py-20 bg-slate-50 border-t border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h3 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Bagaimana Cara Kerjanya?</h3>
+            <p className="text-lg text-gray-600">
+              4 langkah sederhana dari sampah organik menjadi produk bernilai ekonomis.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+            {[
+              { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik. Sistem otomatis hitung kebutuhan air (10x) & gula (1x).' },
+              { num: '2', title: 'Monitor Fermentasi', desc: 'Catat observasi harian. AI memprediksi status & kesehatan batch dari aroma, warna, dan gas.' },
+              { num: '3', title: 'Rekomendasi Produk', desc: 'Setelah panen 90 hari, AI merekomendasikan produk turunan terbaik berdasarkan karakteristik hasil.' },
+              { num: '4', title: 'Analisis Kelayakan', desc: 'Sistem menghitung COGS, margin, break-even point, dan proyeksi profit bisnis.' }
+            ].map((step, idx) => (
+              <div key={idx} className="flex gap-6">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-green-700 font-bold text-xl border-4 border-white shadow-sm">
+                    {step.num}
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h4>
+                  <p className="text-gray-600 leading-relaxed">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA SECTION */}
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-green-600"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-green-700 to-transparent opacity-90"></div>
+        
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+            Mulai Transformasi Sampah Organik Anda Hari Ini
+          </h2>
+          <p className="text-xl text-green-100 mb-10">
+            Bergabunglah dan gunakan AI untuk memastikan keberhasilan panen eco-enzyme Anda.
+          </p>
+          <Link href="/login" className="inline-flex justify-center items-center px-8 py-4 border border-transparent text-lg font-bold rounded-full text-green-700 bg-white hover:bg-gray-50 hover:scale-105 transition-all shadow-lg">
+            Daftar Gratis Sekarang
+          </Link>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="bg-white border-t border-gray-100 pt-12 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded bg-green-600 flex items-center justify-center text-white font-bold text-sm">
+                E
+              </div>
+              <span className="font-bold text-gray-900">EcoFlow AI</span>
+            </div>
+            
+            <div className="flex gap-6 text-sm text-gray-500 font-medium">
+              <Link href="/" className="hover:text-green-600 transition-colors">Beranda</Link>
+              <Link href="/login" className="hover:text-green-600 transition-colors">Dasbor</Link>
+              <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-green-600 transition-colors">GitHub</a>
+            </div>
+          </div>
+          
+          <div className="mt-8 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+            <p>© {new Date().getFullYear()} EcoFlow AI. Hak Cipta Dilindungi.</p>
+            <p>Smart Eco-Enzyme Assistant v0.1.0</p>
+          </div>
+        </div>
+      </footer>
+      
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -12,6 +12,7 @@ from app.schemas.base import (
 )
 from app.services.eco_enzyme import EcoEnzymeService
 from app.services.fermentation_assistant import FermentationAssistantService
+from app.services.storage import upload_file_to_storage
 from app.routes.recommendations import router as rec_router
 from app.routes.impact import router as impact_router
 from app.routes.roadmap import router as roadmap_router
@@ -34,6 +35,28 @@ app.include_router(impact_router)
 app.include_router(roadmap_router)
 app.include_router(admin_router)
 
+
+@app.post("/api/v1/upload", response_model=APIResponse)
+async def upload_image(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        # Validate file type
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="File must be an image")
+            
+        url = await upload_file_to_storage(file, folder=f"users/{current_user.id}/logs")
+        
+        return APIResponse(
+            status="success",
+            message="Image uploaded successfully",
+            data={"url": url}
+        )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.on_event("startup")
 def seed_product_templates():
@@ -191,6 +214,7 @@ async def create_fermentation_log(
             gas_presence=log_data.gas_presence,
             temperature_c=log_data.temperature_c,
             notes=log_data.notes,
+            image_url=log_data.image_url,
             ai_status=status_pred,
             ai_confidence=confidence,
             ai_suggestion=suggestion
@@ -208,6 +232,7 @@ async def create_fermentation_log(
             message="Log recorded successfully",
             data={
                 "log_id": new_log.id,
+                "image_url": new_log.image_url,
                 "ai_status_prediction": status_pred,
                 "ai_confidence_score": confidence,
                 "health_score": round(health_score, 2),

@@ -75,7 +75,7 @@ export default function DashboardPage() {
           const err = error as { response?: { data?: { detail?: string } } };
           toast({
             title: 'Error',
-            description: err.response?.data?.detail || 'Failed to fetch batches',
+            description: err.response?.data?.detail || 'Gagal memuat data batch',
             status: 'error',
             isClosable: true,
           });
@@ -97,7 +97,7 @@ export default function DashboardPage() {
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
         title: 'Error',
-        description: err.response?.data?.detail || 'Failed to fetch batches',
+        description: err.response?.data?.detail || 'Gagal memuat data batch',
         status: 'error',
         isClosable: true,
       });
@@ -110,8 +110,8 @@ export default function DashboardPage() {
     await refreshBatches();
     setShowCreateModal(false);
     toast({
-      title: 'Success',
-      description: 'Batch created successfully',
+      title: 'Berhasil',
+      description: 'Batch berhasil dibuat',
       status: 'success',
       isClosable: true,
     });
@@ -122,8 +122,8 @@ export default function DashboardPage() {
     setShowLogModal(false);
     setSelectedBatch(null);
     toast({
-      title: 'Success',
-      description: 'Fermentation log recorded',
+      title: 'Berhasil',
+      description: 'Catatan fermentasi berhasil disimpan',
       status: 'success',
       isClosable: true,
     });
@@ -136,7 +136,7 @@ export default function DashboardPage() {
     } catch {
       toast({
         title: 'Error',
-        description: 'Failed to sign out',
+        description: 'Gagal keluar (sign out)',
         status: 'error',
         isClosable: true,
       });
@@ -159,14 +159,14 @@ export default function DashboardPage() {
       <Stack spacing={8}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Heading size="lg" color="#34A853">
-            EcoFlow Dashboard
+            Dasbor EcoFlow
           </Heading>
           <Button
             colorScheme="gray"
             size="sm"
             onClick={handleSignOut}
           >
-            Sign Out
+            Keluar
           </Button>
         </Box>
 
@@ -177,7 +177,7 @@ export default function DashboardPage() {
             onClick={() => setShowCreateModal(true)}
             _hover={{ bg: '#2a8a42' }}
           >
-            Create New Batch
+            Buat Batch Fermentasi Baru
           </Button>
         </Box>
 
@@ -188,15 +188,15 @@ export default function DashboardPage() {
         ) : (
           <Tabs defaultIndex={0} colorScheme="green">
             <TabList>
-              <Tab>Active Batches ({activeBatches.length})</Tab>
-              <Tab>Completed ({completedBatches.length})</Tab>
+              <Tab>Batch Aktif ({activeBatches.length})</Tab>
+              <Tab>Selesai ({completedBatches.length})</Tab>
             </TabList>
 
             <TabPanels>
               <TabPanel>
                 {activeBatches.length === 0 ? (
                   <Text color="gray.500" textAlign="center" py={10}>
-                    No active batches. Create one to get started!
+                    Tidak ada batch aktif. Buat satu untuk memulai!
                   </Text>
                 ) : (
                   <Stack spacing={4}>
@@ -225,7 +225,7 @@ export default function DashboardPage() {
               <TabPanel>
                 {completedBatches.length === 0 ? (
                   <Text color="gray.500" textAlign="center" py={10}>
-                    No completed batches yet.
+                    Belum ada batch yang selesai.
                   </Text>
                 ) : (
                   <Stack spacing={4}>

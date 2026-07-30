@@ -15,6 +15,7 @@ import {
   Progress,
 } from '@chakra-ui/react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 interface Batch {
   id: number;
@@ -49,6 +50,7 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
       case 'in_progress':
         return 'blue';
       case 'completed':
+      case 'harvested':
         return 'green';
       case 'failed':
         return 'red';
@@ -58,7 +60,19 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
   };
 
   const getStatusLabel = (status: string) => {
-    return status.replace(/_/g, ' ').toUpperCase();
+    switch (status) {
+      case 'in_progress':
+        return 'SEDANG DIPROSES';
+      case 'pending_start':
+        return 'MENUNGGU DIMULAI';
+      case 'completed':
+      case 'harvested':
+        return 'SELESAI';
+      case 'failed':
+        return 'GAGAL';
+      default:
+        return status.replace(/_/g, ' ').toUpperCase();
+    }
   };
 
   return (
@@ -68,7 +82,7 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
           <Stack spacing={1}>
             <Heading size="md">{batch.name}</Heading>
             <Text fontSize="sm" color="gray.600">
-              Started {formatDistanceToNow(startDate, { addSuffix: true })}
+              Dimulai {formatDistanceToNow(startDate, { addSuffix: true, locale: id })}
             </Text>
           </Stack>
           <Badge colorScheme={getStatusColor(batch.status)}>
@@ -84,32 +98,32 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
           <Box>
             <HStack justifyContent="space-between" mb={2}>
               <Text fontSize="sm" fontWeight="medium">
-                Fermentation Progress
+                Progres Fermentasi
               </Text>
               <Text fontSize="sm" color="gray.600">
-                Day {Math.max(0, elapsedDays)} of {totalDays}
+                Hari ke-{Math.max(0, elapsedDays)} dari {totalDays}
               </Text>
             </HStack>
-            <Progress value={progressPercent} colorScheme="green" size="sm" />
+            <Progress value={progressPercent} colorScheme="green" size="sm" borderRadius="md" />
           </Box>
 
           <Stack spacing={2} fontSize="sm">
             <HStack justifyContent="space-between">
-              <Text color="gray.600">Waste Input:</Text>
+              <Text color="gray.600">Bahan Baku (Sampah):</Text>
               <Text fontWeight="medium">{batch.waste_weight_kg} kg</Text>
             </HStack>
             <HStack justifyContent="space-between">
-              <Text color="gray.600">Water Required:</Text>
+              <Text color="gray.600">Kebutuhan Air:</Text>
               <Text fontWeight="medium">{batch.water_liters} L</Text>
             </HStack>
             <HStack justifyContent="space-between">
-              <Text color="gray.600">Sugar Required:</Text>
+              <Text color="gray.600">Kebutuhan Gula:</Text>
               <Text fontWeight="medium">{batch.sugar_kg} kg</Text>
             </HStack>
             <HStack justifyContent="space-between">
-              <Text color="gray.600">Expected Harvest:</Text>
+              <Text color="gray.600">Perkiraan Panen:</Text>
               <Text fontWeight="medium">
-                {formatDistanceToNow(harvestDate, { addSuffix: true })}
+                {formatDistanceToNow(harvestDate, { addSuffix: true, locale: id })}
               </Text>
             </HStack>
           </Stack>
@@ -124,7 +138,7 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
                 onClick={onLogClick}
                 _hover={{ bg: '#2a8a42' }}
               >
-                Add Fermentation Log
+                Tambah Catatan Fermentasi
               </Button>
               <Button
                 bg="blue.500"
@@ -133,7 +147,7 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
                 onClick={onRecommendationClick}
                 _hover={{ bg: 'blue.600' }}
               >
-                Get Product Recommendations
+                Dapatkan Rekomendasi Produk
               </Button>
               <Button
                 bg="purple.500"
@@ -142,7 +156,7 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
                 onClick={onAnalysisClick}
                 _hover={{ bg: 'purple.600' }}
               >
-                Business Analysis
+                Analisis Bisnis
               </Button>
             </Stack>
           )}

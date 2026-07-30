@@ -24,8 +24,12 @@ import {
   VStack,
   HStack,
   Badge,
+  Image,
+  Icon,
+  IconButton
 } from '@chakra-ui/react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
+import { FiUpload, FiX } from 'react-icons/fi';
 import apiClient from '@/lib/api';
 
 interface Batch {
@@ -63,6 +67,12 @@ export default function FermentationLogModal({
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [prediction, setPrediction] = useState<Record<string, unknown> | null>(null);
+  
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const toast = useToast();
 
   const resetForm = useCallback(() => {
@@ -73,7 +83,70 @@ export default function FermentationLogModal({
     setTemperature('25');
     setNotes('');
     setPrediction(null);
+    setSelectedImage(null);
+    setImagePreviewUrl(null);
+    if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
   }, []);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'Image too large',
+          description: 'Please select an image smaller than 5MB',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
+        return;
+      }
+      
+      setSelectedImage(file);
+      setImagePreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const clearImage = () => {
+    setSelectedImage(null);
+    setImagePreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!selectedImage) return null;
+    
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', selectedImage);
+      
+      const response = await apiClient.post('/api/v1/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return response.data.data.url;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: 'Upload Failed',
+        description: 'Failed to upload the image. Proceeding with log creation without image.',
+        status: 'warning',
+        duration: 5000,
+        isClosable: true,
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +163,12 @@ export default function FermentationLogModal({
 
     try {
       setLoading(true);
+      
+      let uploadedImageUrl = null;
+      if (selectedImage) {
+        uploadedImageUrl = await uploadImage();
+      }
+
       const response = await apiClient.post(
         `/api/v1/batches/${batch.id}/logs`,
         {
@@ -99,6 +178,7 @@ export default function FermentationLogModal({
           gas_presence: gasPresence,
           temperature_c: parseFloat(temperature),
           notes,
+          image_url: uploadedImageUrl || undefined
         }
       );
 
@@ -191,6 +271,62 @@ export default function FermentationLogModal({
                   <NumberInputField />
                 </NumberInput>
               </FormControl>
+              
+              <FormControl>
+                <FormLabel>Observation Photo</FormLabel>
+                <Box
+                  border="2px dashed"
+                  borderColor="gray.300"
+                  borderRadius="md"
+                  p={4}
+                  textAlign="center"
+                  cursor="pointer"
+                  onClick={() => !imagePreviewUrl && fileInputRef.current?.click()}
+                  _hover={!imagePreviewUrl ? { borderColor: 'green.400', bg: 'gray.50' } : {}}
+                  position="relative"
+                  transition="all 0.2s"
+                >
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    display="none"
+                    onChange={handleImageChange}
+                  />
+                  
+                  {imagePreviewUrl ? (
+                    <Box position="relative">
+                      <Image 
+                        src={imagePreviewUrl} 
+                        alt="Preview" 
+                        maxH="200px" 
+                        mx="auto" 
+                        borderRadius="md" 
+                      />
+                      <IconButton
+                        aria-label="Remove image"
+                        icon={<FiX />}
+                        size="sm"
+                        colorScheme="red"
+                        position="absolute"
+                        top={-2}
+                        right={-2}
+                        borderRadius="full"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          clearImage();
+                        }}
+                      />
+                    </Box>
+                  ) : (
+                    <VStack spacing={2} color="gray.500">
+                      <Icon as={FiUpload} boxSize={6} />
+                      <Text>Click to upload a photo</Text>
+                      <Text fontSize="xs">PNG, JPG up to 5MB</Text>
+                    </VStack>
+                  )}
+                </Box>
+              </FormControl>
 
               <FormControl>
                 <FormLabel>Notes</FormLabel>
@@ -239,14 +375,15 @@ export default function FermentationLogModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
+            <Button variant="ghost" mr={3} onClick={onClose} isDisabled={loading || isUploading}>
               Cancel
             </Button>
             <Button
               type="submit"
               bg="#34A853"
               color="white"
-              isLoading={loading}
+              isLoading={loading || isUploading}
+              loadingText={isUploading ? "Uploading..." : "Recording..."}
               _hover={{ bg: '#2a8a42' }}
             >
               Record Log
