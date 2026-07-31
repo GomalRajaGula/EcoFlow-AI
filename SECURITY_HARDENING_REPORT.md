@@ -88,9 +88,9 @@ except Exception as e:
 
 ---
 
-#### 4. Missing Rate Limiting
-**File:** Entire API  
-**Issue:** No protection against brute force, DoS attacks
+#### 4. Rate Limiting
+**File:** `backend/app/main.py`
+**Status:** Implemented with an in-memory per-IP request window. Requests exceeding 60 per minute receive HTTP 429. Production deployments should replace this with a shared Redis-backed limiter.
 ```python
 # ADD THIS (Rate limiting middleware)
 from slowapi import Limiter
@@ -110,9 +110,9 @@ async def upload_image(...):
 
 ### HIGH SEVERITY ISSUES
 
-#### 5. Missing CSRF Protection
+#### 5. CSRF Strategy
 **File:** All POST endpoints  
-**Issue:** No CSRF token validation
+**Status:** The API authenticates with Firebase bearer tokens in the Authorization header rather than cookie sessions, so browser CSRF tokens are not used. CORS only permits configured frontend origins. If cookie authentication is introduced, add synchronizer-token protection before enabling it.
 ```python
 # ADD THIS (CSRF protection)
 from fastapi.middleware.csrf import CsrfProtectMiddleware
@@ -169,9 +169,9 @@ class FermentationBatchCreate(BaseModel):
 
 ---
 
-#### 10. Missing Security Headers
+#### 10. Security Headers
 **File:** `backend/app/main.py`  
-**Issue:** No HTTP security headers
+**Status:** Implemented with TrustedHost, X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, HSTS, and Content-Security-Policy headers.
 
 ```python
 # ADD THIS (Security headers)
@@ -192,9 +192,9 @@ async def add_security_headers(request, call_next):
 
 ---
 
-#### 11. Missing Logging & Monitoring
-**File:** Entire application  
-**Issue:** No audit trail for sensitive operations
+#### 11. Logging & Monitoring
+**File:** `backend/app/main.py`
+**Status:** Security-sensitive upload, batch, and fermentation-log events are logged. Production monitoring with centralized structured logs and metrics remains recommended.
 ```python
 # ADD THIS (Structured logging)
 import logging

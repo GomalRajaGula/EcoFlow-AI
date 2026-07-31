@@ -127,15 +127,21 @@ npm run dev
 9. Responsive UI (Chakra UI)
 10. Landing page with feature showcase
 
-### ⏳ Not Yet Implemented (Post-MVP)
-- Image upload for fermentation logs
-- Advanced ML models (currently rule-based)
-- PDF report generation
-- Admin/community dashboard
-- PostgreSQL (using SQLite for dev)
-- MinIO for object storage
-- Adaptive roadmap
-- Environmental impact calculations
+### ⏳ Remaining Post-MVP Work
+- Advanced ML models and model management
+- Offline synchronization improvements
+- Regional market data integrations
+- Full content versioning and roadmap tutorial management
+- Production observability and deployment automation
+
+### ✅ Implemented Post-MVP Features
+- Image upload for fermentation logs using MinIO
+- PDF business and roadmap report generation
+- Admin/community dashboard with trends and engagement metrics
+- PostgreSQL migration with Alembic
+- Adaptive roadmap progress tracking
+- Environmental impact calculations using 1.9 kg CO₂e avoided per kg waste
+- WCAG accessibility improvements and automated Playwright smoke tests
 
 ---
 

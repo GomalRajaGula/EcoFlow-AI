@@ -151,17 +151,19 @@ export default function BusinessAnalysisModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent maxH="90vh" overflowY="auto" bg="slate-800" borderColor="slate-700">
-        <ModalHeader color="gray-100">Analisis Bisnis</ModalHeader>
-        <ModalCloseButton color="gray-300" />
-        <form onSubmit={handleSubmit}>
+      <ModalContent maxH="90vh" overflowY="auto" bg="slate-800" borderColor="slate-700" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+        <ModalHeader id="business-analysis-title" color="gray.100">Analisis Bisnis</ModalHeader>
+        <ModalCloseButton aria-label="Tutup dialog analisis bisnis" color="gray.300" />
+        <form onSubmit={handleSubmit} aria-label="Form analisis bisnis">
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel color="gray-300">Nama Produk</FormLabel>
+                <FormLabel htmlFor="business-product-name" color="gray-300">Nama Produk</FormLabel>
                 <Input
+                  id="business-product-name"
+                  name="productName"
                   placeholder="Misal, Pembersih Eco-Enzyme"
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
@@ -173,9 +175,12 @@ export default function BusinessAnalysisModal({
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel color="gray-300">Volume Produksi (Liter)</FormLabel>
+                <FormLabel htmlFor="production-volume" color="gray-300">Volume Produksi (Liter)</FormLabel>
                 <Input
+                  id="production-volume"
+                  name="productionVolume"
                   type="number"
+                  min={0.1}
                   placeholder="Misal, 100"
                   value={productionVolume}
                   onChange={(e) => setProductionVolume(e.target.value)}
@@ -189,8 +194,10 @@ export default function BusinessAnalysisModal({
 
               <HStack spacing={4}>
                 <FormControl>
-                  <FormLabel color="gray-300">Target Pasar</FormLabel>
-                  <Select 
+                  <FormLabel htmlFor="target-market" color="gray-300">Target Pasar</FormLabel>
+                  <Select
+                    id="target-market"
+                    name="targetMarket"
                     value={targetMarket} 
                     onChange={(e) => setTargetMarket(e.target.value)}
                     bg="slate-700"
@@ -204,8 +211,10 @@ export default function BusinessAnalysisModal({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel color="gray-300">Jenis Kemasan</FormLabel>
-                  <Select 
+                  <FormLabel htmlFor="packaging-type" color="gray-300">Jenis Kemasan</FormLabel>
+                  <Select
+                    id="packaging-type"
+                    name="packagingType"
                     value={packagingType} 
                     onChange={(e) => setPackagingType(e.target.value)}
                     bg="slate-700"
@@ -220,8 +229,10 @@ export default function BusinessAnalysisModal({
               </HStack>
 
               <FormControl>
-                <FormLabel color="gray-300">Jalur Distribusi</FormLabel>
-                <Select 
+                <FormLabel htmlFor="distribution-channel" color="gray-300">Jalur Distribusi</FormLabel>
+                <Select
+                  id="distribution-channel"
+                  name="distributionChannel"
                   value={distributionChannel} 
                   onChange={(e) => setDistributionChannel(e.target.value)}
                   bg="slate-700"
@@ -241,8 +252,10 @@ export default function BusinessAnalysisModal({
                 <Text fontWeight="bold" color="gray-100">Struktur Biaya</Text>
                 <HStack w="100%" spacing={2}>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm" color="gray-300">Bahan Baku (Rp)</FormLabel>
+                    <FormLabel htmlFor="raw-material-cost" fontSize="sm" color="gray-300">Bahan Baku (Rp)</FormLabel>
                     <Input
+                      id="raw-material-cost"
+                      name="rawMaterialCost"
                       type="number"
                       placeholder="0"
                       value={rawMaterialCost}
@@ -255,8 +268,10 @@ export default function BusinessAnalysisModal({
                     />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm" color="gray-300">Kemasan (Rp)</FormLabel>
+                    <FormLabel htmlFor="packaging-cost" fontSize="sm" color="gray-300">Kemasan (Rp)</FormLabel>
                     <Input
+                      id="packaging-cost"
+                      name="packagingCost"
                       type="number"
                       placeholder="0"
                       value={packagingCost}
@@ -272,8 +287,10 @@ export default function BusinessAnalysisModal({
 
                 <HStack w="100%" spacing={2}>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm" color="gray-300">Tenaga Kerja (Rp)</FormLabel>
+                    <FormLabel htmlFor="labor-cost" fontSize="sm" color="gray-300">Tenaga Kerja (Rp)</FormLabel>
                     <Input
+                      id="labor-cost"
+                      name="laborCost"
                       type="number"
                       placeholder="0"
                       value={laborCost}
@@ -286,8 +303,10 @@ export default function BusinessAnalysisModal({
                     />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm" color="gray-300">Biaya Operasional (Rp)</FormLabel>
+                    <FormLabel htmlFor="overhead-cost" fontSize="sm" color="gray-300">Biaya Operasional (Rp)</FormLabel>
                     <Input
+                      id="overhead-cost"
+                      name="overheadCost"
                       type="number"
                       placeholder="0"
                       value={overheadCost}
@@ -302,8 +321,10 @@ export default function BusinessAnalysisModal({
                 </HStack>
 
                 <FormControl isRequired w="50%">
-                  <FormLabel fontSize="sm" color="gray-300">Biaya Tetap Bulanan (Rp)</FormLabel>
+                  <FormLabel htmlFor="monthly-fixed-costs" fontSize="sm" color="gray-300">Biaya Tetap Bulanan (Rp)</FormLabel>
                   <Input
+                    id="monthly-fixed-costs"
+                    name="monthlyFixedCosts"
                     type="number"
                     placeholder="0"
                     value={monthlyFixedCosts}
@@ -360,7 +381,7 @@ export default function BusinessAnalysisModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={handleClose} color="gray-300">
+            <Button type="button" variant="ghost" mr={3} onClick={handleClose} color="gray-300">
               {analysis ? 'Tutup' : 'Batal'}
             </Button>
             {!analysis && (

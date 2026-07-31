@@ -102,6 +102,30 @@ export default function RoadmapModal({
     };
   }, [isOpen, batchId, productTemplateId, toast, roadmap]);
 
+  const handleDownloadReport = async () => {
+    try {
+      const response = await apiClient.get(`/api/v1/batches/${batchId}/roadmap/report`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `roadmap-batch-${batchId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast({
+        title: 'Gagal mengunduh',
+        description: err.response?.data?.detail || 'Laporan roadmap tidak dapat diunduh',
+        status: 'error',
+        isClosable: true,
+      });
+    }
+  };
+
   const handleStepToggle = async (stepIndex: number, completed: boolean) => {
     if (!roadmap) return;
 
@@ -149,18 +173,18 @@ export default function RoadmapModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent maxH="90vh" overflowY="auto">
-        <ModalHeader>
+      <ModalContent aria-labelledby="roadmap-title" maxH="90vh" overflowY="auto" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+        <ModalHeader id="roadmap-title">
           <HStack justifyContent="space-between">
-            <Text>Processing Roadmap</Text>
+            <Text>Roadmap Pemrosesan</Text>
             <Badge colorScheme={getStatusColor(roadmap?.status || 'not_started')}>
               {roadmap?.status || 'Loading'}
             </Badge>
           </HStack>
         </ModalHeader>
-        <ModalCloseButton />
+        <ModalCloseButton aria-label="Tutup dialog roadmap" />
         <ModalBody>
           {loading ? (
             <Text>Loading roadmap...</Text>
@@ -168,7 +192,7 @@ export default function RoadmapModal({
             <Stack spacing={6}>
               <Box>
                 <HStack justifyContent="space-between" mb={2}>
-                  <Text fontWeight="bold">Progress</Text>
+                  <Text fontWeight="bold">Progres</Text>
                   <Text fontSize="sm" color="gray.600">
                     {roadmap.completed_steps} / {roadmap.total_steps} steps
                   </Text>
@@ -183,9 +207,10 @@ export default function RoadmapModal({
                 </Text>
               </Box>
 
-              <VStack spacing={4} align="stretch">
+              <VStack as="ul" listStyleType="none" spacing={4} align="stretch">
                 {roadmap.steps.map((step, index) => (
                   <Box
+                    as="li"
                     key={index}
                     borderWidth="1px"
                     borderRadius="md"
@@ -195,12 +220,14 @@ export default function RoadmapModal({
                   >
                     <HStack spacing={3} mb={2}>
                       <Checkbox
+                        id={`step-${index}`}
                         isChecked={step.completed}
                         onChange={(e) => handleStepToggle(index, e.target.checked)}
                         isDisabled={updating}
+                        aria-labelledby={`step-label-${index}`}
                       />
-                      <VStack align="start" spacing={0} flex={1}>
-                        <Text fontWeight="bold" textDecoration={step.completed ? 'line-through' : 'none'}>
+                      <VStack as="label" htmlFor={`step-${index}`} cursor="pointer" align="start" spacing={0} flex={1}>
+                        <Text id={`step-label-${index}`} fontWeight="bold" textDecoration={step.completed ? 'line-through' : 'none'}>
                           {index + 1}. {step.title}
                         </Text>
                         <Text fontSize="sm" color="gray.600">
@@ -232,11 +259,17 @@ export default function RoadmapModal({
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="ghost" onClick={handleClose}>
-            Close
+          <Button type="button" variant="ghost" onClick={handleClose}>
+            Tutup
           </Button>
+          {roadmap && (
+            <Button type="button" variant="outline" ml={3} onClick={handleDownloadReport}>
+              Unduh Checklist PDF
+            </Button>
+          )}
           {roadmap?.status === 'completed' && (
             <Button
+              type="button"
               bg="#34A853"
               color="white"
               ml={3}

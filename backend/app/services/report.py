@@ -58,6 +58,52 @@ class ReportService:
         }
 
     @staticmethod
+    def generate_roadmap_pdf(batch_id: int, roadmap_data: dict) -> bytes:
+        buffer = io.BytesIO()
+        pdf = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        y = height - 50
+
+        pdf.setFont("Helvetica-Bold", 16)
+        pdf.drawString(50, y, "Processing Roadmap Checklist")
+        y -= 24
+        pdf.setFont("Helvetica", 10)
+        pdf.drawString(50, y, f"Batch ID: {batch_id}")
+        y -= 20
+        pdf.drawString(50, y, f"Product: {roadmap_data.get('template_name', 'Eco-Enzyme Product')}")
+        y -= 28
+
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(50, y, "Steps")
+        pdf.setFont("Helvetica", 10)
+        for index, step in enumerate(roadmap_data.get("steps", []), start=1):
+            y -= 20
+            if y < 70:
+                pdf.showPage()
+                y = height - 50
+                pdf.setFont("Helvetica", 10)
+            marker = "[x]" if step.get("completed") else "[ ]"
+            pdf.drawString(50, y, f"{marker} {index}. {step.get('title', '')}")
+            y -= 14
+            pdf.drawString(68, y, str(step.get("description", ""))[:110])
+            y -= 14
+            pdf.drawString(68, y, str(step.get("details", ""))[:110])
+
+        y -= 20
+        if y < 70:
+            pdf.showPage()
+            y = height - 50
+        pdf.setFont("Helvetica-Bold", 10)
+        pdf.drawString(50, y, "Safety warnings")
+        pdf.setFont("Helvetica", 10)
+        y -= 16
+        pdf.drawString(50, y, str(roadmap_data.get("safety_warnings", "Follow safe handling practices."))[:130])
+        pdf.showPage()
+        pdf.save()
+        buffer.seek(0)
+        return buffer.getvalue()
+
+    @staticmethod
     def generate_roadmap_report(batch_id: int, roadmap_data: dict) -> dict:
         timestamp = datetime.now(timezone.utc).isoformat()
         

@@ -1,9 +1,13 @@
 from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from datetime import datetime
+from collections import defaultdict, deque
 import logging
+import time
+import re
 from app.core.database import get_db, engine, Base
 from app.core.auth import get_current_user
 from app.models.base import User, FermentationBatch, FermentationLog, ProductTemplate
@@ -45,6 +49,25 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Content-Security-Policy"] = "default-src 'self'"
     return response
+
+RATE_LIMIT = 60
+rate_buckets: dict[str, deque[float]] = defaultdict(deque)
+
+@app.middleware("http")
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.client.host if request.client else "unknown"
+    now = time.time()
+    bucket = rate_buckets[client_ip]
+    # remove entries older than 1 minute
+    while bucket and bucket[0] <= now - 60:
+        bucket.popleft()
+    if len(bucket) >= RATE_LIMIT:
+        return JSONResponse(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            content={"detail": "Rate limit exceeded"},
+        )
+    bucket.append(now)
+    return await call_next(request)
 
 
 app.include_router(rec_router)

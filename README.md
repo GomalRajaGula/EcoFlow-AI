@@ -290,27 +290,30 @@ Baca [CONTRIBUTING.md](./CONTRIBUTING.md) untuk panduan berkontribusi.
 - [x] Dashboard UI
 
 ### 🔄 P1 Features (Q4 2026)
-- [ ] Admin dashboard untuk monitoring multi-user
-- [ ] PDF export untuk laporan bisnis
-- [ ] Environmental impact metrics (CO₂ diverted)
+- [x] Admin dashboard untuk monitoring multi-user
+- [x] PDF export untuk laporan bisnis dan roadmap
+- [x] Environmental impact metrics (CO₂ diverted)
+- [x] Community monitoring trends dan engagement
+- [x] Content CRUD untuk product templates
 - [ ] Community batch sharing & tips
-- [ ] Advanced analytics & insights
+- [ ] Regional market data integration
 
 ### 🎯 P2 Features (Q1 2027)
 - [ ] Mobile app (React Native)
-- [ ] Adaptive roadmap recommendations
-- [ ] ML model optimization
-- [ ] Market price integration
+- [ ] ML model optimization dan retraining
+- [ ] Offline sync lanjutan
 - [ ] Multi-language support
+- [ ] Advanced analytics & insights
 
 ---
 
 ## 🐛 Known Issues & Limitations
 
 1. **Firebase Setup**: Memerlukan credentials file (setup manual di cloud)
-2. **Auth Token**: Development mode menggunakan dummy Firebase config
-3. **Database**: SQLite for dev, perlu migrate ke PostgreSQL untuk production
-4. **AI Model**: Rule-based classifier, akan diganti ML model di fase P1
+2. **Auth Token**: Firebase ID token wajib tersedia untuk endpoint terproteksi
+3. **Database**: PostgreSQL tersedia melalui Docker Compose dan Alembic
+4. **AI Model**: Rule-based classifier; advanced ML dijadwalkan untuk post-launch
+5. **Offline Sync**: Catatan dapat diantrikan di browser dan disinkronkan saat koneksi kembali
 
 ---
 

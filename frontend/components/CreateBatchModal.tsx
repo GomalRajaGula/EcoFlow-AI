@@ -81,33 +81,41 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md">
+    <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Create New Batch</ModalHeader>
-        <ModalCloseButton />
-        <form onSubmit={handleSubmit}>
+      <ModalContent
+        as="section"
+        aria-labelledby="create-batch-title"
+        w={{ base: 'calc(100% - 2rem)', md: '100%' }}
+      >
+        <ModalHeader id="create-batch-title">Buat Batch Baru</ModalHeader>
+        <ModalCloseButton aria-label="Tutup dialog buat batch" />
+        <form onSubmit={handleSubmit} aria-label="Form buat batch fermentasi">
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel>Batch Name</FormLabel>
+                <FormLabel htmlFor="batch-name">Nama Batch</FormLabel>
                 <Input
-                  placeholder="e.g., Kitchen Waste Batch 1"
+                  id="batch-name"
+                  name="batchName"
+                  placeholder="Misal, Batch Sampah Dapur 1"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel>Waste Weight (kg)</FormLabel>
-                <NumberInput value={wasteWeight} onChange={setWasteWeight}>
-                  <NumberInputField placeholder="e.g., 10" />
+                <FormLabel htmlFor="waste-weight">Berat Limbah (kg)</FormLabel>
+                <NumberInput value={wasteWeight} onChange={setWasteWeight} min={0}>
+                  <NumberInputField id="waste-weight" name="wasteWeight" placeholder="Misal, 10" />
                 </NumberInput>
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel>Start Date</FormLabel>
+                <FormLabel htmlFor="start-date">Tanggal Mulai</FormLabel>
                 <Input
+                  id="start-date"
+                  name="startDate"
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
@@ -117,8 +125,8 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose}>
-              Cancel
+            <Button type="button" variant="ghost" mr={3} onClick={onClose}>
+              Batal
             </Button>
             <Button
               type="submit"
@@ -127,7 +135,7 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
               isLoading={loading}
               _hover={{ bg: '#2a8a42' }}
             >
-              Create Batch
+              Buat Batch
             </Button>
           </ModalFooter>
         </form>

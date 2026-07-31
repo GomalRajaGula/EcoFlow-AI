@@ -31,6 +31,7 @@ import {
 import { useState, useCallback, useRef } from 'react';
 import { FiUpload, FiX } from 'react-icons/fi';
 import apiClient from '@/lib/api';
+import { enqueueFermentationLog } from '@/lib/offline-queue';
 
 interface Batch {
   id: number;
@@ -169,18 +170,16 @@ export default function FermentationLogModal({
         uploadedImageUrl = await uploadImage();
       }
 
-      const response = await apiClient.post(
-        `/api/v1/batches/${batch.id}/logs`,
-        {
-          log_date: new Date(logDate).toISOString(),
-          aroma,
-          color,
-          gas_presence: gasPresence,
-          temperature_c: parseFloat(temperature),
-          notes,
-          image_url: uploadedImageUrl || undefined
-        }
-      );
+      const payload = {
+        log_date: new Date(logDate).toISOString(),
+        aroma,
+        color,
+        gas_presence: gasPresence,
+        temperature_c: parseFloat(temperature),
+        notes,
+        image_url: uploadedImageUrl || undefined,
+      };
+      const response = await apiClient.post(`/api/v1/batches/${batch.id}/logs`, payload);
 
       setPrediction(response.data.data);
 
@@ -198,29 +197,51 @@ export default function FermentationLogModal({
       }, 1500);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
-      toast({
-        title: 'Error',
-        description: err.response?.data?.detail || 'Gagal membuat catatan',
-        status: 'error',
-        isClosable: true,
-      });
+      if (!navigator.onLine && !err.response) {
+        enqueueFermentationLog(batch.id, {
+          log_date: new Date(logDate).toISOString(),
+          aroma,
+          color,
+          gas_presence: gasPresence,
+          temperature_c: parseFloat(temperature),
+          notes,
+        });
+        toast({
+          title: 'Disimpan offline',
+          description: 'Catatan akan disinkronkan saat koneksi kembali.',
+          status: 'info',
+          isClosable: true,
+        });
+        resetForm();
+        onSuccess();
+        onClose();
+      } else {
+        toast({
+          title: 'Error',
+          description: err.response?.data?.detail || 'Gagal membuat catatan',
+          status: 'error',
+          isClosable: true,
+        });
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={() => { resetForm(); onClose(); }} size="lg">
+    <Modal isOpen={isOpen} onClose={() => { resetForm(); onClose(); }} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent bg="slate-800" borderColor="slate-700">
-        <ModalHeader color="gray-100">Catatan Fermentasi - {batch.name}</ModalHeader>
-        <ModalCloseButton color="gray-300" />
-        <form onSubmit={handleSubmit}>
+      <ModalContent bg="slate-800" borderColor="slate-700" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+        <ModalHeader id="fermentation-log-title" color="gray-100">Catatan Fermentasi - {batch.name}</ModalHeader>
+        <ModalCloseButton aria-label="Tutup dialog catatan fermentasi" color="gray.300" />
+        <form onSubmit={handleSubmit} aria-label="Form catatan fermentasi">
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel color="gray-300">Tanggal Pencatatan</FormLabel>
+                <FormLabel htmlFor="log-date" color="gray-300">Tanggal Pencatatan</FormLabel>
                 <Input
+                  id="log-date"
+                  name="logDate"
                   type="date"
                   value={logDate}
                   onChange={(e) => setLogDate(e.target.value)}
@@ -231,8 +252,10 @@ export default function FermentationLogModal({
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel color="gray-300">Aroma</FormLabel>
-                <Select 
+                <FormLabel htmlFor="aroma" color="gray-300">Aroma</FormLabel>
+                <Select
+                  id="aroma"
+                  name="aroma"
                   value={aroma} 
                   onChange={(e) => setAroma(e.target.value)}
                   bg="slate-700"
@@ -250,8 +273,10 @@ export default function FermentationLogModal({
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel color="gray-300">Warna</FormLabel>
-                <Select 
+                <FormLabel htmlFor="color" color="gray-300">Warna</FormLabel>
+                <Select
+                  id="color"
+                  name="color"
                   value={color} 
                   onChange={(e) => setColor(e.target.value)}
                   bg="slate-700"
@@ -273,6 +298,8 @@ export default function FermentationLogModal({
 
               <FormControl display="flex" alignItems="center">
                 <Checkbox
+                  id="gas-presence"
+                  name="gasPresence"
                   isChecked={gasPresence}
                   onChange={(e) => setGasPresence(e.target.checked)}
                   colorScheme="green"
@@ -282,9 +309,11 @@ export default function FermentationLogModal({
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel color="gray-300">Suhu (°C)</FormLabel>
-                <NumberInput value={temperature} onChange={setTemperature}>
-                  <NumberInputField 
+                <FormLabel htmlFor="temperature" color="gray-300">Suhu (°C)</FormLabel>
+                <NumberInput value={temperature} onChange={setTemperature} min={-50} max={100}>
+                  <NumberInputField
+                    id="temperature"
+                    name="temperature"
                     bg="slate-700"
                     borderColor="slate-600"
                     color="gray-100"
@@ -293,7 +322,7 @@ export default function FermentationLogModal({
               </FormControl>
               
               <FormControl>
-                <FormLabel color="gray-300">Foto Observasi</FormLabel>
+                <FormLabel htmlFor="observation-photo" color="gray-300">Foto Observasi</FormLabel>
                 <Box
                   border="2px dashed"
                   borderColor="slate-600"
@@ -308,6 +337,8 @@ export default function FermentationLogModal({
                   bg="slate-800"
                 >
                   <Input
+                    id="observation-photo"
+                    name="observationPhoto"
                     type="file"
                     accept="image/*"
                     ref={fileInputRef}
@@ -352,8 +383,10 @@ export default function FermentationLogModal({
               </FormControl>
 
               <FormControl>
-                <FormLabel color="gray-300">Catatan</FormLabel>
+                <FormLabel htmlFor="notes" color="gray-300">Catatan</FormLabel>
                 <Textarea
+                  id="notes"
+                  name="notes"
                   placeholder="Tambahan observasi lainnya..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -409,6 +442,7 @@ export default function FermentationLogModal({
 
           <ModalFooter>
             <Button 
+              type="button"
               variant="ghost" 
               mr={3} 
               onClick={() => { resetForm(); onClose(); }}

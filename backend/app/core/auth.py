@@ -16,6 +16,13 @@ async def get_current_user(
     token = credentials.credentials
     decoded_token = verify_token(token)
     user_id = decoded_token.get("uid")
+    token_email = decoded_token.get("email")
+
+    if not isinstance(user_id, str) or not user_id.strip():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication claims",
+        )
 
     user = db.query(User).filter(User.id == user_id).first()
     if not user:

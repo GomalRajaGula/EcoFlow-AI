@@ -101,55 +101,58 @@ export default function ProductRecommendationModal({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Product Recommendations</ModalHeader>
-        <ModalCloseButton />
-        <form onSubmit={handleSubmit}>
+      <ModalContent w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+        <ModalHeader id="product-recommendations-title">Rekomendasi Produk</ModalHeader>
+        <ModalCloseButton aria-label="Tutup dialog rekomendasi produk" />
+        <form onSubmit={handleSubmit} aria-label="Form rekomendasi produk">
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel>Harvest Volume (Liters)</FormLabel>
+                <FormLabel htmlFor="harvest-volume">Volume Panen (Liter)</FormLabel>
                 <Input
+                  id="harvest-volume"
+                  name="harvestVolume"
                   type="number"
-                  placeholder="e.g., 5.5"
+                  min={0.1}
+                  step="0.1"
+                  placeholder="Misal, 5.5"
                   value={harvestVolume}
                   onChange={(e) => setHarvestVolume(e.target.value)}
-                  step="0.1"
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel>Final Color</FormLabel>
-                <Select value={finalColor} onChange={(e) => setFinalColor(e.target.value)}>
-                  <option value="light_brown">Light Brown</option>
-                  <option value="dark_brown">Dark Brown</option>
+                <FormLabel htmlFor="final-color">Warna Akhir</FormLabel>
+                <Select id="final-color" name="finalColor" value={finalColor} onChange={(e) => setFinalColor(e.target.value)}>
+                  <option value="light_brown">Cokelat Muda</option>
+                  <option value="dark_brown">Cokelat Gelap</option>
                   <option value="amber">Amber</option>
                 </Select>
               </FormControl>
 
               <FormControl>
-                <FormLabel>Aroma Intensity</FormLabel>
-                <Select value={aromaIntensity} onChange={(e) => setAromaIntensity(e.target.value)}>
-                  <option value="mild">Mild</option>
-                  <option value="medium">Medium</option>
-                  <option value="strong">Strong</option>
+                <FormLabel htmlFor="aroma-intensity">Intensitas Aroma</FormLabel>
+                <Select id="aroma-intensity" name="aromaIntensity" value={aromaIntensity} onChange={(e) => setAromaIntensity(e.target.value)}>
+                  <option value="mild">Ringan</option>
+                  <option value="medium">Sedang</option>
+                  <option value="strong">Kuat</option>
                 </Select>
               </FormControl>
 
               <FormControl>
-                <FormLabel>Intent</FormLabel>
-                <Select value={userIntent} onChange={(e) => setUserIntent(e.target.value)}>
-                  <option value="household">Household Use</option>
-                  <option value="commercial">Commercial</option>
+                <FormLabel htmlFor="user-intent">Tujuan Penggunaan</FormLabel>
+                <Select id="user-intent" name="userIntent" value={userIntent} onChange={(e) => setUserIntent(e.target.value)}>
+                  <option value="household">Penggunaan Rumah Tangga</option>
+                  <option value="commercial">Komersial</option>
                 </Select>
               </FormControl>
 
               {recommendations && (
                 <Box borderTop="1px" borderColor="gray.200" pt={4}>
                   <Text fontWeight="bold" mb={3}>
-                    Recommended Products:
+                    Produk yang Direkomendasikan:
                   </Text>
                   <VStack spacing={3} align="start">
                     {recommendations.map((rec: Record<string, unknown>, idx: number) => (
@@ -159,7 +162,7 @@ export default function ProductRecommendationModal({
                           <Badge colorScheme="green">#{idx + 1}</Badge>
                         </HStack>
                         <Text fontSize="sm" color="gray.600">
-                          Score: {Number(rec.compatibility_score).toFixed(2)}
+                          Skor kecocokan: {Number(rec.compatibility_score).toFixed(2)}
                         </Text>
                         {Boolean(rec.processing_instruction_summary) && (
                           <Text fontSize="sm" mt={2} color="gray.700">
@@ -175,8 +178,8 @@ export default function ProductRecommendationModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={handleClose}>
-              {recommendations ? 'Close' : 'Cancel'}
+            <Button type="button" variant="ghost" mr={3} onClick={handleClose}>
+              {recommendations ? 'Tutup' : 'Batal'}
             </Button>
             {!recommendations && (
               <Button
@@ -186,11 +189,12 @@ export default function ProductRecommendationModal({
                 isLoading={loading}
                 _hover={{ bg: '#2a8a42' }}
               >
-                Get Recommendations
+                Dapatkan Rekomendasi
               </Button>
             )}
             {recommendations && (
               <Button
+                type="button"
                 bg="#34A853"
                 color="white"
                 onClick={() => {
@@ -199,7 +203,7 @@ export default function ProductRecommendationModal({
                 }}
                 _hover={{ bg: '#2a8a42' }}
               >
-                Continue to Analysis
+                Lanjut ke Analisis
               </Button>
             )}
           </ModalFooter>

@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import Optional, List
 
 class UserBase(BaseModel):
-    email: str
-    name: str
+    email: str = Field(min_length=3, max_length=254)
+    name: str = Field(min_length=1, max_length=100)
 
 class UserCreate(UserBase):
     pass
@@ -19,8 +19,8 @@ class User(UserBase):
         from_attributes = True
 
 class FermentationBatchBase(BaseModel):
-    name: str
-    waste_weight_kg: float = Field(gt=0, description="Waste weight must be positive")
+    name: str = Field(min_length=1, max_length=100)
+    waste_weight_kg: float = Field(gt=0, le=100000, description="Waste weight must be positive")
 
 class FermentationBatchCreate(FermentationBatchBase):
     start_date: datetime
@@ -47,12 +47,12 @@ class FermentationBatch(FermentationBatchBase):
 
 class FermentationLogBase(BaseModel):
     log_date: datetime
-    aroma: str
-    color: str
+    aroma: str = Field(min_length=1, max_length=50)
+    color: str = Field(min_length=1, max_length=50)
     gas_presence: bool
     temperature_c: float = Field(ge=-50, le=100, description="Temperature must be between -50 and 100 Celsius")
-    notes: Optional[str] = None
-    image_url: Optional[str] = None
+    notes: Optional[str] = Field(None, max_length=2000)
+    image_url: Optional[str] = Field(None, max_length=500)
 
 class FermentationLogCreate(FermentationLogBase):
     pass
@@ -69,14 +69,27 @@ class FermentationLog(FermentationLogBase):
         from_attributes = True
 
 class ProductTemplateBase(BaseModel):
-    name: str
-    description: str
-    processing_instructions: str
-    ingredients: dict
-    equipment: dict
-    time_estimate_hours: float = Field(gt=0, description="Time estimate must be positive")
-    safety_warnings: str
+    name: str = Field(min_length=1, max_length=120)
+    description: str = Field(min_length=1, max_length=2000)
+    processing_instructions: str = Field(min_length=1, max_length=5000)
+    ingredients: List[str] = Field(default_factory=list, max_length=50)
+    equipment: List[str] = Field(default_factory=list, max_length=50)
+    time_estimate_hours: float = Field(gt=0, le=10000, description="Time estimate must be positive")
+    safety_warnings: str = Field(min_length=1, max_length=2000)
     base_compatibility_score: float = Field(default=0.5, ge=0, le=1)
+
+class ProductTemplateCreate(ProductTemplateBase):
+    pass
+
+class ProductTemplateUpdate(BaseModel):
+    name: Optional[str] = Field(None, min_length=1, max_length=120)
+    description: Optional[str] = Field(None, min_length=1, max_length=2000)
+    processing_instructions: Optional[str] = Field(None, min_length=1, max_length=5000)
+    ingredients: Optional[List[str]] = Field(None, max_length=50)
+    equipment: Optional[List[str]] = Field(None, max_length=50)
+    time_estimate_hours: Optional[float] = Field(None, gt=0, le=10000)
+    safety_warnings: Optional[str] = Field(None, min_length=1, max_length=2000)
+    base_compatibility_score: Optional[float] = Field(None, ge=0, le=1)
 
 class ProductTemplate(ProductTemplateBase):
     id: int

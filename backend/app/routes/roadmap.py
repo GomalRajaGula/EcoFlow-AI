@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models.base import User, FermentationBatch, ProductTemplate, RoadmapProgress
 from app.schemas.base import APIResponse, RoadmapCreate, RoadmapUpdate
 from app.services.roadmap import RoadmapService
+from app.services.report import ReportService
 
 router = APIRouter(prefix="/api/v1", tags=["roadmap"])
 
@@ -69,6 +70,32 @@ async def get_roadmap(
     return APIResponse(
         status="success",
         data=RoadmapService.get_progress_summary(roadmap)
+    )
+
+@router.get("/batches/{batch_id}/roadmap/report")
+async def download_roadmap_report(
+    batch_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    roadmap = db.query(RoadmapProgress).filter(
+        RoadmapProgress.batch_id == batch_id,
+        RoadmapProgress.user_id == current_user.id,
+    ).first()
+    if not roadmap:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Roadmap not found")
+    content = ReportService.generate_roadmap_pdf(
+        batch_id,
+        {
+            "template_name": roadmap.template.name if roadmap.template else "Eco-Enzyme Product",
+            "steps": roadmap.steps_json,
+            "safety_warnings": roadmap.template.safety_warnings if roadmap.template else "Follow safe handling practices.",
+        },
+    )
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="roadmap-batch-{batch_id}.pdf"'},
     )
 
 @router.put("/batches/{batch_id}/roadmap/steps/{step_index}", response_model=APIResponse)

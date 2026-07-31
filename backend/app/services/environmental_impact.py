@@ -1,5 +1,5 @@
 class EnvironmentalImpactService:
-    CO2_PER_KG_WASTE = 2.5
+    CO2_PER_KG_WASTE = 1.9
     METHANE_PER_KG_WASTE = 0.06
     WATER_SAVED_PER_KG = 5.0
     EQUIVALENT_TREES_PER_TON_CO2 = 45

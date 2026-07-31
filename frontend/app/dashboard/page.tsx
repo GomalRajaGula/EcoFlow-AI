@@ -10,6 +10,7 @@ import FermentationLogModal from '@/components/FermentationLogModal';
 import ProductRecommendationModal from '@/components/ProductRecommendationModal';
 import BusinessAnalysisModal from '@/components/BusinessAnalysisModal';
 import RoadmapModal from '@/components/RoadmapModal';
+import { subscribeToOnlineSync, syncPendingFermentationLogs } from '@/lib/offline-queue';
 
 interface Batch {
   id: number;
@@ -77,6 +78,19 @@ export default function DashboardPage() {
     };
   }, [user, authLoading, router]);
 
+  useEffect(() => {
+    if (authLoading || !user) return;
+    const sync = () => {
+      syncPendingFermentationLogs().then((synced) => {
+        if (synced > 0) {
+          loadBatches().then(setBatches).catch(() => undefined);
+        }
+      });
+    };
+    sync();
+    return subscribeToOnlineSync(sync);
+  }, [user, authLoading]);
+
   const refreshBatches = async () => {
     try {
       setLoadingBatches(true);
@@ -125,6 +139,12 @@ export default function DashboardPage() {
 
   return (
     <div className="flex h-screen bg-slate-900">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-3 focus:text-slate-900"
+      >
+        Lewati ke konten utama
+      </a>
       <Sidebar sidebarOpen={sidebarOpen} onSignOut={handleSignOut} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -135,7 +155,7 @@ export default function DashboardPage() {
           userEmail={user?.email || ''}
         />
 
-        <main className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6">
+        <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6 focus:outline-none">
           <GreetingBanner 
             userName={user?.displayName || 'User'} 
             onCreateBatch={() => setShowCreateModal(true)}
@@ -299,7 +319,7 @@ function Sidebar({ sidebarOpen, onSignOut }: { sidebarOpen: boolean; onSignOut: 
         </div>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2">
+      <nav aria-label="Navigasi utama" className="flex-1 px-4 py-6 space-y-2">
         <NavItem 
           label="Dasbor"
           icon="📊"
@@ -317,8 +337,10 @@ function Sidebar({ sidebarOpen, onSignOut }: { sidebarOpen: boolean; onSignOut: 
 
       <div className="p-4 border-t border-slate-700">
         <button
+          type="button"
+          aria-label="Keluar dari akun"
           onClick={onSignOut}
-          className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
+          className="min-h-11 w-full py-2 px-4 bg-red-600 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white text-white rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
         >
           <span>🚪</span>
           {sidebarOpen && <span>Keluar</span>}
@@ -343,8 +365,11 @@ function NavItem({
 }) {
   return (
     <button
+      type="button"
+      aria-current={active ? 'page' : undefined}
+      aria-label={label}
       onClick={onClick}
-      className={`w-full py-3 px-4 rounded-lg transition-colors flex items-center gap-3 text-sm font-medium ${
+      className={`min-h-11 w-full py-3 px-4 rounded-lg transition-colors flex items-center gap-3 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-300 ${
         active
           ? 'bg-gradient-to-r from-orange-500 to-green-500 text-white'
           : 'text-gray-300 hover:bg-slate-700'
@@ -370,10 +395,13 @@ function Navbar({
   return (
     <nav className={`bg-slate-800 border-b border-slate-700 transition-all duration-300 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between md:justify-between`}>
       <button
+        type="button"
+        aria-label="Buka atau tutup navigasi"
+        aria-expanded={sidebarOpen}
         onClick={onToggleSidebar}
-        className="p-2 hover:bg-slate-700 rounded-lg transition-colors md:hidden"
+        className="min-h-11 min-w-11 p-2 hover:bg-slate-700 rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-300 md:hidden"
       >
-        <span className="text-2xl text-gray-300">☰</span>
+        <span aria-hidden="true" className="text-2xl text-gray-300">☰</span>
       </button>
 
       <div className="hidden md:flex items-center gap-4 ml-auto">
@@ -406,18 +434,19 @@ function GreetingBanner({
   onCreateBatch: () => void;
 }) {
   return (
-    <div className="bg-gradient-to-r from-orange-500 via-green-500 to-teal-500 rounded-xl p-8 text-white shadow-lg">
-      <h1 className="text-3xl font-bold mb-2">Halo {userName} 👋</h1>
+    <section aria-labelledby="greeting-title" className="bg-gradient-to-r from-orange-500 via-green-500 to-teal-500 rounded-xl p-6 md:p-8 text-white shadow-lg">
+      <h1 id="greeting-title" className="text-2xl md:text-3xl font-bold mb-2">Halo {userName} <span aria-hidden="true">👋</span></h1>
       <p className="text-lg mb-6 opacity-95">
         Selamat datang di Dasbor Eco-Enzyme Anda! Pantau produksi dan lihat insight di sini.
       </p>
       <button
+        type="button"
         onClick={onCreateBatch}
-        className="px-6 py-2 bg-white text-orange-600 font-bold rounded-lg hover:bg-gray-100 transition-colors"
+        className="min-h-11 px-6 py-2 bg-white text-orange-600 font-bold rounded-lg hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-colors"
       >
         Mulai Batch Baru
       </button>
-    </div>
+    </section>
   );
 }
 
