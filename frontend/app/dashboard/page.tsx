@@ -2,22 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Box,
-  Button,
-  Container,
-  Heading,
-  Stack,
-  Text,
-  useToast,
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Spinner,
-  Center,
-} from '@chakra-ui/react';
 import { useAuth } from '@/lib/auth-context';
 import apiClient from '@/lib/api';
 import CreateBatchModal from '@/components/CreateBatchModal';
@@ -25,6 +9,7 @@ import BatchCard from '@/components/BatchCard';
 import FermentationLogModal from '@/components/FermentationLogModal';
 import ProductRecommendationModal from '@/components/ProductRecommendationModal';
 import BusinessAnalysisModal from '@/components/BusinessAnalysisModal';
+import RoadmapModal from '@/components/RoadmapModal';
 
 interface Batch {
   id: number;
@@ -51,9 +36,11 @@ export default function DashboardPage() {
   const [showLogModal, setShowLogModal] = useState(false);
   const [showRecommendationModal, setShowRecommendationModal] = useState(false);
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [showRoadmapModal, setShowRoadmapModal] = useState(false);
+  const [selectedProductTemplateId, setSelectedProductTemplateId] = useState<number | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
-  const toast = useToast();
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -66,27 +53,29 @@ export default function DashboardPage() {
     hasFetched.current = true;
 
     let cancelled = false;
+    setLoadingBatches(true);
+
     loadBatches()
       .then((data) => {
-        if (!cancelled) setBatches(data);
+        if (!cancelled) {
+          setBatches(data);
+        }
       })
       .catch((error: unknown) => {
         if (!cancelled) {
-          const err = error as { response?: { data?: { detail?: string } } };
-          toast({
-            title: 'Error',
-            description: err.response?.data?.detail || 'Gagal memuat data batch',
-            status: 'error',
-            isClosable: true,
-          });
+          console.error('Failed to load batches:', error);
         }
       })
       .finally(() => {
-        if (!cancelled) setLoadingBatches(false);
+        if (!cancelled) {
+          setLoadingBatches(false);
+        }
       });
 
-    return () => { cancelled = true; };
-  }, [user, authLoading, router, toast]);
+    return () => {
+      cancelled = true;
+    };
+  }, [user, authLoading, router]);
 
   const refreshBatches = async () => {
     try {
@@ -94,13 +83,7 @@ export default function DashboardPage() {
       const data = await loadBatches();
       setBatches(data);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { detail?: string } } };
-      toast({
-        title: 'Error',
-        description: err.response?.data?.detail || 'Gagal memuat data batch',
-        status: 'error',
-        isClosable: true,
-      });
+      console.error('Failed to refresh batches:', error);
     } finally {
       setLoadingBatches(false);
     }
@@ -109,140 +92,146 @@ export default function DashboardPage() {
   const handleCreateBatch = async () => {
     await refreshBatches();
     setShowCreateModal(false);
-    toast({
-      title: 'Berhasil',
-      description: 'Batch berhasil dibuat',
-      status: 'success',
-      isClosable: true,
-    });
   };
 
   const handleLogCreated = async () => {
     await refreshBatches();
     setShowLogModal(false);
     setSelectedBatch(null);
-    toast({
-      title: 'Berhasil',
-      description: 'Catatan fermentasi berhasil disimpan',
-      status: 'success',
-      isClosable: true,
-    });
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
       router.push('/login');
-    } catch {
-      toast({
-        title: 'Error',
-        description: 'Gagal keluar (sign out)',
-        status: 'error',
-        isClosable: true,
-      });
+    } catch (error) {
+      console.error('Sign out failed:', error);
     }
   };
 
   const activeBatches = batches.filter(b => b.status !== 'harvested');
   const completedBatches = batches.filter(b => b.status === 'harvested');
+  const totalWasteDivertedKg = batches.reduce((sum, batch) => sum + batch.waste_weight_kg, 0);
+  const co2ConversionFactor = 1.9;
+  const totalCO2AvoidedKg = totalWasteDivertedKg * co2ConversionFactor;
 
   if (authLoading) {
     return (
-      <Center minH="100vh">
-        <Spinner color="#34A853" size="xl" />
-      </Center>
+      <div className="flex items-center justify-center min-h-screen bg-slate-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      </div>
     );
   }
 
   return (
-    <Container maxW="6xl" py={8}>
-      <Stack spacing={8}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Heading size="lg" color="#34A853">
-            Dasbor EcoFlow
-          </Heading>
-          <Button
-            colorScheme="gray"
-            size="sm"
-            onClick={handleSignOut}
-          >
-            Keluar
-          </Button>
-        </Box>
+    <div className="flex h-screen bg-slate-900">
+      <Sidebar sidebarOpen={sidebarOpen} onSignOut={handleSignOut} />
 
-        <Box>
-          <Button
-            bg="#34A853"
-            color="white"
-            onClick={() => setShowCreateModal(true)}
-            _hover={{ bg: '#2a8a42' }}
-          >
-            Buat Batch Fermentasi Baru
-          </Button>
-        </Box>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Navbar 
+          sidebarOpen={sidebarOpen} 
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          userName={user?.displayName || 'User'}
+          userEmail={user?.email || ''}
+        />
 
-        {loadingBatches ? (
-          <Center py={20}>
-            <Spinner color="#34A853" size="lg" />
-          </Center>
-        ) : (
-          <Tabs defaultIndex={0} colorScheme="green">
-            <TabList>
-              <Tab>Batch Aktif ({activeBatches.length})</Tab>
-              <Tab>Selesai ({completedBatches.length})</Tab>
-            </TabList>
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6">
+          <GreetingBanner 
+            userName={user?.displayName || 'User'} 
+            onCreateBatch={() => setShowCreateModal(true)}
+          />
 
-            <TabPanels>
-              <TabPanel>
-                {activeBatches.length === 0 ? (
-                  <Text color="gray.500" textAlign="center" py={10}>
-                    Tidak ada batch aktif. Buat satu untuk memulai!
-                  </Text>
-                ) : (
-                  <Stack spacing={4}>
-                    {activeBatches.map((batch) => (
-                      <BatchCard
-                        key={batch.id}
-                        batch={batch}
-                        onLogClick={() => {
-                          setSelectedBatch(batch);
-                          setShowLogModal(true);
-                        }}
-                        onRecommendationClick={() => {
-                          setSelectedBatch(batch);
-                          setShowRecommendationModal(true);
-                        }}
-                        onAnalysisClick={() => {
-                          setSelectedBatch(batch);
-                          setShowAnalysisModal(true);
-                        }}
-                      />
-                    ))}
-                  </Stack>
-                )}
-              </TabPanel>
+          <div className="mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
+            <StatCard 
+              label="Total Batch"
+              value={batches.length}
+              icon="📦"
+            />
+            <StatCard 
+              label="Batch Aktif"
+              value={activeBatches.length}
+              icon="⚙️"
+            />
+            <StatCard 
+              label="Batch Selesai"
+              value={completedBatches.length}
+              icon="✅"
+            />
+          </div>
 
-              <TabPanel>
-                {completedBatches.length === 0 ? (
-                  <Text color="gray.500" textAlign="center" py={10}>
-                    Belum ada batch yang selesai.
-                  </Text>
-                ) : (
-                  <Stack spacing={4}>
-                    {completedBatches.map((batch) => (
-                      <BatchCard
-                        key={batch.id}
-                        batch={batch}
-                        isCompleted={true}
-                      />
-                    ))}
-                  </Stack>
-                )}
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        )}
-      </Stack>
+          <div className="mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+            <StatCard 
+              label="Total Limbah Diproses"
+              value={`${totalWasteDivertedKg.toFixed(2)} kg`}
+              icon="♻️"
+            />
+            <StatCard 
+              label="CO₂ Dihindari (estimasi)"
+              value={`${totalCO2AvoidedKg.toFixed(2)} kg`}
+              icon="🌍"
+              highlight
+            />
+          </div>
+
+          <div className="mt-6 md:mt-8">
+            <h2 className="text-lg md:text-xl font-bold text-gray-100 mb-4">Batch Aktif</h2>
+            {loadingBatches ? (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-500"></div>
+              </div>
+            ) : activeBatches.length === 0 ? (
+              <div className="text-center py-12 bg-slate-800 rounded-xl border border-slate-700">
+                <p className="text-gray-400 text-sm md:text-base">Tidak ada batch aktif. Buat satu untuk memulai!</p>
+              </div>
+            ) : (
+              <div className="space-y-3 md:space-y-4">
+                {activeBatches.map((batch) => (
+                  <BatchCard
+                    key={batch.id}
+                    batch={batch}
+                    onLogClick={() => {
+                      setSelectedBatch(batch);
+                      setShowLogModal(true);
+                    }}
+                    onRecommendationClick={() => {
+                      setSelectedBatch(batch);
+                      setShowRecommendationModal(true);
+                    }}
+                    onRoadmapClick={() => {
+                      setSelectedBatch(batch);
+                      setSelectedProductTemplateId(1);
+                      setShowRoadmapModal(true);
+                    }}
+                    onAnalysisClick={() => {
+                      setSelectedBatch(batch);
+                      setShowAnalysisModal(true);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="mt-6 md:mt-8">
+            <h2 className="text-lg md:text-xl font-bold text-gray-100 mb-4">Batch Selesai</h2>
+            {completedBatches.length === 0 ? (
+              <div className="text-center py-12 bg-slate-800 rounded-xl border border-slate-700">
+                <p className="text-gray-400 text-sm md:text-base">Belum ada batch yang selesai.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 md:space-y-4">
+                {completedBatches.map((batch) => (
+                  <BatchCard
+                    key={batch.id}
+                    batch={batch}
+                    isCompleted={true}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
 
       <CreateBatchModal
         isOpen={showCreateModal}
@@ -282,6 +271,184 @@ export default function DashboardPage() {
           }}
         />
       )}
-    </Container>
+
+      {selectedBatch && selectedProductTemplateId && (
+        <RoadmapModal
+          isOpen={showRoadmapModal}
+          onClose={() => setShowRoadmapModal(false)}
+          batchId={selectedBatch.id}
+          productTemplateId={selectedProductTemplateId}
+          onSuccess={() => {
+            refreshBatches();
+            setShowRoadmapModal(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function Sidebar({ sidebarOpen, onSignOut }: { sidebarOpen: boolean; onSignOut: () => void }) {
+  const router = useRouter();
+
+  return (
+    <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-slate-800 border-r border-slate-700 transition-all duration-300 flex flex-col fixed h-full z-40 hidden md:flex`}>
+      <div className="p-4 border-b border-slate-700">
+        <div className="flex items-center justify-center h-10 bg-gradient-to-r from-orange-500 to-green-500 rounded-lg">
+          {sidebarOpen && <span className="text-white font-bold">EcoFlow</span>}
+        </div>
+      </div>
+
+      <nav className="flex-1 px-4 py-6 space-y-2">
+        <NavItem 
+          label="Dasbor"
+          icon="📊"
+          onClick={() => router.push('/dashboard')}
+          sidebarOpen={sidebarOpen}
+          active
+        />
+        <NavItem 
+          label="Admin"
+          icon="⚙️"
+          onClick={() => router.push('/admin')}
+          sidebarOpen={sidebarOpen}
+        />
+      </nav>
+
+      <div className="p-4 border-t border-slate-700">
+        <button
+          onClick={onSignOut}
+          className="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
+        >
+          <span>🚪</span>
+          {sidebarOpen && <span>Keluar</span>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function NavItem({
+  label,
+  icon,
+  onClick,
+  sidebarOpen,
+  active = false,
+}: {
+  label: string;
+  icon: string;
+  onClick: () => void;
+  sidebarOpen: boolean;
+  active?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full py-3 px-4 rounded-lg transition-colors flex items-center gap-3 text-sm font-medium ${
+        active
+          ? 'bg-gradient-to-r from-orange-500 to-green-500 text-white'
+          : 'text-gray-300 hover:bg-slate-700'
+      }`}
+    >
+      <span className="text-lg">{icon}</span>
+      {sidebarOpen && <span>{label}</span>}
+    </button>
+  );
+}
+
+function Navbar({
+  sidebarOpen,
+  onToggleSidebar,
+  userName,
+  userEmail,
+}: {
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
+  userName: string;
+  userEmail: string;
+}) {
+  return (
+    <nav className={`bg-slate-800 border-b border-slate-700 transition-all duration-300 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between md:justify-between`}>
+      <button
+        onClick={onToggleSidebar}
+        className="p-2 hover:bg-slate-700 rounded-lg transition-colors md:hidden"
+      >
+        <span className="text-2xl text-gray-300">☰</span>
+      </button>
+
+      <div className="hidden md:flex items-center gap-4 ml-auto">
+        <div className="text-right">
+          <p className="text-sm font-medium text-gray-100">{userName}</p>
+          <p className="text-xs text-gray-400">{userEmail}</p>
+        </div>
+        <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-green-500 rounded-full flex items-center justify-center">
+          <span className="text-white font-bold text-sm">{userName.charAt(0).toUpperCase()}</span>
+        </div>
+      </div>
+
+      <div className="flex md:hidden items-center gap-2">
+        <div className="text-right">
+          <p className="text-xs font-medium text-gray-100">{userName.split(' ')[0]}</p>
+        </div>
+        <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-green-500 rounded-full flex items-center justify-center">
+          <span className="text-white font-bold text-xs">{userName.charAt(0).toUpperCase()}</span>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+function GreetingBanner({
+  userName,
+  onCreateBatch,
+}: {
+  userName: string;
+  onCreateBatch: () => void;
+}) {
+  return (
+    <div className="bg-gradient-to-r from-orange-500 via-green-500 to-teal-500 rounded-xl p-8 text-white shadow-lg">
+      <h1 className="text-3xl font-bold mb-2">Halo {userName} 👋</h1>
+      <p className="text-lg mb-6 opacity-95">
+        Selamat datang di Dasbor Eco-Enzyme Anda! Pantau produksi dan lihat insight di sini.
+      </p>
+      <button
+        onClick={onCreateBatch}
+        className="px-6 py-2 bg-white text-orange-600 font-bold rounded-lg hover:bg-gray-100 transition-colors"
+      >
+        Mulai Batch Baru
+      </button>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  icon,
+  highlight = false,
+}: {
+  label: string;
+  value: string | number;
+  icon: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl p-6 shadow-lg border transition-all ${
+        highlight
+          ? 'bg-gradient-to-br from-green-600 to-teal-600 border-green-500 text-white'
+          : 'bg-slate-800 border-slate-700 text-gray-100'
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className={`text-sm font-medium ${highlight ? 'text-green-100' : 'text-gray-400'}`}>
+            {label}
+          </p>
+          <p className="text-3xl font-bold mt-2">{value}</p>
+        </div>
+        <span className="text-5xl opacity-20">{icon}</span>
+      </div>
+    </div>
   );
 }

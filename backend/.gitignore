@@ -1,0 +1,19 @@
+# Sensitive files & secrets
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+client_secret_*.json
+.env
+.env.*
+!.env.example
+firebase-credentials.json
+
+# Python environment
+venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.db
+*.sqlite
+*.sqlite3

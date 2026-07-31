@@ -96,8 +96,8 @@ export default function FermentationLogModal({
       
       if (file.size > 5 * 1024 * 1024) {
         toast({
-          title: 'Image too large',
-          description: 'Please select an image smaller than 5MB',
+          title: 'Gambar terlalu besar',
+          description: 'Pilih gambar kurang dari 5MB',
           status: 'error',
           duration: 3000,
           isClosable: true,
@@ -136,8 +136,8 @@ export default function FermentationLogModal({
     } catch (error) {
       console.error('Error uploading image:', error);
       toast({
-        title: 'Upload Failed',
-        description: 'Failed to upload the image. Proceeding with log creation without image.',
+        title: 'Gagal mengunggah',
+        description: 'Melanjutkan pembuatan catatan tanpa gambar.',
         status: 'warning',
         duration: 5000,
         isClosable: true,
@@ -153,8 +153,8 @@ export default function FermentationLogModal({
 
     if (!logDate || !temperature) {
       toast({
-        title: 'Validation Error',
-        description: 'Please fill in all required fields',
+        title: 'Validasi Error',
+        description: 'Isi semua field yang diperlukan',
         status: 'error',
         isClosable: true,
       });
@@ -185,8 +185,8 @@ export default function FermentationLogModal({
       setPrediction(response.data.data);
 
       toast({
-        title: 'Success',
-        description: 'Fermentation log recorded',
+        title: 'Berhasil',
+        description: 'Catatan fermentasi berhasil disimpan',
         status: 'success',
         isClosable: true,
       });
@@ -200,7 +200,7 @@ export default function FermentationLogModal({
       const err = error as { response?: { data?: { detail?: string } } };
       toast({
         title: 'Error',
-        description: err.response?.data?.detail || 'Failed to create log',
+        description: err.response?.data?.detail || 'Gagal membuat catatan',
         status: 'error',
         isClosable: true,
       });
@@ -212,47 +212,62 @@ export default function FermentationLogModal({
   return (
     <Modal isOpen={isOpen} onClose={() => { resetForm(); onClose(); }} size="lg">
       <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Log Fermentation Progress - {batch.name}</ModalHeader>
-        <ModalCloseButton />
+      <ModalContent bg="slate-800" borderColor="slate-700">
+        <ModalHeader color="gray-100">Catatan Fermentasi - {batch.name}</ModalHeader>
+        <ModalCloseButton color="gray-300" />
         <form onSubmit={handleSubmit}>
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel>Log Date</FormLabel>
+                <FormLabel color="gray-300">Tanggal Pencatatan</FormLabel>
                 <Input
                   type="date"
                   value={logDate}
                   onChange={(e) => setLogDate(e.target.value)}
+                  bg="slate-700"
+                  borderColor="slate-600"
+                  color="gray-100"
                 />
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel>Aroma</FormLabel>
-                <Select value={aroma} onChange={(e) => setAroma(e.target.value)}>
-                  <option value="sweet">Sweet</option>
-                  <option value="sour">Sour</option>
-                  <option value="fruity">Fruity</option>
-                  <option value="slightly_rotten">Slightly Rotten</option>
-                  <option value="strongly_rotten">Strongly Rotten</option>
-                  <option value="moldy">Moldy</option>
-                  <option value="unusual">Unusual</option>
+                <FormLabel color="gray-300">Aroma</FormLabel>
+                <Select 
+                  value={aroma} 
+                  onChange={(e) => setAroma(e.target.value)}
+                  bg="slate-700"
+                  borderColor="slate-600"
+                  color="gray-100"
+                >
+                  <option value="sweet" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Manis</option>
+                  <option value="sour" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Asam</option>
+                  <option value="fruity" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Buah-buahan</option>
+                  <option value="slightly_rotten" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Sedikit Busuk</option>
+                  <option value="strongly_rotten" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Sangat Busuk</option>
+                  <option value="moldy" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Jamur</option>
+                  <option value="unusual" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Tidak Biasa</option>
                 </Select>
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel>Color</FormLabel>
-                <Select value={color} onChange={(e) => setColor(e.target.value)}>
-                  <option value="brown">Brown</option>
-                  <option value="dark_brown">Dark Brown</option>
-                  <option value="light_brown">Light Brown</option>
-                  <option value="amber">Amber</option>
-                  <option value="gold">Gold</option>
-                  <option value="honey">Honey</option>
-                  <option value="unexpected_shift">Unexpected Shift</option>
-                  <option value="black">Black</option>
-                  <option value="green">Green</option>
-                  <option value="white_mold">White Mold</option>
+                <FormLabel color="gray-300">Warna</FormLabel>
+                <Select 
+                  value={color} 
+                  onChange={(e) => setColor(e.target.value)}
+                  bg="slate-700"
+                  borderColor="slate-600"
+                  color="gray-100"
+                >
+                  <option value="brown" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Cokelat</option>
+                  <option value="dark_brown" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Cokelat Gelap</option>
+                  <option value="light_brown" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Cokelat Muda</option>
+                  <option value="amber" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Amber</option>
+                  <option value="gold" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Emas</option>
+                  <option value="honey" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Madu</option>
+                  <option value="unexpected_shift" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Perubahan Warna Aneh</option>
+                  <option value="black" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Hitam</option>
+                  <option value="green" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Hijau</option>
+                  <option value="white_mold" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Jamur Putih</option>
                 </Select>
               </FormControl>
 
@@ -260,31 +275,37 @@ export default function FermentationLogModal({
                 <Checkbox
                   isChecked={gasPresence}
                   onChange={(e) => setGasPresence(e.target.checked)}
+                  colorScheme="green"
                 >
-                  Gas Bubbles Present
+                  <Text color="gray-300">Terdapat Gelembung Gas</Text>
                 </Checkbox>
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel>Temperature (°C)</FormLabel>
+                <FormLabel color="gray-300">Suhu (°C)</FormLabel>
                 <NumberInput value={temperature} onChange={setTemperature}>
-                  <NumberInputField />
+                  <NumberInputField 
+                    bg="slate-700"
+                    borderColor="slate-600"
+                    color="gray-100"
+                  />
                 </NumberInput>
               </FormControl>
               
               <FormControl>
-                <FormLabel>Observation Photo</FormLabel>
+                <FormLabel color="gray-300">Foto Observasi</FormLabel>
                 <Box
                   border="2px dashed"
-                  borderColor="gray.300"
+                  borderColor="slate-600"
                   borderRadius="md"
                   p={4}
                   textAlign="center"
                   cursor="pointer"
                   onClick={() => !imagePreviewUrl && fileInputRef.current?.click()}
-                  _hover={!imagePreviewUrl ? { borderColor: 'green.400', bg: 'gray.50' } : {}}
+                  _hover={!imagePreviewUrl ? { borderColor: 'green.400', bg: 'slate-700' } : {}}
                   position="relative"
                   transition="all 0.2s"
+                  bg="slate-800"
                 >
                   <Input
                     type="file"
@@ -300,49 +321,61 @@ export default function FermentationLogModal({
                         src={imagePreviewUrl} 
                         alt="Preview" 
                         maxH="200px" 
-                        mx="auto" 
-                        borderRadius="md" 
+                        mx="auto"
+                        borderRadius="md"
                       />
                       <IconButton
                         aria-label="Remove image"
                         icon={<FiX />}
+                        position="absolute"
+                        top={2}
+                        right={2}
                         size="sm"
                         colorScheme="red"
-                        position="absolute"
-                        top={-2}
-                        right={-2}
-                        borderRadius="full"
                         onClick={(e) => {
                           e.stopPropagation();
                           clearImage();
                         }}
+                        isDisabled={isUploading}
                       />
                     </Box>
                   ) : (
-                    <VStack spacing={2} color="gray.500">
-                      <Icon as={FiUpload} boxSize={6} />
-                      <Text>Click to upload a photo</Text>
-                      <Text fontSize="xs">PNG, JPG up to 5MB</Text>
+                    <VStack spacing={2}>
+                      <Icon as={FiUpload} fontSize="2xl" color="gray-500" />
+                      <Text color="gray-400" fontSize="sm">
+                        Klik untuk mengunggah foto
+                      </Text>
+                      <Text fontSize="xs" color="gray-500">PNG, JPG maksimal 5MB</Text>
                     </VStack>
                   )}
                 </Box>
               </FormControl>
 
               <FormControl>
-                <FormLabel>Notes</FormLabel>
+                <FormLabel color="gray-300">Catatan</FormLabel>
                 <Textarea
-                  placeholder="Any additional observations..."
+                  placeholder="Tambahan observasi lainnya..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
+                  bg="slate-700"
+                  borderColor="slate-600"
+                  color="gray-100"
+                  _placeholder={{ color: 'gray-500' }}
                   rows={3}
                 />
               </FormControl>
 
               {prediction && (
-                <Box p={4} bg="blue.50" borderRadius="md" borderLeft="4px" borderLeftColor="blue.400">
+                <Box 
+                  bg="slate-700" 
+                  p={4} 
+                  borderRadius="lg" 
+                  borderLeft="4px"
+                  borderLeftColor="green.500"
+                >
                   <VStack align="start" spacing={2}>
                      <HStack>
-                       <Text fontWeight="bold">Status:</Text>
+                       <Text fontWeight="bold" color="gray-100">Status:</Text>
                        <Badge colorScheme={
                          String(prediction.ai_status_prediction) === 'Normal' ? 'green' :
                          String(prediction.ai_status_prediction) === 'Caution' ? 'orange' :
@@ -352,20 +385,20 @@ export default function FermentationLogModal({
                        </Badge>
                      </HStack>
                      <HStack>
-                       <Text fontWeight="bold">Confidence:</Text>
-                       <Text>{(Number(prediction.ai_confidence_score) * 100).toFixed(0)}%</Text>
+                       <Text fontWeight="bold" color="gray-100">Confidence:</Text>
+                       <Text color="gray-300">{(Number(prediction.ai_confidence_score) * 100).toFixed(0)}%</Text>
                      </HStack>
                      <HStack>
-                       <Text fontWeight="bold">Health Score:</Text>
-                       <Text>{Number(prediction.health_score)}/100</Text>
+                       <Text fontWeight="bold" color="gray-100">Health Score:</Text>
+                       <Text color="gray-300">{Number(prediction.health_score)}/100</Text>
                      </HStack>
                      <Box>
-                       <Text fontWeight="bold" mb={1}>Suggestion:</Text>
-                       <Text fontSize="sm">{String(prediction.corrective_action_suggestion)}</Text>
+                       <Text fontWeight="bold" mb={1} color="gray-100">Saran:</Text>
+                       <Text fontSize="sm" color="gray-300">{String(prediction.corrective_action_suggestion)}</Text>
                      </Box>
                      {Boolean(prediction.harvest_alert_triggered) && (
                        <Badge colorScheme="purple" mt={2}>
-                         🌾 Harvest Ready Alert!
+                         🌾 Siap Panen!
                        </Badge>
                      )}
                   </VStack>
@@ -375,18 +408,24 @@ export default function FermentationLogModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onClose} isDisabled={loading || isUploading}>
-              Cancel
+            <Button 
+              variant="ghost" 
+              mr={3} 
+              onClick={() => { resetForm(); onClose(); }}
+              color="gray-300"
+              isDisabled={loading || isUploading}
+            >
+              Batal
             </Button>
             <Button
               type="submit"
               bg="#34A853"
               color="white"
               isLoading={loading || isUploading}
-              loadingText={isUploading ? "Uploading..." : "Recording..."}
+              loadingText={isUploading ? "Mengunggah..." : "Menyimpan..."}
               _hover={{ bg: '#2a8a42' }}
             >
-              Record Log
+              Simpan Catatan
             </Button>
           </ModalFooter>
         </form>

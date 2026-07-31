@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
+from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime
+import logging
 from app.core.database import get_db, engine, Base
 from app.core.auth import get_current_user
 from app.models.base import User, FermentationBatch, FermentationLog, ProductTemplate
@@ -18,17 +20,32 @@ from app.routes.impact import router as impact_router
 from app.routes.roadmap import router as roadmap_router
 from app.routes.admin import router as admin_router
 
+logger = logging.getLogger(__name__)
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="EcoFlow API", version="0.1.0")
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Content-Type", "Authorization"],
 )
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    return response
+
 
 app.include_router(rec_router)
 app.include_router(impact_router)
@@ -42,11 +59,23 @@ async def upload_image(
     current_user: User = Depends(get_current_user)
 ):
     try:
-        # Validate file type
-        if not file.content_type.startswith("image/"):
-            raise HTTPException(status_code=400, detail="File must be an image")
+        ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
+        MAX_FILE_SIZE = 5 * 1024 * 1024
+        ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
+        
+        if file.content_type not in ALLOWED_MIME_TYPES:
+            logger.warning(f"Rejected upload: invalid MIME type {file.content_type} from user {current_user.id}")
+            raise HTTPException(status_code=400, detail="Only JPEG, PNG, WebP images allowed")
+        
+        if file.size and file.size > MAX_FILE_SIZE:
+            raise HTTPException(status_code=413, detail="File too large (max 5MB)")
+        
+        file_ext = file.filename.split('.')[-1].lower() if file.filename else ""
+        if file_ext not in ALLOWED_EXTENSIONS:
+            raise HTTPException(status_code=400, detail="Invalid file extension")
             
         url = await upload_file_to_storage(file, folder=f"users/{current_user.id}/logs")
+        logger.info(f"Image uploaded successfully", extra={"user_id": current_user.id, "file_name": file.filename})
         
         return APIResponse(
             status="success",
@@ -56,7 +85,8 @@ async def upload_image(
     except HTTPException as e:
         raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Upload error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="File upload failed")
 
 @app.on_event("startup")
 def seed_product_templates():
@@ -105,6 +135,8 @@ async def create_batch(
         db.commit()
         db.refresh(new_batch)
         
+        logger.info(f"Batch created", extra={"user_id": current_user.id, "batch_id": new_batch.id})
+        
         return APIResponse(
             status="success",
             message="Batch created successfully",
@@ -116,8 +148,12 @@ async def create_batch(
                 "expected_harvest_date": new_batch.harvest_date.isoformat()
             }
         )
+    except ValueError as e:
+        logger.warning(f"Validation error: {str(e)}", extra={"user_id": current_user.id})
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid input parameters")
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        logger.error(f"Batch creation error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to create batch")
 
 @app.get("/api/v1/batches", response_model=APIResponse)
 async def list_batches(
@@ -227,6 +263,8 @@ async def create_fermentation_log(
         db.commit()
         db.refresh(new_log)
         
+        logger.info(f"Fermentation log created", extra={"user_id": current_user.id, "batch_id": batch_id, "log_id": new_log.id})
+        
         return APIResponse(
             status="success",
             message="Log recorded successfully",
@@ -241,8 +279,12 @@ async def create_fermentation_log(
                 "incubation_day": incubation_day
             }
         )
+    except ValueError as e:
+        logger.warning(f"Validation error in log: {str(e)}", extra={"user_id": current_user.id})
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid log parameters")
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+        logger.error(f"Log creation error: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to create log")
 
 @app.get("/api/v1/batches/{batch_id}/logs", response_model=APIResponse)
 async def get_batch_logs(

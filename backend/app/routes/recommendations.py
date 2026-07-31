@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from app.core.database import get_db
@@ -7,6 +7,7 @@ from app.models.base import User, FermentationBatch, FermentationLog, ProductRec
 from app.schemas.base import APIResponse
 from app.services.product_recommendation import ProductRecommendationService
 from app.services.business_analysis import BusinessAnalysisService
+from app.services.report import ReportService
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/api/v1", tags=["recommendations"])
@@ -133,6 +134,35 @@ async def run_business_analysis(
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.get("/batches/{batch_id}/business-analysis/report")
+async def get_business_analysis_report(
+    batch_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+
+    prod_rec = db.query(ProductRecommendation).filter(
+        ProductRecommendation.batch_id == batch_id
+    ).first()
+
+    if not prod_rec or not prod_rec.business_analysis_json:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business analysis not found")
+
+    report_data = ReportService.generate_business_report(batch_id, prod_rec.business_analysis_json)
+
+    return Response(
+        content=report_data["content"],
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="business-analysis-batch-{batch_id}.pdf"'}
+    )
 
 @router.get("/batches/{batch_id}/dashboard", response_model=APIResponse)
 async def get_user_dashboard(

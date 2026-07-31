@@ -34,10 +34,11 @@ interface BatchCardProps {
   onLogClick?: () => void;
   onRecommendationClick?: () => void;
   onAnalysisClick?: () => void;
+  onRoadmapClick?: () => void;
   isCompleted?: boolean;
 }
 
-export default function BatchCard({ batch, onLogClick, onRecommendationClick, onAnalysisClick, isCompleted }: BatchCardProps) {
+export default function BatchCard({ batch, onLogClick, onRecommendationClick, onAnalysisClick, onRoadmapClick, isCompleted }: BatchCardProps) {
   const startDate = parseISO(batch.start_date);
   const harvestDate = parseISO(batch.harvest_date);
   const now = new Date();
@@ -128,38 +129,48 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
             </HStack>
           </Stack>
 
-          {!isCompleted && batch.status !== 'failed' && (
-            <Stack spacing={2}>
-              <Button
-                mt={4}
-                bg="#34A853"
-                color="white"
-                size="sm"
-                onClick={onLogClick}
-                _hover={{ bg: '#2a8a42' }}
-              >
-                Tambah Catatan Fermentasi
-              </Button>
-              <Button
-                bg="blue.500"
-                color="white"
-                size="sm"
-                onClick={onRecommendationClick}
-                _hover={{ bg: 'blue.600' }}
-              >
-                Dapatkan Rekomendasi Produk
-              </Button>
-              <Button
-                bg="purple.500"
-                color="white"
-                size="sm"
-                onClick={onAnalysisClick}
-                _hover={{ bg: 'purple.600' }}
-              >
-                Analisis Bisnis
-              </Button>
-            </Stack>
-          )}
+           {!isCompleted && batch.status !== 'failed' && (
+             <Stack spacing={2}>
+               <Button
+                 mt={4}
+                 bg="#34A853"
+                 color="white"
+                 size="sm"
+                 onClick={onLogClick}
+                 _hover={{ bg: '#2a8a42' }}
+               >
+                 Tambah Catatan Fermentasi
+               </Button>
+               <Button
+                 bg="blue.500"
+                 color="white"
+                 size="sm"
+                 onClick={onRecommendationClick}
+                 _hover={{ bg: 'blue.600' }}
+               >
+                 Dapatkan Rekomendasi Produk
+               </Button>
+               <Button
+                 bg="orange.500"
+                 color="white"
+                 size="sm"
+                 onClick={onRoadmapClick}
+                 _hover={{ bg: 'orange.600' }}
+               >
+                 Lihat Roadmap Pemrosesan
+               </Button>
+               <Button
+                 bg="purple.500"
+                 color="white"
+                 size="sm"
+                 onClick={onAnalysisClick}
+                 _hover={{ bg: 'purple.600' }}
+               >
+                 Analisis Bisnis
+               </Button>
+             </Stack>
+           )}
+
         </Stack>
       </CardBody>
     </Card>

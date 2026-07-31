@@ -110,6 +110,31 @@ export default function BusinessAnalysisModal({
     }
   };
 
+  const handleDownloadReport = async () => {
+    try {
+      const response = await apiClient.get(`/api/v1/batches/${batchId}/business-analysis/report`, {
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `business-analysis-batch-${batchId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast({
+        title: 'Error',
+        description: err.response?.data?.detail || 'Failed to download report',
+        status: 'error',
+        isClosable: true,
+      });
+    }
+  };
+
   const handleClose = () => {
     setProductName('');
     setProductionVolume('');
@@ -128,157 +153,203 @@ export default function BusinessAnalysisModal({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg">
       <ModalOverlay />
-      <ModalContent maxH="90vh" overflowY="auto">
-        <ModalHeader>Business Analysis</ModalHeader>
-        <ModalCloseButton />
+      <ModalContent maxH="90vh" overflowY="auto" bg="slate-800" borderColor="slate-700">
+        <ModalHeader color="gray-100">Analisis Bisnis</ModalHeader>
+        <ModalCloseButton color="gray-300" />
         <form onSubmit={handleSubmit}>
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel>Product Name</FormLabel>
+                <FormLabel color="gray-300">Nama Produk</FormLabel>
                 <Input
-                  placeholder="e.g., Eco-Enzyme Cleaner"
+                  placeholder="Misal, Pembersih Eco-Enzyme"
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
+                  bg="slate-700"
+                  borderColor="slate-600"
+                  color="gray-100"
+                  _placeholder={{ color: 'gray-500' }}
                 />
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel>Production Volume (Liters)</FormLabel>
+                <FormLabel color="gray-300">Volume Produksi (Liter)</FormLabel>
                 <Input
                   type="number"
-                  placeholder="e.g., 100"
+                  placeholder="Misal, 100"
                   value={productionVolume}
                   onChange={(e) => setProductionVolume(e.target.value)}
                   step="0.1"
+                  bg="slate-700"
+                  borderColor="slate-600"
+                  color="gray-100"
+                  _placeholder={{ color: 'gray-500' }}
                 />
               </FormControl>
 
               <HStack spacing={4}>
                 <FormControl>
-                  <FormLabel>Target Market</FormLabel>
-                  <Select value={targetMarket} onChange={(e) => setTargetMarket(e.target.value)}>
-                    <option value="local">Local</option>
-                    <option value="regional">Regional</option>
-                    <option value="national">National</option>
+                  <FormLabel color="gray-300">Target Pasar</FormLabel>
+                  <Select 
+                    value={targetMarket} 
+                    onChange={(e) => setTargetMarket(e.target.value)}
+                    bg="slate-700"
+                    borderColor="slate-600"
+                    color="gray-100"
+                  >
+                    <option value="local" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Lokal</option>
+                    <option value="regional" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Regional</option>
+                    <option value="national" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Nasional</option>
                   </Select>
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel>Packaging Type</FormLabel>
-                  <Select value={packagingType} onChange={(e) => setPackagingType(e.target.value)}>
-                    <option value="bottle">Bottle</option>
-                    <option value="container">Container</option>
-                    <option value="bulk">Bulk</option>
+                  <FormLabel color="gray-300">Jenis Kemasan</FormLabel>
+                  <Select 
+                    value={packagingType} 
+                    onChange={(e) => setPackagingType(e.target.value)}
+                    bg="slate-700"
+                    borderColor="slate-600"
+                    color="gray-100"
+                  >
+                    <option value="bottle" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Botol</option>
+                    <option value="container" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Jerigen</option>
+                    <option value="bulk" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Curah</option>
                   </Select>
                 </FormControl>
               </HStack>
 
               <FormControl>
-                <FormLabel>Distribution Channel</FormLabel>
-                <Select value={distributionChannel} onChange={(e) => setDistributionChannel(e.target.value)}>
-                  <option value="direct">Direct Sales</option>
-                  <option value="retail">Retail</option>
-                  <option value="online">Online</option>
-                  <option value="wholesale">Wholesale</option>
+                <FormLabel color="gray-300">Jalur Distribusi</FormLabel>
+                <Select 
+                  value={distributionChannel} 
+                  onChange={(e) => setDistributionChannel(e.target.value)}
+                  bg="slate-700"
+                  borderColor="slate-600"
+                  color="gray-100"
+                >
+                  <option value="direct" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Penjualan Langsung</option>
+                  <option value="retail" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Retail</option>
+                  <option value="online" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Online</option>
+                  <option value="wholesale" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Grosir</option>
                 </Select>
               </FormControl>
 
-              <Divider />
+              <Divider borderColor="slate-600" />
 
               <VStack align="start" spacing={3}>
-                <Text fontWeight="bold">Cost Structure</Text>
+                <Text fontWeight="bold" color="gray-100">Struktur Biaya</Text>
                 <HStack w="100%" spacing={2}>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm">Raw Material ($)</FormLabel>
+                    <FormLabel fontSize="sm" color="gray-300">Bahan Baku (Rp)</FormLabel>
                     <Input
                       type="number"
                       placeholder="0"
                       value={rawMaterialCost}
                       onChange={(e) => setRawMaterialCost(e.target.value)}
                       step="0.01"
+                      bg="slate-700"
+                      borderColor="slate-600"
+                      color="gray-100"
+                      _placeholder={{ color: 'gray-500' }}
                     />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm">Packaging ($)</FormLabel>
+                    <FormLabel fontSize="sm" color="gray-300">Kemasan (Rp)</FormLabel>
                     <Input
                       type="number"
                       placeholder="0"
                       value={packagingCost}
                       onChange={(e) => setPackagingCost(e.target.value)}
                       step="0.01"
+                      bg="slate-700"
+                      borderColor="slate-600"
+                      color="gray-100"
+                      _placeholder={{ color: 'gray-500' }}
                     />
                   </FormControl>
                 </HStack>
 
                 <HStack w="100%" spacing={2}>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm">Labor ($)</FormLabel>
+                    <FormLabel fontSize="sm" color="gray-300">Tenaga Kerja (Rp)</FormLabel>
                     <Input
                       type="number"
                       placeholder="0"
                       value={laborCost}
                       onChange={(e) => setLaborCost(e.target.value)}
                       step="0.01"
+                      bg="slate-700"
+                      borderColor="slate-600"
+                      color="gray-100"
+                      _placeholder={{ color: 'gray-500' }}
                     />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel fontSize="sm">Overhead ($)</FormLabel>
+                    <FormLabel fontSize="sm" color="gray-300">Biaya Operasional (Rp)</FormLabel>
                     <Input
                       type="number"
                       placeholder="0"
                       value={overheadCost}
                       onChange={(e) => setOverheadCost(e.target.value)}
                       step="0.01"
+                      bg="slate-700"
+                      borderColor="slate-600"
+                      color="gray-100"
+                      _placeholder={{ color: 'gray-500' }}
                     />
                   </FormControl>
                 </HStack>
 
                 <FormControl isRequired w="50%">
-                  <FormLabel fontSize="sm">Monthly Fixed Costs ($)</FormLabel>
+                  <FormLabel fontSize="sm" color="gray-300">Biaya Tetap Bulanan (Rp)</FormLabel>
                   <Input
                     type="number"
                     placeholder="0"
                     value={monthlyFixedCosts}
                     onChange={(e) => setMonthlyFixedCosts(e.target.value)}
                     step="0.01"
+                    bg="slate-700"
+                    borderColor="slate-600"
+                    color="gray-100"
+                    _placeholder={{ color: 'gray-500' }}
                   />
                 </FormControl>
               </VStack>
 
               {analysis && (
-                <Box borderTop="1px" borderColor="gray.200" pt={4}>
-                  <Text fontWeight="bold" mb={3}>
-                    Analysis Results:
+                <Box borderTop="1px" borderColor="slate-600" pt={4} bg="slate-700" p={4} rounded="lg">
+                  <Text fontWeight="bold" mb={3} color="gray-100">
+                    Hasil Analisis:
                   </Text>
                   <VStack spacing={2} align="start" fontSize="sm">
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray.600">COGS per Liter:</Text>
-                      <Text fontWeight="medium">${typeof analysis.cogs_per_liter === 'number' ? analysis.cogs_per_liter.toFixed(2) : 'N/A'}</Text>
+                      <Text color="gray-400">Biaya per Liter:</Text>
+                      <Text fontWeight="medium" color="gray-100">${typeof analysis.cogs_per_liter === 'number' ? analysis.cogs_per_liter.toFixed(2) : 'N/A'}</Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray.600">Suggested Retail Price:</Text>
-                      <Text fontWeight="medium">${typeof analysis.suggested_retail_price === 'number' ? analysis.suggested_retail_price.toFixed(2) : 'N/A'}</Text>
+                      <Text color="gray-400">Harga Jual Saran:</Text>
+                      <Text fontWeight="medium" color="gray-100">${typeof analysis.suggested_retail_price === 'number' ? analysis.suggested_retail_price.toFixed(2) : 'N/A'}</Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray.600">Gross Margin:</Text>
-                      <Text fontWeight="medium" color="green.600">
+                      <Text color="gray-400">Margin Kotor:</Text>
+                      <Text fontWeight="medium" color="green.400">
                         {typeof analysis.gross_margin_percentage === 'number' ? analysis.gross_margin_percentage.toFixed(1) : 'N/A'}%
                       </Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray.600">Break-even (Liters):</Text>
-                      <Text fontWeight="medium">{Math.ceil(typeof analysis.break_even_units_liters === 'number' ? analysis.break_even_units_liters : 0)}</Text>
+                      <Text color="gray-400">BEP (Liter):</Text>
+                      <Text fontWeight="medium" color="gray-100">{Math.ceil(typeof analysis.break_even_units_liters === 'number' ? analysis.break_even_units_liters : 0)}</Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray.600">Yearly Net Profit:</Text>
-                      <Text fontWeight="medium" color="blue.600">
+                      <Text color="gray-400">Profit Tahunan:</Text>
+                      <Text fontWeight="medium" color="blue.400">
                         ${typeof analysis.yearly_net_profit === 'number' ? analysis.yearly_net_profit.toFixed(2) : 'N/A'}
                       </Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray.600">Viability:</Text>
-                      <Text fontWeight="bold" color={analysis.viability_rating === 'Viable' ? 'green.600' : analysis.viability_rating === 'Marginal' ? 'orange.500' : 'red.500'}>
+                      <Text color="gray-400">Kelayakan:</Text>
+                      <Text fontWeight="bold" color={analysis.viability_rating === 'Viable' ? 'green.400' : analysis.viability_rating === 'Marginal' ? 'orange.400' : 'red.400'}>
                         {String(analysis.viability_rating || 'N/A')}
                       </Text>
                     </HStack>
@@ -289,8 +360,8 @@ export default function BusinessAnalysisModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={handleClose}>
-              {analysis ? 'Close' : 'Cancel'}
+            <Button variant="ghost" mr={3} onClick={handleClose} color="gray-300">
+              {analysis ? 'Tutup' : 'Batal'}
             </Button>
             {!analysis && (
               <Button
@@ -300,21 +371,26 @@ export default function BusinessAnalysisModal({
                 isLoading={loading}
                 _hover={{ bg: '#2a8a42' }}
               >
-                Run Analysis
+                Jalankan Analisis
               </Button>
             )}
             {analysis && (
-              <Button
-                bg="#34A853"
-                color="white"
-                onClick={() => {
-                  onSuccess();
-                  handleClose();
-                }}
-                _hover={{ bg: '#2a8a42' }}
-              >
-                Done
-              </Button>
+              <>
+                <Button variant="outline" mr={3} onClick={handleDownloadReport} color="gray-300" borderColor="slate-600">
+                  Download PDF
+                </Button>
+                <Button
+                  bg="#34A853"
+                  color="white"
+                  onClick={() => {
+                    onSuccess();
+                    handleClose();
+                  }}
+                  _hover={{ bg: '#2a8a42' }}
+                >
+                  Selesai
+                </Button>
+              </>
             )}
           </ModalFooter>
         </form>

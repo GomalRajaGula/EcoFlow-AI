@@ -48,9 +48,16 @@ yarn-error.log*
 
 # Environment
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
 firebase-credentials.json
+
+# Sensitive files & secrets
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+client_secret_*.json
 
 # Database
 *.db

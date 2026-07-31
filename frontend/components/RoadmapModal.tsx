@@ -1,0 +1,256 @@
+'use client';
+
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Button,
+  Stack,
+  useToast,
+  VStack,
+  HStack,
+  Box,
+  Text,
+  Progress,
+  Checkbox,
+  Badge,
+} from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import apiClient from '@/lib/api';
+
+interface RoadmapModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  batchId: number;
+  productTemplateId: number;
+  onSuccess: () => void;
+}
+
+interface RoadmapStep {
+  title: string;
+  description: string;
+  details: string;
+  completed: boolean;
+}
+
+interface RoadmapData {
+  id: number;
+  batch_id: number;
+  product_template_id: number;
+  status: string;
+  current_step: number;
+  total_steps: number;
+  completed_steps: number;
+  progress_percentage: number;
+  steps: RoadmapStep[];
+  started_at: string | null;
+  completed_at: string | null;
+}
+
+export default function RoadmapModal({
+  isOpen,
+  onClose,
+  batchId,
+  productTemplateId,
+  onSuccess,
+}: RoadmapModalProps) {
+  const [roadmap, setRoadmap] = useState<RoadmapData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const toast = useToast();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadRoadmap = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get(`/api/v1/batches/${batchId}/roadmap`);
+        if (isMounted) setRoadmap(response.data.data);
+      } catch {
+        try {
+          const createRes = await apiClient.post(`/api/v1/batches/${batchId}/roadmap`, {
+            product_template_id: productTemplateId,
+          });
+          if (isMounted) setRoadmap(createRes.data.data);
+        } catch (error: unknown) {
+          const err = error as { response?: { data?: { detail?: string } } };
+          if (isMounted) {
+            toast({
+              title: 'Error',
+              description: err.response?.data?.detail || 'Failed to load roadmap',
+              status: 'error',
+              isClosable: true,
+            });
+          }
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    if (isOpen && roadmap === null) {
+      loadRoadmap();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, batchId, productTemplateId, toast, roadmap]);
+
+  const handleStepToggle = async (stepIndex: number, completed: boolean) => {
+    if (!roadmap) return;
+
+    try {
+      setUpdating(true);
+      const response = await apiClient.put(
+        `/api/v1/batches/${batchId}/roadmap/steps/${stepIndex}`,
+        { completed }
+      );
+      setRoadmap(response.data.data);
+      toast({
+        title: 'Success',
+        description: `Step ${completed ? 'completed' : 'uncompleted'}`,
+        status: 'success',
+        isClosable: true,
+        duration: 2000,
+      });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast({
+        title: 'Error',
+        description: err.response?.data?.detail || 'Failed to update step',
+        status: 'error',
+        isClosable: true,
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleClose = () => {
+    setRoadmap(null);
+    onClose();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'green';
+      case 'in_progress':
+        return 'blue';
+      default:
+        return 'gray';
+    }
+  };
+
+  return (
+    <Modal isOpen={isOpen} onClose={handleClose} size="lg">
+      <ModalOverlay />
+      <ModalContent maxH="90vh" overflowY="auto">
+        <ModalHeader>
+          <HStack justifyContent="space-between">
+            <Text>Processing Roadmap</Text>
+            <Badge colorScheme={getStatusColor(roadmap?.status || 'not_started')}>
+              {roadmap?.status || 'Loading'}
+            </Badge>
+          </HStack>
+        </ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          {loading ? (
+            <Text>Loading roadmap...</Text>
+          ) : roadmap ? (
+            <Stack spacing={6}>
+              <Box>
+                <HStack justifyContent="space-between" mb={2}>
+                  <Text fontWeight="bold">Progress</Text>
+                  <Text fontSize="sm" color="gray.600">
+                    {roadmap.completed_steps} / {roadmap.total_steps} steps
+                  </Text>
+                </HStack>
+                <Progress
+                  value={roadmap.progress_percentage}
+                  colorScheme="green"
+                  borderRadius="md"
+                />
+                <Text fontSize="xs" color="gray.500" mt={1}>
+                  {roadmap.progress_percentage.toFixed(0)}% complete
+                </Text>
+              </Box>
+
+              <VStack spacing={4} align="stretch">
+                {roadmap.steps.map((step, index) => (
+                  <Box
+                    key={index}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    p={4}
+                    bg={step.completed ? 'green.50' : 'white'}
+                    borderColor={step.completed ? 'green.200' : 'gray.200'}
+                  >
+                    <HStack spacing={3} mb={2}>
+                      <Checkbox
+                        isChecked={step.completed}
+                        onChange={(e) => handleStepToggle(index, e.target.checked)}
+                        isDisabled={updating}
+                      />
+                      <VStack align="start" spacing={0} flex={1}>
+                        <Text fontWeight="bold" textDecoration={step.completed ? 'line-through' : 'none'}>
+                          {index + 1}. {step.title}
+                        </Text>
+                        <Text fontSize="sm" color="gray.600">
+                          {step.description}
+                        </Text>
+                      </VStack>
+                    </HStack>
+                    <Text fontSize="sm" color="gray.700" pl={8}>
+                      {step.details}
+                    </Text>
+                  </Box>
+                ))}
+              </VStack>
+
+              {roadmap.status === 'completed' && (
+                <Box borderWidth="1px" borderRadius="md" p={4} bg="green.50" borderColor="green.200">
+                  <Text fontWeight="bold" color="green.700" mb={2}>
+                    Roadmap Completed!
+                  </Text>
+                  <Text fontSize="sm" color="green.600">
+                    All steps have been completed. You&apos;re ready to proceed with your product!
+                  </Text>
+                </Box>
+              )}
+            </Stack>
+          ) : (
+            <Text>Unable to load roadmap</Text>
+          )}
+        </ModalBody>
+
+        <ModalFooter>
+          <Button variant="ghost" onClick={handleClose}>
+            Close
+          </Button>
+          {roadmap?.status === 'completed' && (
+            <Button
+              bg="#34A853"
+              color="white"
+              ml={3}
+              onClick={() => {
+                onSuccess();
+                handleClose();
+              }}
+              _hover={{ bg: '#2a8a42' }}
+            >
+              Done
+            </Button>
+          )}
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}
