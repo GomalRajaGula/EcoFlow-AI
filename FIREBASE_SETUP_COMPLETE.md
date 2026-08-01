@@ -107,7 +107,7 @@ Salin isi JSON yang ter-download ke file ini:
 **File:** `backend/.env`
 
 ```
-DATABASE_URL=sqlite:///./ecoflow.db
+DATABASE_URL=postgresql://ecoflow_user:ecoflow_password@localhost:5432/ecoflow
 FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
 SECRET_KEY=dev-secret-key-not-for-production
 ENVIRONMENT=development
@@ -174,8 +174,8 @@ Frontend akan jalan di: `http://localhost:3000`
 - Pastikan service account key (firebase-credentials.json) sudah ter-download dengan benar
 
 ### Database connection error
-- Backend menggunakan SQLite (default): `sqlite:///./ecoflow.db`
-- Jika mau PostgreSQL, update `DATABASE_URL` di `.env`
+- Backend menggunakan PostgreSQL: `postgresql://ecoflow_user:ecoflow_password@localhost:5432/ecoflow` (lihat `docker-compose.yml`)
+- Jika `alembic upgrade head` gagal, pastikan container PostgreSQL berjalan (`docker compose up -d db`)
 
 ---
 

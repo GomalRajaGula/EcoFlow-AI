@@ -11,7 +11,7 @@ This flow describes how a user initiates a new eco-enzyme fermentation batch, ut
 | 1 | User | Navigates to "Start New Fermentation" section. | Displays input form for organic waste details. | |
 | 2 | User | Enters organic waste weight (e.g., "1.5 kg") and selects waste type (e.g., "Mixed Fruit Peels"). | System validates input format. | Invalid input: Error message "Please enter a valid number for waste weight." |
 | 3 | User | Clicks "Calculate Ratios". | System calculates ideal water and sugar quantities based on `Water (L) = Waste (kg) × 3` and `Sugar (kg) = Waste (kg) × 1`. Displays calculated values (e.g., "4.5 L Water, 1.5 kg Sugar") and an ingredient checklist. | |
-| 4 | User | (Optional) Manually adjusts water or sugar quantities. | System re-calculates the ratio and displays a warning if deviation >10% from ideal (e.g., "Warning: Ratio deviates significantly from optimal. This may affect fermentation success."). | User ignores warning and proceeds. |
+| 4 | User | (Optional) Manually adjusts water or sugar quantities. | System re-calculates the ratio via `POST /api/v1/check-ingredient-ratio` and displays a warning if deviation >10% from ideal (e.g., "Warning: Ratio deviates significantly from optimal. This may affect fermentation success."). | User ignores warning and proceeds. |
 | 5 | User | Confirms ingredients and clicks "Create Batch". | System creates a new fermentation batch record, stores initial parameters, and displays the batch on the user's dashboard with a "Pending Start" status. | System error: "Failed to create batch. Please try again." (Logs error for admin review). |
 
 **Trigger:** User decides to start a new eco-enzyme fermentation.
@@ -42,11 +42,11 @@ This flow covers the core "post-eco-enzyme optimization" where the AI recommends
 | No | Actor | Action/Step | System Response | Alternative/Alternative Path/Error Path |
 |:---|:---|:---|:---|:---|
 | 1 | User | Selects a "Harvest Ready" or "Harvested" fermentation batch. | Displays a form to confirm harvest and input final liquid characteristics. | |
-| 2 | User | Confirms harvest, enters final liquid volume (L), color (hex/preset), and aroma intensity (1-10). | System validates input. | Invalid input: "Please provide all required harvest details." |
-| 3 | User | Clicks "Get Product Recommendations". | System triggers the AI Product Recommendation engine. AI matches characteristics against product templates and ranks recommendations by compatibility score. | |
-| 4 | System | Displays a list of recommended derivative products (e.g., "Liquid Fertilizer (95% match)", "Household Cleaner (88% match)") with brief descriptions. | | No suitable recommendations: "No strong product matches found. Consider general use or re-fermentation." |
-| 5 | User | Selects a preferred product from the list (e.g., "Liquid Fertilizer"). | System displays an overview of the selected product and prompts for roadmap generation. | User requests alternative recommendations: System re-ranks or suggests broader categories. |
-| 6 | User | Clicks "Generate Adaptive Roadmap". | System generates a step-by-step processing guide for the selected product, including ingredients, equipment, time estimates, and safety warnings. Provides options to download as PDF or view video tutorials. | System error: "Failed to generate roadmap. Please try again." |
+| 2 | User | Confirms harvest, enters final liquid volume (L), color (preset), and aroma intensity (`sweet`/`sour`). | System validates input. | Invalid input: "Please provide all required harvest details." |
+| 3 | User | Clicks "Get Product Recommendations". | System triggers the AI Product Recommendation engine. AI matches characteristics against product templates (from DB, 8 products) and ranks recommendations by compatibility score (color 40% + aroma 40% + volume 20%, intent bonus 1.2x). | |
+| 4 | System | Displays a list of recommended derivative products (e.g., "Liquid Fertilizer (92%)", "Household Cleaner (88%)") with brief descriptions. | | No suitable recommendations: "No strong product matches found. Consider general use or re-fermentation." |
+| 5 | User | Selects a preferred product from the list (e.g., "Liquid Fertilizer"). | System persists selection via `POST /api/v1/batches/{batch_id}/select-product` and prompts for roadmap generation. | User requests alternative recommendations: System re-ranks or suggests broader categories. |
+| 6 | User | Clicks "Generate Adaptive Roadmap". | System generates a step-by-step processing guide for the **selected** product (not a default), including ingredients, equipment, time estimates, and safety warnings. Provides options to download as PDF. | System error: "Failed to generate roadmap. Please try again." |
 | 7 | User | (Optional) Marks milestones as complete within the roadmap. | System updates progress for the specific product roadmap. | |
 
 **Trigger:** User has successfully harvested an eco-enzyme batch and wants to determine its best use.

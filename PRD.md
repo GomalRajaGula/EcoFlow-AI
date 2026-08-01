@@ -82,7 +82,7 @@ EcoFlow AI is an AI-powered SaaS platform designed to optimize the post-fermenta
 **FR-4: Adaptive Roadmap**
 - Generate step-by-step processing guide for selected product derivative
 - Include ingredient lists, equipment requirements, time estimates, and safety warnings
-- Provide downloadable PDF checklist with QR codes linking to video tutorials
+- Provide downloadable PDF checklist (QR codes/video tutorial links direncanakan untuk iterasi berikutnya)
 - Track user progress through roadmap milestones
 - Allow manual checkpoint marking or auto-detection via image upload (for visual verification)
 
@@ -130,7 +130,7 @@ EcoFlow AI is an AI-powered SaaS platform designed to optimize the post-fermenta
 | **Scalability** | Support 50K concurrent users; 10M fermentation logs | Projected 5-year growth target |
 | **Mobile Responsiveness** | Full functionality on iOS/Android (viewport ≥320px) | Primary user access via smartphone |
 | **Accessibility** | WCAG 2.1 AA compliance | Inclusive design for diverse literacy levels |
-| **Data Retention** | 7-year historical retention; GDPR-compliant deletion | Regulatory + user analysis needs |
+| **Data Retention** | Retention cleanup configurable (`RETENTION_DAYS`, default 365 hari); right-to-erasure deletion per user | Regulatory + user analysis needs |
 | **Offline Capability** | Log entry sync when connection restored | Rural connectivity constraints |
 | **AI Inference Latency** | <500ms for product recommendation | Mobile UX tolerance threshold |
 
@@ -143,7 +143,7 @@ EcoFlow AI is an AI-powered SaaS platform designed to optimize the post-fermenta
 | **Frontend** | React + Next.js | SSR for SEO; component reusability; eco-friendly educational UI library (Chakra UI) |
 | **Backend** | Python FastAPI | Rapid prototyping; native ML integration; async I/O for concurrent fermentation logs |
 | **Database** | PostgreSQL | ACID compliance for financial calculations; JSONB for flexible fermentation log schema; proven scalability |
-| **AI/ML** | TensorFlow (inference) + scikit-learn (preprocessing) | TensorFlow Lite for mobile edge inference; scikit-learn for rule-based classification |
+| **AI/ML** | Heuristic services (rule-based classification, scoring, deterministic finance) | Rencana pasca-MVP: TensorFlow Lite edge inference; scikit-learn model terlatih (FR-8) |
 | **Hosting** | Hostinger VPS | Cost-effective for MVP; scalable to managed Kubernetes if needed; Indonesia-based latency advantage |
 | **Storage** | MinIO (S3-compatible) | Self-hosted object storage; cost control; image/PDF versioning for fermentation logs |
 | **Authentication** | Firebase Auth | Passwordless SMS/email; multi-factor support; no backend auth infrastructure overhead |

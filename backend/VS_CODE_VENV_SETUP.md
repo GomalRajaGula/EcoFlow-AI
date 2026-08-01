@@ -10,14 +10,14 @@ Error "Import could not be resolved" terjadi karena VS Code belum menggunakan Py
 
 ```bash
 # Di terminal, buka folder backend
-cd /home/gomallinux/Documents/ITechno2026/prd-ecoflow-ai/backend
+cd /path/ke/proyek/backend
 code .
 ```
 
 Atau:
 - Buka VS Code
 - File → Open Folder
-- Navigasi ke `/home/gomallinux/Documents/ITechno2026/prd-ecoflow-ai/backend`
+- Navigasi ke folder `backend` dari proyek ini
 - Klik Open
 
 ---
@@ -39,7 +39,7 @@ Klik opsi yang muncul.
 
 Seharusnya ada list interpreter:
 - `/usr/bin/python3` (system Python)
-- `/home/gomallinux/Documents/ITechno2026/prd-ecoflow-ai/backend/venv/bin/python` ← **Pilih ini**
+- `/path/ke/proyek/backend/venv/bin/python` ← **Pilih ini**
 - Atau ada path ke venv lainnya
 
 **Pilih yang path-nya mengandung `/venv/bin/python`.**
@@ -85,7 +85,7 @@ Jika method di atas tidak bekerja, kamu bisa set manual di `.vscode/settings.jso
 Tambahkan baris ini:
 ```json
 {
-  "python.defaultInterpreterPath": "/home/gomallinux/Documents/ITechno2026/prd-ecoflow-ai/backend/venv/bin/python",
+  "python.defaultInterpreterPath": "/path/ke/proyek/backend/venv/bin/python",
   "python.linting.enabled": true,
   "python.linting.pylintEnabled": true
 }

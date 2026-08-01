@@ -142,36 +142,33 @@ The following tools will be utilized to implement the testing strategy, aligning
 |:---|:---|:---|
 | **Unit/Integration (Backend)** | Pytest | Python testing framework for FastAPI backend logic and API endpoints. |
 | **Unit/Integration (Frontend)** | Jest, React Testing Library | JavaScript testing framework for React components and UI logic. |
-| **E2E Testing** | Cypress / Playwright | Browser automation for simulating user interactions and end-to-end flows. |
-| **Performance Testing** | JMeter / K6 | Load and stress testing for API endpoints and overall system performance. |
-| **Security Testing** | OWASP ZAP, Snyk | Automated vulnerability scanning, dependency analysis, and penetration testing. |
+| **E2E Testing** | Cypress / Playwright | Browser automation for simulating user interactions and end-to-end flows. ✅ Playwright automated (frontend E2E). |
+| **Performance Testing** | JMeter / K6 | Load and stress testing for API endpoints and overall system performance. *(post-MVP)* |
+| **Security Testing** | OWASP ZAP, Snyk | Automated vulnerability scanning, dependency analysis, and penetration testing. *(post-MVP; dependency audit via GitHub CI)* |
 | **Accessibility Testing** | Lighthouse, Axe DevTools | Automated accessibility audits and checks against WCAG standards. |
-| **AI Model Testing** | Custom Python scripts (TensorFlow, scikit-learn), MLflow | Model evaluation metrics (precision, recall, F1-score), data drift detection, bias analysis. |
+| **AI Heuristic Testing** | Custom Python scripts (Pytest) | Verifies rule-based logic (ratio check, compatibility scoring, financial calculations) via unit tests — already covered in backend suite. |
+| **AI Model Testing (post-MVP)** | Custom Python scripts (TensorFlow, scikit-learn), MLflow | Model evaluation metrics (precision, recall, F1-score), data drift detection, bias analysis. |
 | **Database Testing** | Testcontainers (with Pytest) | Spin up temporary PostgreSQL instances for isolated database integration tests. |
 | **API Testing** | Postman / Insomnia | Manual and automated testing of REST API endpoints. |
 | **Code Coverage** | Coverage.py (Python), Istanbul (JS) | Measure the percentage of code executed by tests. |
 
 ## 5. CI Integration
 
-Testing will be an integral part of the Continuous Integration (CI) pipeline to ensure code quality, detect regressions early, and maintain a rapid development cycle.
+**Sudah diimplementasikan** dengan GitHub Actions (`.github/workflows/ci.yml`) pada setiap push ke `main`:
 
-### 5.1. Pipeline Stages
-1.  **Code Commit:** Developers push code to version control (e.g., Git).
-2.  **Linting & Formatting:** Automated checks for code style and quality (e.g., Black, ESLint, Prettier).
-3.  **Unit Tests:** All unit tests (frontend and backend) are executed. Failure blocks the pipeline.
-4.  **Integration Tests:** Backend API and database integration tests are run. Failure blocks the pipeline.
-5.  **Build & Containerization:** Application artifacts are built, and Docker images are created.
-6.  **E2E Tests:** E2E tests are executed against a deployed staging environment. Failure blocks the pipeline.
-7.  **Performance Tests (Smoke):** Basic performance checks to ensure no major regressions.
-8.  **Security Scans:** Automated vulnerability scans (e.g., Snyk) are run. Warnings are reported, critical failures block.
-9.  **AI Model Health Check:** Automated checks for model data drift or performance degradation.
-10. **Deployment to Staging:** If all previous stages pass, the application is deployed to a staging environment for manual QA.
-11. **Deployment to Production:** After successful manual QA and approval, deployment to production.
+### 5.1. Pipeline Stages (Current)
+1.  **Backend Tests:** Setup Python 3.14, install `requirements.txt`, jalankan `alembic upgrade head` terhadap PostgreSQL service (GitHub Actions service container), lalu `pytest tests/ -q` (26+ tests).
+2.  **Frontend Lint & Build:** Setup Node 20, `npm ci`, `npm run lint`, `npm run build`.
 
-### 5.2. Reporting & Alerts
-*   Test results, coverage reports, and security scan outputs will be integrated into the CI dashboard.
-*   Automated alerts will be configured to notify relevant teams (developers, QA) upon pipeline failures or critical issues.
-*   Code coverage metrics will be tracked over time to ensure adherence to targets.
+### 5.2. Pipeline Stages (Roadmap — post-MVP)
+1.  **E2E Tests:** Playwright dijalankan terhadap staging environment. Failure blocks the pipeline.
+2.  **Performance Tests (Smoke):** Basic performance checks untuk memastikan tidak ada regresi besar.
+3.  **Security Scans:** Automated vulnerability scans (e.g., Snyk). Warnings reported, critical failures block.
+4.  **Deployment to Staging/Production:** Setelah semua stage pass, deploy ke staging untuk manual QA.
 
-### 5.3. Pre-Commit Hooks
-*   Local pre-commit hooks will be encouraged for developers to run linting and unit tests before committing code, further reducing issues in the main pipeline.
+### 5.3. Reporting & Alerts
+*   Test results, coverage reports, dan status pipeline terlihat langsung di GitHub Actions dashboard.
+*   Code coverage metrics akan dilacak seiring waktu untuk memastikan kepatuhan target.
+
+### 5.4. Pre-Commit Hooks
+*   Local pre-commit hooks disarankan untuk menjalankan linting dan unit tests sebelum commit, mengurangi kegagalan pipeline.

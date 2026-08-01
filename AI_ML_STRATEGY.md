@@ -1,5 +1,7 @@
 # AI_ML_STRATEGY.md: EcoFlow AI
 
+> **Status (Aug 2026):** Saat ini seluruh fitur AI diimplementasikan sebagai **deterministic rule-based / heuristic services** (tanpa dependency runtime ML seperti TensorFlow/scikit-learn di `requirements.txt`): klasifikasi fermentasi (Normal/Caution/Failed), scoring kompatibilitas produk, dan bisnis analisis. Dokumen ini adalah **strategi visioner** — bagian yang menyebut model ML terlatih (section 4-5) adalah rencana pasca-MVP (FR-8), bukan kondisi saat ini.
+
 ## 1. AI/ML Vision and Goals
 
 The Artificial Intelligence and Machine Learning (AI/ML) strategy for EcoFlow AI is centered on transforming raw fermentation data into actionable insights and personalized guidance, acting as an adaptive "Decision Assistant." Our vision is to empower users (households and UMKM) to successfully produce eco-enzymes and derive valuable products, thereby maximizing organic waste utilization and fostering a circular economy.
@@ -153,9 +155,9 @@ A robust data strategy is crucial for the success and continuous improvement of 
 7.  **Evaluation:** Assess model performance against defined metrics (Section 2).
 
 ### 4.2. Technology Stack for AI/ML
-*   **Libraries:** `scikit-learn` for rule-based classification, feature engineering, and initial ML models. `TensorFlow` (specifically `TensorFlow Lite` for potential future mobile edge inference) for more complex models if needed. `NumPy` and `Pandas` for data manipulation.
-*   **Backend Integration:** Python FastAPI will host the ML models as API endpoints. Inference requests will be sent from the frontend to these endpoints.
-*   **Deployment:** Models will be deployed as part of the FastAPI backend service on the Hostinger VPS. For `TensorFlow Lite`, models would be packaged within the mobile application.
+*   **Saat ini (MVP, shipped):** Heuristic services murni Python — `fermentation_assistant.py` (rule-based weighted classification), `product_recommendation.py` (scoring berbasis kemiripan warna/aroma/volume dari tabel `product_templates`), `business_analysis.py` (kalkulasi finansial deterministik). Tanpa dependency ML eksternal.
+*   **Rencana Pasca-MVP (FR-8):** `scikit-learn` untuk model terlatih; `TensorFlow Lite` untuk potensi inference edge mobile; `NumPy`/`Pandas` untuk pengolahan data.
+*   **Backend Integration:** Python FastAPI akan host endpoint inference (saat ini semua logika sudah inline di service layer).
 
 ### 4.3. Inference Strategy
 *   **Cloud Inference (MVP):** All ML inference will initially occur on the backend server (FastAPI). This simplifies deployment and updates.

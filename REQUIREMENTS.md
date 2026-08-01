@@ -26,7 +26,7 @@ This module SHALL recommend suitable derivative products based on the characteri
 This module SHALL provide step-by-step guidance for processing selected eco-enzyme derivative products.
 *   The system SHALL generate a detailed, step-by-step processing guide for a user-selected derivative product, outlining required ingredients, equipment, estimated time, and safety warnings.
 *   Users SHALL be able to track their progress through the roadmap milestones and mark checkpoints manually or via image upload for visual verification of completion.
-*   The system SHALL provide a downloadable PDF checklist for the roadmap, which includes QR codes linking to external video tutorials for specific steps.
+*   The system SHALL provide a downloadable PDF checklist for the roadmap. QR codes/video tutorial links are planned for post-MVP iteration.
 
 **FR-5: Business Analysis (UMKM Orientation)**
 This module SHALL provide financial analysis and viability assessment for UMKM operators intending to commercialize eco-enzyme products.
@@ -72,7 +72,7 @@ This module SHALL enable Platform Administrators to manage the content displayed
 | **Scalability** | Fermentation Logs | Support 10 million fermentation logs |
 | **Usability** | Mobile Responsiveness | Full functionality on mobile viewports ≥320px |
 | **Usability** | Accessibility Compliance | WCAG 2.1 AA |
-| **Data Management** | Data Retention | 7 years for user activity and fermentation data |
+| **Data Management** | Data Retention | Configurable retention (RETENTION_DAYS, default 365 days); right-to-erasure deletion |
 | **Reliability** | Offline Capability | Log entries and basic roadmap viewing available offline, sync upon connection |
 | **Performance** | AI Inference Latency | <500ms for product recommendation on mobile |
 
@@ -81,7 +81,7 @@ This module SHALL enable Platform Administrators to manage the content displayed
 *   **Budget:** MVP development SHALL adhere to a budget equivalent to approximately $15,000 USD, aligned with ITechnoCup 2026 competition constraints.
 *   **Timeline:** The Minimum Viable Product (MVP) MUST be launched by Q3 2026 to meet the ITechnoCup 2026 competition deadline.
 *   **Infrastructure:** The MVP SHALL be deployed on a single Virtual Private Server (VPS) instance (e.g., Hostinger); multi-region deployment is out of scope for this phase.
-*   **AI Model:** AI models SHALL primarily utilize rule-based logic and lightweight machine learning (e.g., scikit-learn, TensorFlow Lite for inference) without relying on large language models (LLMs) for core functionality. Inference MUST be optimized for mobile edge devices where possible.
+*   **AI Model:** AI features SHALL be implemented as deterministic rule-based/heuristic services (classification, compatibility scoring, financial calculations) without relying on large language models (LLMs) or external ML runtimes for core functionality. Advanced trained models (scikit-learn/TensorFlow Lite) are planned post-MVP (FR-8).
 *   **Regulatory:** The platform MUST comply with Indonesian environmental reporting standards (e.g., SIPSN) and SHALL NOT make medical or pharmaceutical claims for eco-enzyme products.
 
 ## Assumptions

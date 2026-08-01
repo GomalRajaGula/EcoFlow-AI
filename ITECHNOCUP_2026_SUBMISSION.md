@@ -217,10 +217,11 @@ An intelligent SaaS platform that transforms organic waste into commercially via
 - ✅ ITechnoCup 2026 submission
 
 ### Phase 2: Post-Launch P1 Features (Q4 2026)
-- Advanced ML confidence scoring (FR-8)
-- Enhanced community dashboard (FR-7)
-- Content management system (FR-9)
-- Offline-first architecture
+- Advanced ML confidence scoring (FR-8) — trained models
+- ✅ Community dashboard sudah di-ship di MVP: stats/trends scoped per komunitas + CSV compliance export
+- ✅ Content management sudah di-ship: admin CRUD product templates yang langsung dipakai engine rekomendasi (DB-driven)
+- ✅ Offline-first sudah di-ship: offline queue sync di frontend
+- Video tutorial links & QR codes dalam PDF roadmap
 
 ### Phase 3: Scale & Optimization (Q1 2027+)
 - Multi-region deployment (Kubernetes)

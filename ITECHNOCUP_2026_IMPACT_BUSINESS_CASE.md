@@ -390,7 +390,7 @@ Network Effects (Year 1-3):
 
 #### Product Roadmap
 - **Y1 (MVP):** Rule-based AI, 8 products, basic dashboard ✅
-- **Y2 (P1):** Advanced ML, community dashboard, content management
+- **Y2 (P1):** Advanced ML (trained models), community dashboard ✅, content management ✅, offline-first ✅
 - **Y3 (Enterprise):** B2B integrations, regional market pricing, API ecosystem
 - **Y5:** Multi-language, IoT sensor support, blockchain traceability
 

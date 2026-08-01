@@ -41,7 +41,7 @@ Tidak ada perubahan kode diperlukan. Syntax 100% benar.
 ### 2. VS Code Configuration Guides Created
 
 **File 1:** `backend/VS_CODE_VENV_SETUP.md`
-- Lengkap dengan screenshots/step-by-step
+- Step-by-step (tanpa screenshots)
 - Cara memilih Python interpreter dari venv
 - Alternative settings.json approach
 - Verification checklist

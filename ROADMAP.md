@@ -33,11 +33,11 @@ These features are essential for the initial public release and ITechnoCup 2026 
 
 These features enhance the user experience and platform utility shortly after the initial launch.
 
-*   **FR-4: Adaptive Roadmap:** Full step-by-step processing guides for selected derivative products, including downloadable PDFs and links to video tutorials.
-*   **FR-5: Business Analysis:** Enhanced reporting with 12-month profit projection and sensitivity analysis.
-*   **FR-6: User Progress Dashboard:** Visualization of estimated environmental impact (CO₂ avoided) and more detailed historical data.
-*   **FR-7: Community Monitoring Dashboard:** Basic aggregation of fermentation success rates and total waste processed by community.
-*   **FR-9: Content Management:** Interface for managing product templates and processing roadmap content.
+*   **FR-4: Adaptive Roadmap:** Full step-by-step processing guides for selected derivative products, including downloadable PDFs and links to video tutorials. *(PDF checklist ✅ shipped; video tutorial links: planned)*
+*   **FR-5: Business Analysis:** Enhanced reporting with 12-month profit projection and sensitivity analysis. *(✅ 12-month projection & sensitivity analysis shipped)*
+*   **FR-6: User Progress Dashboard:** Visualization of estimated environmental impact (CO₂ avoided) and more detailed historical data. *(✅ shipped)*
+*   **FR-7: Community Monitoring Dashboard:** Basic aggregation of fermentation success rates and total waste processed by community. *(✅ shipped: community stats, trends, CSV compliance export)*
+*   **FR-9: Content Management:** Interface for managing product templates and processing roadmap content. *(✅ shipped: admin CRUD, templates now drive the recommendation engine via DB)*
 
 ### P2: Nice to Have for Future (Q1 2027 onwards)
 
@@ -54,14 +54,14 @@ These features are planned for subsequent iterations based on user feedback and 
 
 Key project milestones with target dates and deliverables.
 
-| Milestone | Phase | Target Date | Deliverables |
-|:---|:---|:---|:---|
-| **1: Design Completion** | 0 | End Q4 2025 | Finalized UI/UX mockups, complete database schema, detailed API contracts, AI model architecture. |
-| **2: Core Backend & Auth** | 1 | End Q1 2026 | Functional user authentication, secure data storage for FR-1, FR-2, FR-6, core API endpoints implemented. |
-| **3: AI Engine MVP** | 1 | Mid Q2 2026 | Initial AI models for FR-2 (rule-based) and FR-3 (basic recommendation) integrated, FR-5 core calculations functional. |
-| **4: Closed Beta Ready** | 2 | End Q2 2026 | All P0 features deployed to staging environment, beta user onboarding process established, initial test data loaded. |
-| **5: Public MVP Launch** | 2 | Mid Q3 2026 | P0 features live in production, platform submitted for ITechnoCup 2026 competition, initial marketing efforts. |
-| **6: P1 Features Release** | 3 | End Q4 2026 | FR-4, enhanced FR-5, FR-6, FR-7, FR-9 features deployed to production, user feedback incorporated. |
+| Milestone | Phase | Target Date | Deliverables | Status |
+|:---|:---|:---|:---|:---|
+| **1: Design Completion** | 0 | End Q4 2025 | Finalized UI/UX mockups, complete database schema, detailed API contracts, AI model architecture. | ✅ Selesai |
+| **2: Core Backend & Auth** | 1 | End Q1 2026 | Functional user authentication, secure data storage for FR-1, FR-2, FR-6, core API endpoints implemented. | ✅ Selesai |
+| **3: AI Engine MVP** | 1 | Mid Q2 2026 | Initial AI models for FR-2 (rule-based) and FR-3 (basic recommendation) integrated, FR-5 core calculations functional. | ✅ Selesai |
+| **4: Closed Beta Ready** | 2 | End Q2 2026 | All P0 features deployed to staging environment, beta user onboarding process established, initial test data loaded. | ✅ Selesai |
+| **5: Public MVP Launch** | 2 | Mid Q3 2026 | P0 features live in production, platform submitted for ITechnoCup 2026 competition, initial marketing efforts. | 🔄 Dalam proses (submission Aug 4, 2026) |
+| **6: P1 Features Release** | 3 | End Q4 2026 | FR-4, enhanced FR-5, FR-6, FR-7, FR-9 features deployed to production, user feedback incorporated. | ⏳ Pasca-launch |
 
 ## Dependencies
 

@@ -161,6 +161,26 @@
 
 ---
 
+## 📋 DOCUMENTATION AUDIT — BATCH 3 (Docs Consistency)
+
+### DONE (Commit: docs Batch 3)
+- [x] `REQUIREMENTS.md` — retention 365 hari + erasure (bukan 7 tahun), QR = rencana pasca-MVP, AI = heuristic deterministic (bukan scikit-learn/TFLite)
+- [x] `ROADMAP.md` — milestones 1-4 ditandai ✅ Selesai, 5 in-progress, 6 pasca-launch; P1 features (FR-4/5/6/7/9) ditandai sudah di-ship
+- [x] `USER_FLOW.md` — flow 1 pakai `check-ingredient-ratio`, flow 3 pakai `select-product` + detail scoring nyata
+- [x] `TESTING.md` — CI section: GitHub Actions nyata; tooling table tandai ✅/post-MVP; AI heuristic testing dipisah dari model testing
+- [x] `ITECHNOCUP_2026_SUBMISSION.md` — Phase 2: FR-7/FR-9/offline sudah di-ship, sisa ML + QR
+- [x] `ITECHNOCUP_2026_IMPACT_BUSINESS_CASE.md` — Y2 roadmap tandai FR-7/FR-9/offline ✅
+- [x] `FIREBASE_SETUP_COMPLETE.md` — DATABASE_URL PostgreSQL (bukan sqlite)
+- [x] `frontend/README.md` — boilerplate create-next-app diganti docs spesifik proyek
+- [x] `API.md` — section Pagination jujur (list endpoints saat ini full data, pagination pasca-MVP)
+- [x] `backend/VS_CODE_VENV_SETUP.md` — hapus hardcoded absolute path dev machine
+- [x] `VSCODE_SETUP_STATUS.md` — claim "dengan screenshots" dikoreksi (tanpa screenshots)
+- [x] `backend/.env.example` — ADMIN_UIDS + komentar produksi
+- [x] `AI_ML_STRATEGY.md` — status header: deterministic rule-based saat ini, ML rencana pasca-MVP
+- [x] `PRD.md` — Data Retention (365 hari + erasure), AI/ML stack real, QR rencana
+
+---
+
 ## 📋 GIT COMMIT HISTORY (Latest)
 
 ```

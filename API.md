@@ -602,6 +602,12 @@ Common HTTP status codes:
 
 ---
 
+## Pagination
+
+**Status:** List endpoints (`GET /api/v1/batches`, admin list endpoints) saat ini mengembalikan **seluruh data** (tanpa `limit`/`offset` params). Pagination query params direncanakan sebagai peningkatan pasca-MVP jika data per user melebihi ~100 record.
+
+---
+
 ## Rate Limiting
 - **Limit:** 60 requests per minute per IP
 - **Headers:** Check `RateLimit-Remaining`, `RateLimit-Reset` in response
