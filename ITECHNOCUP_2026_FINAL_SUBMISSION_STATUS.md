@@ -128,51 +128,33 @@
 
 ---
 
-## ⏳ REMAINING TASKS (3 Tasks)
+## ⏳ REMAINING TASKS (Post-Launch)
 
 ### Priority: HIGH
 
-#### 5. WCAG 2.1 AA Accessibility Compliance (Pending)
-**Estimated Time:** 4-6 hours  
-**Requirements:**
-- Color contrast: 4.5:1 text vs background, 3:1 interactive
-- Keyboard navigation: Tab through all fields, Enter/Escape
-- ARIA labels: Form inputs, buttons, modals
-- Screen reader testing
-- Focus indicators visible
+#### Production Security & Operations
+- [ ] Replace in-memory rate limiting with Redis-backed distributed limiting
+- [ ] Configure production CORS and TrustedHost values
+- [ ] Add security regression tests and centralized monitoring
+- [ ] Add CI/CD, backups, retention, and deletion compliance
 
-**Action Items:**
-- [ ] Audit dark mode contrast ratios
-- [ ] Add ARIA labels to all forms
-- [ ] Test keyboard navigation
-- [ ] Verify focus states
-- [ ] Screen reader testing (NVDA/JAWS)
+#### Complete Admin/Community Scope
+- [ ] Add community and regional entities with scoped access
+- [ ] Add region/date filters and compliance report export
+- [ ] Add roadmap/tutorial versioning and bulk pricing import
 
----
+### Priority: MEDIUM
 
-#### 6. Community Monitoring Dashboard Enhancement (Pending)
-**Estimated Time:** 3-4 hours  
-**Requirements:**
-- Enhanced stats aggregation
-- Trend visualization
-- Success rate tracking by region
-- User engagement metrics
+#### E2E and Product Coverage
+- [ ] Extend Playwright coverage to authenticated batch, log, recommendation, analysis, roadmap, upload, and admin flows
+- [ ] Add image checkpoint verification and QR/video tutorial links
+- [ ] Complete offline roadmap cache and queued image synchronization
 
-**Action Items:**
-- [ ] Add trend charts (Recharts)
-- [ ] Filter by region/date range
-- [ ] Export community reports
+### Priority: LOW
 
----
-
-### Priority: LOW (Post-Submission)
-
-#### 7. Advanced ML Models Implementation (Post-ITechnoCup)
-**Timeline:** Q4 2026  
-**Requirements:**
-- ML model training/integration
-- Confidence scoring
-- A/B testing framework
+#### Advanced ML Models
+- [ ] Build labeled dataset and training pipeline
+- [ ] Add model registry, drift monitoring, retraining, and A/B testing
 
 ---
 
@@ -190,7 +172,7 @@ e37212c  Rename submission docs to ITechnoCup 2026
 
 ## 🎯 READY FOR SUBMISSION
 
-**Current Status:** 🟢 **57% COMPLETE (4/7 Critical Tasks)**
+**Current Status:** 🟢 **MVP COMPLETE; Post-Launch Enhancements Tracked**
 
 ### What's Ready Now:
 ✅ Complete source code (7/7 MVP features)  
@@ -202,10 +184,11 @@ e37212c  Rename submission docs to ITechnoCup 2026
 ✅ Production-ready builds  
 ✅ Git repository clean  
 
-### What's Remaining (Not Critical):
-⏳ Accessibility compliance testing  
-⏳ Dashboard enhancement  
-⏳ ML models (post-submission)  
+### Post-Launch Scope:
+- ⏳ Production operations and distributed security
+- ⏳ Community/region administration and compliance exports
+- ⏳ Extended E2E coverage and offline roadmap support
+- ⏳ Advanced ML model lifecycle
 
 ---
 

@@ -10,7 +10,7 @@
 
 ### Documentation Files (For Judges)
 
-1. **KMIPN_VIII_SUBMISSION.md** (Primary Document)
+1. **ITECHNOCUP_2026_SUBMISSION.md** (Primary Document)
    - Executive summary
    - Problem statement & solution overview
    - Technical architecture
@@ -18,7 +18,7 @@
    - Business model & sustainability
    - Why EcoFlow AI wins ITechnoCup 2026
 
-2. **KMIPN_VIII_TECHNICAL_SPECIFICATION.md** (Technical Deep-Dive)
+2. **ITECHNOCUP_2026_TECHNICAL_SPECIFICATION.md** (Technical Deep-Dive)
    - System architecture diagrams
    - Core features implementation details
    - Database schema
@@ -27,7 +27,7 @@
    - Testing & QA status
    - Deployment checklist
 
-3. **KMIPN_VIII_IMPACT_BUSINESS_CASE.md** (Impact Analysis)
+3. **ITECHNOCUP_2026_IMPACT_BUSINESS_CASE.md** (Impact Analysis)
    - Environmental impact quantification
    - Waste diversion calculations (CO₂ avoided)
    - Financial projections (Year 1-3)
@@ -319,9 +319,9 @@ prd-ecoflow-ai/
 │   ├── package.json                   # Node dependencies
 │   └── .env.local                     # Frontend env variables
 │
-├── KMIPN_VIII_SUBMISSION.md           # Executive summary
-├── KMIPN_VIII_TECHNICAL_SPECIFICATION.md  # Technical deep-dive
-├── KMIPN_VIII_IMPACT_BUSINESS_CASE.md     # Impact analysis
+├── ITECHNOCUP_2026_SUBMISSION.md           # Executive summary
+├── ITECHNOCUP_2026_TECHNICAL_SPECIFICATION.md  # Technical deep-dive
+├── ITECHNOCUP_2026_IMPACT_BUSINESS_CASE.md     # Impact analysis
 ├── README.md                          # This file
 ├── PRD.md                             # Product requirements
 ├── ROADMAP.md                         # Development roadmap

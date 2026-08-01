@@ -147,16 +147,9 @@ class FermentationBatchCreate(BaseModel):
 
 ---
 
-#### 8. Missing Authentication Header Validation
+#### 8. Authentication Header Validation
 **File:** `backend/app/core/auth.py`  
-**Issue:** Need to verify JWT token signature and expiration
-
-```python
-# Ensure in get_current_user():
-- Verify JWT signature
-- Check token expiration
-- Validate token claims
-```
+**Status:** Firebase Admin `verify_id_token` validates the bearer token signature and expiration. The application also rejects missing or malformed `uid` claims before loading or creating the local user record. Production work remains for automated auth regression tests and syncing custom role claims.
 
 ---
 

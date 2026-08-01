@@ -10,28 +10,28 @@
 
 ### Core Documentation (4 Files - All Complete)
 
-✅ **KMIPN_VIII_SUBMISSION.md** (30 pages)
+✅ **ITECHNOCUP_2026_SUBMISSION.md** (30 pages)
 - Executive summary & problem statement
 - Solution overview & architecture
 - Environmental impact metrics
 - Business model & competitive advantage
 - Why EcoFlow wins ITechnoCup 2026
 
-✅ **KMIPN_VIII_TECHNICAL_SPECIFICATION.md** (25 pages)
+✅ **ITECHNOCUP_2026_TECHNICAL_SPECIFICATION.md** (25 pages)
 - System architecture with diagrams
 - All 7 features detailed implementation
 - Database schema (PostgreSQL)
 - Security measures & compliance
 - Performance metrics & testing results
 
-✅ **KMIPN_VIII_IMPACT_BUSINESS_CASE.md** (20 pages)
+✅ **ITECHNOCUP_2026_IMPACT_BUSINESS_CASE.md** (20 pages)
 - Environmental impact quantification
 - Waste diversion calculations (CO₂ avoided)
 - Financial projections (Year 1-3)
 - Social & economic impact analysis
 - Risk mitigation & long-term sustainability
 
-✅ **KMIPN_VIII_README.md** (Quick Start Guide)
+✅ **ITECHNOCUP_2026_README.md** (Quick Start Guide)
 - 5-minute local setup instructions
 - Complete user flow demo
 - Troubleshooting guide
@@ -233,13 +233,13 @@ Storage:    localhost:9000              (MinIO)
 ### For ITechnoCup 2026 Judges
 
 **Step 1: Read Documentation (20 minutes)**
-1. Start with `KMIPN_VIII_SUBMISSION.md` (executive summary)
-2. Review `KMIPN_VIII_IMPACT_BUSINESS_CASE.md` (environmental metrics)
-3. Check `KMIPN_VIII_TECHNICAL_SPECIFICATION.md` (technical depth)
+1. Start with `ITECHNOCUP_2026_SUBMISSION.md` (executive summary)
+2. Review `ITECHNOCUP_2026_IMPACT_BUSINESS_CASE.md` (environmental metrics)
+3. Check `ITECHNOCUP_2026_TECHNICAL_SPECIFICATION.md` (technical depth)
 
 **Step 2: Run Local Demo (15 minutes)**
 ```bash
-# Follow instructions in KMIPN_VIII_README.md
+# Follow instructions in ITECHNOCUP_2026_README.md
 # Complete 2-minute user flow demonstration
 # See all 7 features in action
 ```
@@ -342,7 +342,7 @@ EcoFlow AI is the **first platform** to:
 ## 📞 SUBMISSION CONTACT
 
 **For ITechnoCup 2026 Judges:**
-- **Demo Access:** Follow KMIPN_VIII_README.md (local setup)
+- **Demo Access:** Follow ITECHNOCUP_2026_README.md (local setup)
 - **Questions:** Refer to troubleshooting section
 - **Code Review:** GitHub repository (public)
 

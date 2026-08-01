@@ -437,4 +437,4 @@ Phase 3 (Y4-5): Southeast Asia (Philippines, Thailand, Vietnam)
 
 **Prepared By:** Kiro (Development Lead)  
 **Status:** ✅ Ready for ITechnoCup 2026 Submission  
-**Supporting Documents:** KMIPN_VIII_SUBMISSION.md, KMIPN_VIII_TECHNICAL_SPECIFICATION.md
+**Supporting Documents:** ITECHNOCUP_2026_SUBMISSION.md, ITECHNOCUP_2026_TECHNICAL_SPECIFICATION.md
