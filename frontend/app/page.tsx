@@ -197,7 +197,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
             {[
-              { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik. Sistem otomatis hitung kebutuhan air (10x) & gula (1x).' },
+              { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik. Sistem otomatis hitung kebutuhan air (3x) & gula (1x).' },
               { num: '2', title: 'Monitor Fermentasi', desc: 'Catat observasi harian. AI memprediksi status & kesehatan batch dari aroma, warna, dan gas.' },
               { num: '3', title: 'Rekomendasi Produk', desc: 'Setelah panen 90 hari, AI merekomendasikan produk turunan terbaik berdasarkan karakteristik hasil.' },
               { num: '4', title: 'Analisis Kelayakan', desc: 'Sistem menghitung COGS, margin, break-even point, dan proyeksi profit bisnis.' }

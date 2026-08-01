@@ -94,12 +94,26 @@ class AdminService:
         return {"days": safe_days, "trends": trends}
 
     @staticmethod
-    def get_model_metrics() -> dict:
+    def get_model_metrics(db: Session = None) -> dict:
+        if db is None:
+            from app.core.database import SessionLocal
+            db = SessionLocal()
+        
+        total_logs = db.query(FermentationLog).count()
+        normal_count = db.query(FermentationLog).filter(FermentationLog.ai_status == "Normal").count()
+        caution_count = db.query(FermentationLog).filter(FermentationLog.ai_status == "Caution").count()
+        failed_count = db.query(FermentationLog).filter(FermentationLog.ai_status == "Failed").count()
+        
+        success_rate = (normal_count / total_logs * 100) if total_logs > 0 else 0
+        
+        health_scores = db.query(func.avg(FermentationLog.ai_confidence)).scalar() or 0
+        
         return {
-            "precision": 0.92,
-            "recall": 0.89,
-            "f1_score": 0.90,
-            "total_predictions": 12500,
+            "total_predictions": total_logs,
+            "normal_logs": normal_count,
+            "caution_logs": caution_count,
+            "failed_logs": failed_count,
+            "success_rate_percentage": round(success_rate, 2),
+            "average_health_score": round(float(health_scores), 2),
             "uptime_percentage": 99.9,
-            "average_inference_time_ms": 45,
         }

@@ -91,4 +91,4 @@ class ProductRecommendationService:
             })
         
         recommendations.sort(key=lambda x: x["compatibility_score"], reverse=True)
-        return recommendations[:5]
+        return recommendations[:8]

@@ -99,7 +99,7 @@ npm run dev
   - **Final Color**: Warna akhir
   - **Aroma Intensity**: Intensitas aroma
   - **Intent**: Household atau Commercial
-- Sistem merekomendasikan 3-5 produk dengan skor kesesuaian
+- Sistem merekomendasikan 8 produk dengan skor kesesuaian
 
 ### 5. **Analisis Bisnis**
 - Klik "Business Analysis" pada batch

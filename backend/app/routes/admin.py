@@ -4,6 +4,7 @@ import io
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from app.core.database import get_db
 from app.core.auth import get_current_user, require_role
 from app.models.base import Community, ProductTemplate, User
@@ -11,6 +12,9 @@ from app.schemas.base import APIResponse, CommunityCreate, ProductTemplateCreate
 from app.services.admin import AdminService
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
+
+class UserRoleUpdate(BaseModel):
+    role: str
 
 
 def scope_community_id(current_user: User, role: str, community_id: int | None) -> int | None:
@@ -201,3 +205,29 @@ async def get_model_metrics(
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+@router.patch("/users/{user_id}/role", response_model=APIResponse)
+async def update_user_role(
+    user_id: str,
+    req: UserRoleUpdate,
+    current_user: User = Depends(get_current_user),
+    role: str = Depends(require_role("admin", "platform_admin")),
+    db: Session = Depends(get_db)
+):
+    valid_roles = ("user", "admin", "community_admin", "platform_admin")
+    if req.role not in valid_roles:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid role. Must be one of {valid_roles}")
+    
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    user.role = req.role
+    db.commit()
+    db.refresh(user)
+    
+    return APIResponse(
+        status="success",
+        message=f"User role updated to {req.role}",
+        data={"user_id": user_id, "role": user.role}
+    )

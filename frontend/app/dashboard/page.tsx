@@ -219,7 +219,7 @@ export default function DashboardPage() {
                     }}
                     onRoadmapClick={() => {
                       setSelectedBatch(batch);
-                      setSelectedProductTemplateId(1);
+                      setSelectedProductTemplateId(batch.selected_product_id || 1);
                       setShowRoadmapModal(true);
                     }}
                     onAnalysisClick={() => {

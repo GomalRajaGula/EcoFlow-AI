@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from app.core.database import get_db
 from app.core.auth import get_current_user
-from app.models.base import User, FermentationBatch, FermentationLog, ProductRecommendation
+from app.models.base import User, FermentationBatch, FermentationLog, ProductRecommendation, ProductTemplate
 from app.schemas.base import APIResponse
 from app.services.product_recommendation import ProductRecommendationService
 from app.services.business_analysis import BusinessAnalysisService
@@ -18,6 +18,9 @@ class RecommendationRequest(BaseModel):
     final_color: str
     aroma_intensity: str
     user_intent: str = "household"
+
+class SelectProductRequest(BaseModel):
+    product_template_id: int
 
 class BusinessAnalysisRequest(BaseModel):
     product_name: str
@@ -84,6 +87,42 @@ async def get_product_recommendation(
         )
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.post("/batches/{batch_id}/select-product", response_model=APIResponse)
+async def select_product_for_batch(
+    batch_id: int,
+    req: SelectProductRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    batch = db.query(FermentationBatch).filter(
+        FermentationBatch.id == batch_id,
+        FermentationBatch.user_id == current_user.id
+    ).first()
+    
+    if not batch:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
+    
+    template = db.query(ProductTemplate).filter(ProductTemplate.id == req.product_template_id).first()
+    if not template:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product template not found")
+    
+    prod_rec = db.query(ProductRecommendation).filter(
+        ProductRecommendation.batch_id == batch_id
+    ).first()
+    
+    if not prod_rec:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No recommendations found for this batch")
+    
+    prod_rec.selected_product_id = req.product_template_id
+    prod_rec.selection_date = datetime.now(timezone.utc)
+    db.commit()
+    
+    return APIResponse(
+        status="success",
+        message="Product selected successfully",
+        data={"selected_product_id": req.product_template_id}
+    )
 
 @router.post("/batches/{batch_id}/business-analysis", response_model=APIResponse)
 async def run_business_analysis(
