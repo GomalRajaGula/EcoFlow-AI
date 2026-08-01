@@ -133,10 +133,11 @@
 ### Priority: HIGH
 
 #### Production Security & Operations
-- [ ] Replace in-memory rate limiting with Redis-backed distributed limiting
-- [ ] Configure production CORS and TrustedHost values
-- [ ] Add security regression tests and centralized monitoring
-- [ ] Add CI/CD, backups, retention, and deletion compliance
+- [x] Replace in-memory rate limiting with Redis-backed distributed limiting (fallback ke in-memory bila Redis tidak tersedia)
+- [x] Configure production CORS and TrustedHost values (via env `CORS_ORIGINS`, `ALLOWED_HOSTS`)
+- [x] Add security regression tests (CORS, headers, trusted host, rate limit) + centralized logging
+- [x] Add CI/CD (GitHub Actions: backend tests + migrations di PostgreSQL, frontend lint/build)
+- [ ] Add backups, retention, and deletion compliance
 
 #### Complete Admin/Community Scope
 - [x] Add community and regional entities with scoped access

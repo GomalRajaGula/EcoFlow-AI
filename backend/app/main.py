@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from collections import defaultdict, deque
 import logging
+import os
 import time
 import re
 from app.core.database import get_db, engine, Base
@@ -30,11 +31,17 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="EcoFlow API", version="0.1.0")
 
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",") if o.strip()]
+RATE_LIMIT = int(os.getenv("RATE_LIMIT", "60"))
+RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
+REDIS_URL = os.getenv("REDIS_URL", "")
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Content-Type", "Authorization"],
@@ -50,23 +57,48 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Content-Security-Policy"] = "default-src 'self'"
     return response
 
-RATE_LIMIT = 60
 rate_buckets: dict[str, deque[float]] = defaultdict(deque)
+
+try:
+    import redis as redis_client
+    _redis = redis_client.from_url(REDIS_URL, socket_connect_timeout=1) if REDIS_URL else None
+    if _redis:
+        _redis.ping()
+        logger.info("Rate limiter: Redis-backed")
+except Exception as e:
+    _redis = None
+    logger.warning(f"Rate limiter: falling back to in-memory ({e})")
+
+def _rate_limit_key(scope: str, identity: str) -> str:
+    return f"ratelimit:{scope}:{identity}"
 
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     client_ip = request.client.host if request.client else "unknown"
-    now = time.time()
-    bucket = rate_buckets[client_ip]
-    # remove entries older than 1 minute
-    while bucket and bucket[0] <= now - 60:
-        bucket.popleft()
-    if len(bucket) >= RATE_LIMIT:
-        return JSONResponse(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            content={"detail": "Rate limit exceeded"},
-        )
-    bucket.append(now)
+    if _redis:
+        key = _rate_limit_key("ip", client_ip)
+        try:
+            count = _redis.incr(key)
+            if count == 1:
+                _redis.expire(key, RATE_LIMIT_WINDOW)
+            if count > RATE_LIMIT:
+                return JSONResponse(
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                    content={"detail": "Rate limit exceeded"},
+                )
+        except Exception as e:
+            logger.warning(f"Redis rate limit failed, allowing request: {e}")
+    else:
+        now = time.time()
+        bucket = rate_buckets[client_ip]
+        while bucket and bucket[0] <= now - RATE_LIMIT_WINDOW:
+            bucket.popleft()
+        if len(bucket) >= RATE_LIMIT:
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Rate limit exceeded"},
+            )
+        bucket.append(now)
     return await call_next(request)
 
 
