@@ -17,3 +17,6 @@ __pycache__/
 *.db
 *.sqlite
 *.sqlite3
+
+# DB backups
+backups/

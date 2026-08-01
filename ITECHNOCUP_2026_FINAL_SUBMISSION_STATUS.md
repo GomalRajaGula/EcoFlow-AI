@@ -137,7 +137,9 @@
 - [x] Configure production CORS and TrustedHost values (via env `CORS_ORIGINS`, `ALLOWED_HOSTS`)
 - [x] Add security regression tests (CORS, headers, trusted host, rate limit) + centralized logging
 - [x] Add CI/CD (GitHub Actions: backend tests + migrations di PostgreSQL, frontend lint/build)
-- [ ] Add backups, retention, and deletion compliance
+- [x] Add backups (scripts/backup.sh: pg_dump + rotasi 7 backup)
+- [x] Add retention cleanup (scripts/cleanup_expired.py: batch terminal > RETENTION_DAYS, dry-run default)
+- [x] Add deletion compliance (scripts/delete_user_data.py: right-to-erasure per user incl. objek storage)
 
 #### Complete Admin/Community Scope
 - [x] Add community and regional entities with scoped access
