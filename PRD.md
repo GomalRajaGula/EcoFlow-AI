@@ -10,7 +10,7 @@ EcoFlow AI is an AI-powered SaaS platform designed to optimize the post-fermenta
 - Enables UMKM financial modeling and business case validation
 - Reduces organic waste burden on TPA through optimized household-level intervention
 
-**Target Launch:** MVP by Q3 2026 (KMIPN VIII competition deadline)
+**Target Launch:** MVP by Q3 2026 (ITechnoCup 2026 competition deadline)
 
 ---
 
@@ -182,7 +182,7 @@ EcoFlow AI is an AI-powered SaaS platform designed to optimize the post-fermenta
 ## Constraints & Assumptions
 
 ### Constraints
-- **Budget:** MVP development within KMIPN VIII competition constraints (~$15K USD equivalent)
+- **Budget:** MVP development within ITechnoCup 2026 competition constraints (~$15K USD equivalent)
 - **Timeline:** MVP launch by Q3 2026
 - **Infrastructure:** Single VPS instance (Hostinger) for MVP; no multi-region deployment
 - **AI Model:** Rule-based + lightweight ML (no large language models); inference must run on-device for mobile
@@ -218,5 +218,5 @@ EcoFlow AI is an AI-powered SaaS platform designed to optimize the post-fermenta
 | **Design** | UI/UX mockups; data schema; AI model architecture | Q4 2025 |
 | **MVP Development** | Core 5 features; basic admin dashboard | Q2 2026 |
 | **Closed Beta** | Testing with 50 household + 10 UMKM users | Q2 2026 |
-| **Launch** | Public MVP release; KMIPN VIII submission | Q3 2026 |
+| **Launch** | Public MVP release; ITechnoCup 2026 submission | Q3 2026 |
 | **Post-Launch** | Bug fixes; user feedback iteration; v1.1 planning | Q4 2026 |

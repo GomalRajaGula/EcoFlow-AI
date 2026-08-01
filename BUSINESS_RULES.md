@@ -6,7 +6,7 @@ EcoFlow AI adopts a "social_impact_free" monetization strategy for its initial M
 
 ### 1.1. Current Model (MVP)
 *   **Free Access:** All core features, including Smart Eco-Enzyme Roadmap, AI Fermentation Assistant, AI Product Recommendation, Adaptive Roadmap, and Business Analysis, are available without subscription fees or in-app purchases.
-*   **Social Impact Focus:** The immediate goal is to drive widespread adoption, reduce organic waste, and empower communities, aligning with the project's vision for the KMIPN VIII competition.
+*   **Social Impact Focus:** The immediate goal is to drive widespread adoption, reduce organic waste, and empower communities, aligning with the project's vision for the ITechnoCup 2026 competition.
 *   **Funding Source:** Initial development is supported by competition funding and grants.
 
 ### 1.2. Potential Future Monetization Avenues (Post-MVP)
@@ -69,7 +69,7 @@ The go-to-market strategy for EcoFlow AI is phased, focusing on community engage
 ### 5.2. Phase 2: Limited Pilot & Competition Submission (Q2 - Q3 2026)
 *   **Closed Beta Testing:** Conduct trials with a select group of 50 household users and 10 UMKM partners. This will involve "Tim Bismillah Tembus" and Politeknik Negeri Cilacap's network.
 *   **Feedback & Iteration:** Gather user feedback for refinement and bug fixing.
-*   **KMIPN VIII Submission:** Present the refined MVP for the Cipta Inovasi KMIPN VIII competition.
+*   **ITechnoCup 2026 Submission:** Present the refined MVP for the Cipta Inovasi ITechnoCup 2026 competition.
 
 ### 5.3. Phase 3: Public Launch & Expansion (Q3 2026 onwards)
 *   **Public MVP Release:** Launch the platform to a wider audience following competition.
@@ -107,6 +107,6 @@ EcoFlow AI operates within the regulatory framework of Indonesia, particularly c
 
 The initial development and launch of EcoFlow AI are primarily driven by specific funding mechanisms.
 
-*   **KMIPN VIII Competition:** The project is a proposal for the Cipta Inovasi KMIPN VIII competition, which provides initial funding and resources for MVP development. The budget for MVP development is estimated at approximately $15,000 USD equivalent.
+*   **ITechnoCup 2026 Competition:** The project is a proposal for the Cipta Inovasi ITechnoCup 2026 competition, which provides initial funding and resources for MVP development. The budget for MVP development is estimated at approximately $15,000 USD equivalent.
 *   **Institutional Support:** Support from Politeknik Negeri Cilacap in terms of resources, mentorship, and infrastructure.
 *   **Future Funding:** Post-MVP, the project will seek further funding through government grants, environmental impact funds, and potentially angel investors or venture capital focused on green technology and social enterprises.

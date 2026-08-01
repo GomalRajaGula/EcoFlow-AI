@@ -8,7 +8,7 @@ This roadmap outlines the planned phases for the EcoFlow AI platform, from initi
 |:---|:---|:---|
 | **0: Inception & Design** | Q4 2025 (3 months) | Finalize UI/UX designs, establish data models, define AI architecture, complete API specifications. |
 | **1: MVP Development** | Q1-Q2 2026 (6 months) | Implement core P0 features, develop robust backend services, integrate initial AI models, set up infrastructure. |
-| **2: Beta & Launch** | Q3 2026 (3 months) | Conduct closed beta testing with target users, gather feedback, perform bug fixing, prepare for public MVP launch and KMIPN VIII submission. |
+| **2: Beta & Launch** | Q3 2026 (3 months) | Conduct closed beta testing with target users, gather feedback, perform bug fixing, prepare for public MVP launch and ITechnoCup 2026 submission. |
 | **3: Post-Launch & Iteration** | Q4 2026 onwards (Ongoing) | Address critical bugs, implement P1 features, continuously gather user feedback, plan for subsequent versions (v1.1+). |
 
 *Disclaimer: Timeline assumes a team of 3-5 developers. Adjust proportionally for different team sizes.*
@@ -19,7 +19,7 @@ This section details the Minimum Viable Product (MVP) features, categorized by p
 
 ### P0: Must Have for Launch (Q3 2026)
 
-These features are essential for the initial public release and KMIPN VIII submission.
+These features are essential for the initial public release and ITechnoCup 2026 submission.
 
 *   **FR-1: Smart Eco-Enzyme Roadmap:** Core functionality for calculating ideal ingredient ratios based on organic waste input.
 *   **FR-2: AI Fermentation Assistant:** Basic logging of fermentation parameters (aroma, color, gas) and initial rule-based status classification (Normal/Caution/Failed).
@@ -60,7 +60,7 @@ Key project milestones with target dates and deliverables.
 | **2: Core Backend & Auth** | 1 | End Q1 2026 | Functional user authentication, secure data storage for FR-1, FR-2, FR-6, core API endpoints implemented. |
 | **3: AI Engine MVP** | 1 | Mid Q2 2026 | Initial AI models for FR-2 (rule-based) and FR-3 (basic recommendation) integrated, FR-5 core calculations functional. |
 | **4: Closed Beta Ready** | 2 | End Q2 2026 | All P0 features deployed to staging environment, beta user onboarding process established, initial test data loaded. |
-| **5: Public MVP Launch** | 2 | Mid Q3 2026 | P0 features live in production, platform submitted for KMIPN VIII competition, initial marketing efforts. |
+| **5: Public MVP Launch** | 2 | Mid Q3 2026 | P0 features live in production, platform submitted for ITechnoCup 2026 competition, initial marketing efforts. |
 | **6: P1 Features Release** | 3 | End Q4 2026 | FR-4, enhanced FR-5, FR-6, FR-7, FR-9 features deployed to production, user feedback incorporated. |
 
 ## Dependencies
@@ -73,7 +73,7 @@ These are external services, accounts, or data sources required for the project.
 *   **Hostinger VPS:** Provisioned and configured Virtual Private Server for hosting backend and database.
 *   **MinIO Storage:** Configured S3-compatible object storage for user-uploaded images and generated PDFs.
 *   **Public Market Data:** Access to regional market pricing data for business analysis (FR-5).
-*   **KMIPN VIII Competition:** Adherence to competition guidelines, submission deadlines, and technical requirements.
+*   **ITechnoCup 2026 Competition:** Adherence to competition guidelines, submission deadlines, and technical requirements.
 *   **Legal & Compliance:** Review and approval of Terms of Service, Privacy Policy, and environmental reporting compliance.
 
 ### Internal Dependencies

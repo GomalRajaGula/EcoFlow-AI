@@ -53,7 +53,7 @@
 - 8 core features implemented
 - Production build successful
 
-✅ **Git Commits (Latest 2 KMIPN-related)**
+✅ **Git Commits (Latest 2 ITechnoCup 2026-related)**
 ```
 dadd7c6 ITechnoCup 2026: Add comprehensive quick-start README
 3706b99 ITechnoCup 2026: Complete documentation package
@@ -245,7 +245,7 @@ Storage:    localhost:9000              (MinIO)
 ```
 
 **Step 3: Evaluate Submission**
-- Compare against KMIPN criteria (see Alignment section above)
+- Compare against ITechnoCup 2026 criteria (see Alignment section above)
 - Review code quality on GitHub repository
 - Assess business viability & scalability
 - Consider environmental impact metrics
@@ -294,7 +294,7 @@ EcoFlow AI is the **first platform** to:
 - ✅ Admin dashboard with community stats ready
 - ✅ 20/20 backend unit tests passing
 - ✅ Frontend production build successful
-- ✅ All code committed to Git (5+ KMIPN commits)
+- ✅ All code committed to Git (5+ ITechnoCup 2026 commits)
 - ✅ 4 submission documents completed (50+ pages)
 - ✅ Quick start guide with troubleshooting
 - ✅ Local demo fully working

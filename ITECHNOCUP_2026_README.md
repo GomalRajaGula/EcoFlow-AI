@@ -388,7 +388,7 @@ Before August 4, 2026 deadline:
 - ✅ PDF business analysis report generation complete
 - ✅ Environmental impact metrics (CO₂ calculation) live
 - ✅ Admin dashboard with community stats ready
-- ✅ KMIPN submission documents completed:
+- ✅ ITechnoCup 2026 submission documents completed:
   - ✅ Executive Summary
   - ✅ Technical Specification
   - ✅ Impact & Business Case Analysis

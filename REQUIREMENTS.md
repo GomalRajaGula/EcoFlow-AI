@@ -78,8 +78,8 @@ This module SHALL enable Platform Administrators to manage the content displayed
 
 ## Technical Constraints
 
-*   **Budget:** MVP development SHALL adhere to a budget equivalent to approximately $15,000 USD, aligned with KMIPN VIII competition constraints.
-*   **Timeline:** The Minimum Viable Product (MVP) MUST be launched by Q3 2026 to meet the KMIPN VIII competition deadline.
+*   **Budget:** MVP development SHALL adhere to a budget equivalent to approximately $15,000 USD, aligned with ITechnoCup 2026 competition constraints.
+*   **Timeline:** The Minimum Viable Product (MVP) MUST be launched by Q3 2026 to meet the ITechnoCup 2026 competition deadline.
 *   **Infrastructure:** The MVP SHALL be deployed on a single Virtual Private Server (VPS) instance (e.g., Hostinger); multi-region deployment is out of scope for this phase.
 *   **AI Model:** AI models SHALL primarily utilize rule-based logic and lightweight machine learning (e.g., scikit-learn, TensorFlow Lite for inference) without relying on large language models (LLMs) for core functionality. Inference MUST be optimized for mobile edge devices where possible.
 *   **Regulatory:** The platform MUST comply with Indonesian environmental reporting standards (e.g., SIPSN) and SHALL NOT make medical or pharmaceutical claims for eco-enzyme products.

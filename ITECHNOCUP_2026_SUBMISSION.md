@@ -270,7 +270,7 @@ With **50,000 users by Year 3:**
 
 ## 11. Why EcoFlow AI Wins ITechnoCup 2026
 
-### Alignment with KMIPN Criteria
+### Alignment with ITechnoCup 2026 Criteria
 
 ✅ **Innovation:** AI + IoT-ready (rule-based MVP, ML-ready for v1.1)  
 ✅ **Environmental Impact:** Quantifiable waste diversion + CO₂ offset metrics  
