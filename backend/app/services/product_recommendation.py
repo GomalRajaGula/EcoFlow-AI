@@ -1,8 +1,9 @@
 from typing import List
 import math
+from sqlalchemy.orm import Session
 
 class ProductRecommendationService:
-    PRODUCT_TEMPLATES = {
+    PRODUCT_TEMPLATES_DEFAULT = {
         1: {"name": "Household Cleaner", "ideal_ph": (3.0, 4.0), "ideal_aroma": "sour", "ideal_color": "brown"},
         2: {"name": "Disinfectant", "ideal_ph": (2.5, 3.5), "ideal_aroma": "sour", "ideal_color": "dark_brown"},
         3: {"name": "Liquid Fertilizer", "ideal_ph": (3.5, 5.0), "ideal_aroma": "sweet", "ideal_color": "amber"},
@@ -14,17 +15,42 @@ class ProductRecommendationService:
     }
     
     @staticmethod
+    def get_templates(db: Session = None) -> dict:
+        if db is None:
+            return ProductRecommendationService.PRODUCT_TEMPLATES_DEFAULT
+        
+        from app.models.base import ProductTemplate
+        templates = db.query(ProductTemplate).all()
+        
+        if not templates:
+            return ProductRecommendationService.PRODUCT_TEMPLATES_DEFAULT
+        
+        result = {}
+        for t in templates:
+            result[t.id] = {
+                "name": t.name,
+                "ideal_ph": (t.ideal_ph_min or 3.0, t.ideal_ph_max or 5.0),
+                "ideal_aroma": t.ideal_aroma or "sour",
+                "ideal_color": t.ideal_color or "brown",
+            }
+        return result
+    
+    @staticmethod
     def calculate_compatibility(
         product_id: int,
         final_color: str,
         aroma_intensity: str,
         final_volume_liters: float,
-        user_intent: str = "household"
+        user_intent: str = "household",
+        templates: dict = None
     ) -> float:
-        if product_id not in ProductRecommendationService.PRODUCT_TEMPLATES:
+        if templates is None:
+            templates = ProductRecommendationService.PRODUCT_TEMPLATES_DEFAULT
+        
+        if product_id not in templates:
             return 0.0
         
-        product = ProductRecommendationService.PRODUCT_TEMPLATES[product_id]
+        product = templates[product_id]
         
         color_match = ProductRecommendationService._color_similarity(final_color, product["ideal_color"])
         aroma_match = ProductRecommendationService._aroma_similarity(aroma_intensity, product["ideal_aroma"])
@@ -74,13 +100,15 @@ class ProductRecommendationService:
         final_color: str,
         aroma_intensity: str,
         final_volume_liters: float,
-        user_intent: str = "household"
+        user_intent: str = "household",
+        db: Session = None
     ) -> List[dict]:
+        templates = ProductRecommendationService.get_templates(db)
         recommendations = []
         
-        for product_id, product_info in ProductRecommendationService.PRODUCT_TEMPLATES.items():
+        for product_id, product_info in templates.items():
             score = ProductRecommendationService.calculate_compatibility(
-                product_id, final_color, aroma_intensity, final_volume_liters, user_intent
+                product_id, final_color, aroma_intensity, final_volume_liters, user_intent, templates
             )
             recommendations.append({
                 "product_id": product_id,

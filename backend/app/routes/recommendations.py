@@ -22,6 +22,11 @@ class RecommendationRequest(BaseModel):
 class SelectProductRequest(BaseModel):
     product_template_id: int
 
+class CheckRatioRequest(BaseModel):
+    waste_kg: float
+    water_liters: float
+    sugar_kg: float
+
 class BusinessAnalysisRequest(BaseModel):
     product_name: str
     production_volume_liters: float
@@ -55,7 +60,8 @@ async def get_product_recommendation(
             final_color=rec_request.final_color,
             aroma_intensity=rec_request.aroma_intensity,
             final_volume_liters=rec_request.harvest_volume_liters,
-            user_intent=rec_request.user_intent
+            user_intent=rec_request.user_intent,
+            db=db
         )
         
         batch.final_volume_liters = rec_request.harvest_volume_liters
@@ -122,6 +128,31 @@ async def select_product_for_batch(
         status="success",
         message="Product selected successfully",
         data={"selected_product_id": req.product_template_id}
+    )
+
+@router.post("/check-ingredient-ratio", response_model=APIResponse)
+async def check_ingredient_ratio(
+    req: CheckRatioRequest,
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.eco_enzyme import EcoEnzymeService
+    ideal = EcoEnzymeService.calculate_ingredients(req.waste_kg)
+    warning = EcoEnzymeService.check_ingredient_deviation(
+        actual_water=req.water_liters,
+        ideal_water=ideal["water_liters"],
+        actual_sugar=req.sugar_kg,
+        ideal_sugar=ideal["sugar_kg"],
+        threshold_percent=10
+    )
+    
+    return APIResponse(
+        status="success",
+        message="Ratio check complete",
+        data={
+            "ideal_water_liters": ideal["water_liters"],
+            "ideal_sugar_kg": ideal["sugar_kg"],
+            "deviation_warning": warning
+        }
     )
 
 @router.post("/batches/{batch_id}/business-analysis", response_model=APIResponse)

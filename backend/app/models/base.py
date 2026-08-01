@@ -91,6 +91,10 @@ class ProductTemplate(Base):
     time_estimate_hours = Column(Float)
     safety_warnings = Column(Text)
     base_compatibility_score = Column(Float, default=0.5)
+    ideal_ph_min = Column(Float, nullable=True)
+    ideal_ph_max = Column(Float, nullable=True)
+    ideal_aroma = Column(String, nullable=True)
+    ideal_color = Column(String, nullable=True)
     created_at = Column(DateTime, default=utcnow)
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 
