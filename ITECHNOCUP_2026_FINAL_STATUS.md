@@ -166,7 +166,7 @@ Tax Contribution:       Rp 500M (10% on aggregate)
 ✅ **Data Encryption:** TLS 1.3 in transit, PostgreSQL encryption-ready  
 ✅ **Input Validation:** Pydantic schemas on all API endpoints  
 ✅ **SQL Injection Prevention:** SQLAlchemy ORM parameterized queries  
-✅ **CSRF Protection:** SameSite cookies configured  
+✅ **JWT Authorization:** Role-based access control (user/admin/community_admin/platform_admin)  
 ✅ **Regulatory:** SIPSN environmental tracking compliance  
 
 ---

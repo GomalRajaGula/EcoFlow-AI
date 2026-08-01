@@ -163,7 +163,7 @@
 **Testing Checklist:**
 - [ ] Form validation (positive numbers, required fields)
 - [ ] COGS accuracy
-- [ ] SRP formula (2.5x COGS)
+- [ ] SRP formula (1.5x COGS markup, max of markup vs 90% market price)
 - [ ] Profit calculation accuracy
 - [ ] 12-month projection logic
 - [ ] PDF file generation
@@ -216,7 +216,7 @@
    - Normal logs count
    - Failed logs count
 3. Verify AI model metrics:
-   - Precision, Recall, F1 Score
+   - Total predictions (log count), Normal/Caution/Failed distribution, success rate, avg health score
    - Total predictions
    - Uptime percentage
    - Average inference time

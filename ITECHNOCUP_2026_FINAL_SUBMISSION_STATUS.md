@@ -302,7 +302,7 @@ EcoFlow AI is ready for ITechnoCup 2026 submission with complete documentation, 
 - ✅ Product recommendations: 5 → 8 products (aligns all docs)
 - ✅ Product selection flow: new `/batches/{batch_id}/select-product` endpoint
 - ✅ frontend/.env.example created (Quick Start now works)
-- ✅ Role assignment: ADMIN_UIDS env bootstrap + `PATCH /users/{uid}/role` endpoint
+- ✅ Role assignment: ADMIN_UIDS env bootstrap + `PATCH /api/v1/admin/users/{user_id}/role` endpoint
 - ✅ Model metrics: now compute real values from DB (total_logs, success_rate, health_score)
 - ✅ Docs consistency: 20→26 tests, 3-5→8 products, 10x→3x ratio
 - ✅ Dashboard: roadmap uses selected_product_id (not hardcoded 1)

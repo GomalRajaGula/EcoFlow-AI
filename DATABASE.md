@@ -2,23 +2,31 @@
 
 ## 1. Entity Relationship Diagram (ERD)
 
-The following ERD illustrates the core entities within the EcoFlow AI platform and their relationships. It focuses on the primary business logic concerning user management, fermentation tracking, product recommendations, and derivative product definitions.
+The following ERD illustrates the core entities within the EcoFlow AI platform and their relationships. Schema is managed with SQLAlchemy + Alembic migrations on PostgreSQL.
 
 ```mermaid
 erDiagram
-    User {
-        String id PK
-        String email
-        String passwordHash
-        String name
-        String role
+    Community {
+        Integer id PK
+        String name UK
+        String region
         DateTime createdAt
         DateTime updatedAt
+    }
+
+    User {
+        String id PK
+        String email UK
+        String name
+        String role
+        Integer communityId FK
         Float wasteDivertedKg
+        DateTime createdAt
+        DateTime updatedAt
     }
 
     FermentationBatch {
-        String id PK
+        Integer id PK
         String userId FK
         String name
         String status
@@ -29,238 +37,223 @@ erDiagram
         DateTime harvestDate
         Float finalVolumeLiters
         String finalColor
-        Int finalAromaIntensity
+        String finalAromaIntensity
         DateTime createdAt
         DateTime updatedAt
     }
 
     FermentationLog {
-        String id PK
-        String batchId FK
+        Integer id PK
+        Integer batchId FK
         DateTime logDate
         String aroma
         String color
         Boolean gasPresence
         Float temperatureC
+        String notes
+        String imageUrl
         String aiStatus
+        Float aiConfidence
         String aiSuggestion
         DateTime createdAt
     }
 
     ProductTemplate {
-        String id PK
-        String name
+        Integer id PK
+        String name UK
         String description
         String processingInstructions
-        String ingredients
-        String equipment
-        Int timeEstimateHours
+        Json ingredients
+        Json equipment
+        Float timeEstimateHours
         String safetyWarnings
-        Int baseCompatibilityScore
+        Float baseCompatibilityScore
+        Float idealPhMin
+        Float idealPhMax
+        String idealAroma
+        String idealColor
         DateTime createdAt
         DateTime updatedAt
     }
 
     ProductRecommendation {
-        String id PK
-        String batchId FK
-        String recommendedProductsJson
-        String selectedProductId FK
+        Integer id PK
+        Integer batchId FK
+        Json recommendedProductsJson
+        Integer selectedProductId FK
         DateTime selectionDate
         Boolean isCommercialOrientation
-        String businessAnalysisJson
+        Json businessAnalysisJson
         DateTime createdAt
         DateTime updatedAt
     }
 
+    RoadmapProgress {
+        Integer id PK
+        Integer batchId FK
+        Integer productTemplateId FK
+        String userId FK
+        Json stepsJson
+        Integer currentStep
+        String status
+        DateTime startedAt
+        DateTime completedAt
+        DateTime createdAt
+        DateTime updatedAt
+    }
+
+    Community ||--o{ User : members
     User ||--o{ FermentationBatch : owns
     FermentationBatch ||--o{ FermentationLog : logs
     FermentationBatch ||--o| ProductRecommendation : generates
     ProductRecommendation }o--|| ProductTemplate : selects
+    FermentationBatch ||--o| RoadmapProgress : has
+    RoadmapProgress }o--|| ProductTemplate : based_on
+    RoadmapProgress }o--|| User : created_by
 ```
 
 ## 2. Table Definitions
 
-This section details the five core tables central to the EcoFlow AI platform's operations.
+Seven tables managed via Alembic migrations (`alembic upgrade head`).
 
-### User
+### communities
+
+Stores community/regional entities for the community monitoring feature (FR-7).
+
+| Field | Type | Description |
+|:---|:---|:---|
+| `id` | Integer (PK) | Auto-increment primary key. |
+| `name` | String (UK) | Unique community name. |
+| `region` | String (Indexed) | Region of the community (nullable). |
+| `created_at` | DateTime | Timestamp of creation. |
+| `updated_at` | DateTime | Timestamp of last update. |
+
+### users
 
 Stores user authentication and profile information.
+
 | Field | Type | Description |
 |:---|:---|:---|
-| `id` | String (PK) | Unique identifier for the user. |
-| `email` | String (UK) | User's email address, used for login. |
-| `passwordHash` | String | Hashed password for security. |
+| `id` | String (PK) | Firebase UID. |
+| `email` | String (UK, Indexed) | User's email address. |
 | `name` | String | User's full name. |
-| `role` | String | User's role (e.g., 'HOUSEHOLD', 'UMKM', 'COMMUNITY_ADMIN', 'PLATFORM_ADMIN'). |
-| `createdAt` | DateTime | Timestamp of user creation. |
-| `updatedAt` | DateTime | Timestamp of last update. |
-| `wasteDivertedKg` | Float | Cumulative organic waste (kg) diverted by the user. |
+| `role` | String | Role: `user`, `admin`, `community_admin`, `platform_admin`. Default `user`. |
+| `community_id` | Integer (FK, Indexed) | FK to `communities.id` (nullable). |
+| `waste_diverted_kg` | Float | Cumulative organic waste (kg) diverted. |
+| `created_at` | DateTime | Timestamp of creation. |
+| `updated_at` | DateTime | Timestamp of last update. |
 
-### FermentationBatch
+### fermentation_batches
 
 Represents a single eco-enzyme fermentation process initiated by a user.
+
 | Field | Type | Description |
 |:---|:---|:---|
-| `id` | String (PK) | Unique identifier for the fermentation batch. |
-| `userId` | String (FK) | ID of the user who owns this batch. |
+| `id` | Integer (PK) | Auto-increment primary key. |
+| `user_id` | String (FK) | FK to `users.id`. |
 | `name` | String | User-defined name for the batch. |
-| `status` | String | Current status of the batch (e.g., 'IN_PROGRESS', 'HARVESTED', 'FAILED'). |
-| `wasteWeightKg` | Float | Initial weight of organic waste in kilograms. |
-| `waterLiters` | Float | Initial volume of water in liters. |
-| `sugarKg` | Float | Initial weight of sugar in kilograms. |
-| `startDate` | DateTime | Date when the fermentation started. |
-| `harvestDate` | DateTime | Date when the eco-enzyme was harvested (nullable). |
-| `finalVolumeLiters` | Float | Final volume of harvested eco-enzyme (nullable). |
-| `finalColor` | String | Descriptive color or hex code of the harvested eco-enzyme (nullable). |
-| `finalAromaIntensity` | Int | Aroma intensity of harvested eco-enzyme (1-10) (nullable). |
-| `createdAt` | DateTime | Timestamp of batch creation. |
-| `updatedAt` | DateTime | Timestamp of last update. |
+| `status` | String | Status: `pending`, `harvested`, `success` (default `pending`). |
+| `waste_weight_kg` | Float | Initial waste weight in kg. |
+| `water_liters` | Float | Initial water volume in liters. |
+| `sugar_kg` | Float | Initial sugar weight in kg. |
+| `start_date` | DateTime | Fermentation start date. |
+| `harvest_date` | DateTime | Harvest date (nullable). |
+| `final_volume_liters` | Float | Final harvested volume (nullable). |
+| `final_color` | String | Final color (nullable). |
+| `final_aroma_intensity` | String | Final aroma intensity, e.g. `sweet`, `sour` (nullable). |
+| `created_at` / `updated_at` | DateTime | Timestamps. |
 
-### FermentationLog
+### fermentation_logs
 
-Records periodic observations and AI feedback for a specific `FermentationBatch`.
+Records periodic observations and AI feedback for a batch.
+
 | Field | Type | Description |
 |:---|:---|:---|
-| `id` | String (PK) | Unique identifier for the log entry. |
-| `batchId` | String (FK) | ID of the fermentation batch this log belongs to. |
-| `logDate` | DateTime | Date and time of the log entry. |
-| `aroma` | String | Observed aroma (e.g., 'SWEET', 'SOUR', 'ROTTEN', 'NORMAL'). |
-| `color` | String | Observed color (e.g., hex code or descriptive). |
-| `gasPresence` | Boolean | Indicates if gas bubbles were observed. |
-| `temperatureC` | Float | Observed temperature in Celsius (nullable). |
-| `aiStatus` | String | AI's assessment of the fermentation status (e.g., 'NORMAL', 'CAUTION', 'FAILED'). |
-| `aiSuggestion` | String | AI's suggested corrective action (nullable). |
-| `createdAt` | DateTime | Timestamp of log creation. |
+| `id` | Integer (PK) | Auto-increment primary key. |
+| `batch_id` | Integer (FK) | FK to `fermentation_batches.id`. |
+| `log_date` | DateTime | Date/time of the log entry. |
+| `aroma` | String | Observed aroma (e.g. `sweet`, `sour`). |
+| `color` | String | Observed color (e.g. `amber`, `brown`). |
+| `gas_presence` | Boolean | Whether gas bubbles observed. |
+| `temperature_c` | Float | Temperature in Celsius. |
+| `notes` | Text | User notes (nullable). |
+| `image_url` | String | MinIO object URL for checkpoint photo (nullable). |
+| `ai_status` | String | `Normal`, `Caution`, or `Failed`. |
+| `ai_confidence` | Float | Rule-based confidence score (0-1). |
+| `ai_suggestion` | Text | Corrective action suggestion (nullable). |
+| `created_at` | DateTime | Timestamp of creation. |
 
-### ProductTemplate
+### product_templates
 
-Defines the various eco-enzyme derivative products and their processing instructions.
+Defines eco-enzyme derivative products, processing instructions, and ideal characteristics used by the recommendation engine.
+
 | Field | Type | Description |
 |:---|:---|:---|
-| `id` | String (PK) | Unique identifier for the product template. |
-| `name` | String (UK) | Name of the derivative product (e.g., 'Household Cleaner'). |
-| `description` | String | Brief description of the product. |
-| `processingInstructions` | String | Detailed step-by-step guide for making the product. |
-| `ingredients` | String | JSON string listing required additional ingredients. |
-| `equipment` | String | JSON string listing required equipment. |
-| `timeEstimateHours` | Int | Estimated time to process the product in hours (nullable). |
-| `safetyWarnings` | String | Important safety considerations (nullable). |
-| `baseCompatibilityScore` | Int | Base score for AI recommendation ranking. |
-| `createdAt` | DateTime | Timestamp of template creation. |
-| `updatedAt` | DateTime | Timestamp of last update. |
+| `id` | Integer (PK) | Auto-increment primary key. |
+| `name` | String (UK, Indexed) | Product name (e.g. `Household Cleaner`). |
+| `description` | Text | Product description. |
+| `processing_instructions` | Text | Step-by-step processing guide. |
+| `ingredients` | JSON | List of additional ingredients. |
+| `equipment` | JSON | List of required equipment. |
+| `time_estimate_hours` | Float | Estimated processing time in hours. |
+| `safety_warnings` | Text | Safety considerations. |
+| `base_compatibility_score` | Float | Base compatibility score (0-1, default 0.5). |
+| `ideal_ph_min` / `ideal_ph_max` | Float | Ideal pH range for the product (nullable). |
+| `ideal_aroma` | String | Ideal aroma (`sour`, `sweet`) (nullable). |
+| `ideal_color` | String | Ideal color (`brown`, `amber`, `dark_brown`, `light_brown`) (nullable). |
+| `created_at` / `updated_at` | DateTime | Timestamps. |
 
-### ProductRecommendation
+### product_recommendations
 
-Stores the AI's recommendations for a harvested eco-enzyme batch and the user's selection. Also includes business analysis data for UMKM.
+Stores the ranked recommendations for a harvested batch, the user's product selection, and business analysis data.
+
 | Field | Type | Description |
 |:---|:---|:---|
-| `id` | String (PK) | Unique identifier for the recommendation record. |
-| `batchId` | String (FK, UK) | ID of the harvested fermentation batch. Unique per batch. |
-| `recommendedProductsJson` | String | JSON array of recommended product IDs and their compatibility scores. |
-| `selectedProductId` | String (FK) | ID of the `ProductTemplate` chosen by the user (nullable). |
-| `selectionDate` | DateTime | Date when the user made a product selection (nullable). |
-| `isCommercialOrientation` | Boolean | True if the user intends commercial use (UMKM). |
-| `businessAnalysisJson` | String | JSON object containing financial analysis (COGS, SRP, profit projection) for UMKM (nullable). |
-| `createdAt` | DateTime | Timestamp of recommendation generation. |
-| `updatedAt` | DateTime | Timestamp of last update. |
+| `id` | Integer (PK) | Auto-increment primary key. |
+| `batch_id` | Integer (FK, Indexed) | FK to `fermentation_batches.id` (one-to-one). |
+| `recommended_products_json` | JSON | Ranked list of recommendations with compatibility scores. |
+| `selected_product_id` | Integer (FK) | FK to `product_templates.id` — the product chosen by the user (nullable). |
+| `selection_date` | DateTime | When the user made the selection (nullable). |
+| `is_commercial_orientation` | Boolean | True if the user intends commercial use (UMKM). |
+| `business_analysis_json` | JSON | Financial analysis: COGS, SRP, margin, projections (nullable). |
+| `created_at` / `updated_at` | DateTime | Timestamps. |
 
-## 3. Prisma Schema
+### roadmap_progress
 
-```prisma
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+Tracks step-by-step production progress for the selected product (FR-4).
 
-generator client {
-  provider = "prisma-client-js"
-}
+| Field | Type | Description |
+|:---|:---|:---|
+| `id` | Integer (PK) | Auto-increment primary key. |
+| `batch_id` | Integer (FK, Indexed) | FK to `fermentation_batches.id`. |
+| `product_template_id` | Integer (FK, Indexed) | FK to `product_templates.id`. |
+| `user_id` | String (FK, Indexed) | FK to `users.id`. |
+| `steps_json` | JSON | List of processing steps with statuses. |
+| `current_step` | Integer | Current step index (default 0). |
+| `status` | String | `not_started`, `in_progress`, `completed`. |
+| `started_at` / `completed_at` | DateTime | Start/end timestamps (nullable). |
+| `created_at` / `updated_at` | DateTime | Timestamps. |
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+## 3. Schema Management
 
-model User {
-  id               String            @id @default(cuid())
-  email            String            @unique
-  passwordHash     String
-  name             String
-  role             String // e.g., 'HOUSEHOLD', 'UMKM', 'COMMUNITY_ADMIN', 'PLATFORM_ADMIN'
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  wasteDivertedKg  Float             @default(0.0)
+- **ORM:** SQLAlchemy 2.x declarative models in `backend/app/models/base.py`.
+- **Migrations:** Alembic, 5 revision files in `backend/alembic/versions/`:
+  - `4fbe94f9e549` — initial schema
+  - `f27716d2914e` — add `image_url` to `fermentation_logs`
+  - `ea7cfb017895` — (no-op fix marker)
+  - `b1c2d3e4f5a6` — communities + `users.community_id`
+  - `c1d2e3f4a5b6` — ideal characteristics on `product_templates`
+- **Apply:** `alembic upgrade head` (uses `DATABASE_URL` from env / `.env`).
+- **Database:** PostgreSQL 16 (`docker-compose up -d postgres`).
 
-  fermentationBatches FermentationBatch[]
-}
+## 4. Indexes & Constraints
 
-model FermentationBatch {
-  id                   String                 @id @default(cuid())
-  userId               String
-  name                 String
-  status               String // e.g., 'IN_PROGRESS', 'CAUTION', 'FAILED', 'HARVESTED', 'PROCESSED'
-  wasteWeightKg        Float
-  waterLiters          Float
-  sugarKg              Float
-  startDate            DateTime
-  harvestDate          DateTime?
-  finalVolumeLiters    Float?
-  finalColor           String? // e.g., hex code or descriptive
-  finalAromaIntensity  Int? // 1-10
-
-  createdAt            DateTime               @default(now())
-  updatedAt            DateTime               @updatedAt
-
-  user                 User                   @relation(fields: [userId], references: [id])
-  fermentationLogs     FermentationLog[]
-  productRecommendation ProductRecommendation?
-}
-
-model FermentationLog {
-  id           String   @id @default(cuid())
-  batchId      String
-  logDate      DateTime
-  aroma        String // e.g., 'SWEET', 'SOUR', 'ROTTEN', 'NORMAL'
-  color        String // e.g., hex code or descriptive
-  gasPresence  Boolean
-  temperatureC Float?
-  aiStatus     String? // e.g., 'NORMAL', 'CAUTION', 'FAILED'
-  aiSuggestion String?
-
-  createdAt    DateTime @default(now())
-
-  fermentationBatch FermentationBatch @relation(fields: [batchId], references: [id])
-}
-
-model ProductTemplate {
-  id                     String                @id @default(cuid())
-  name                   String                @unique // e.g., 'Household Cleaner', 'Liquid Fertilizer'
-  description            String?
-  processingInstructions String
-  ingredients            Json // JSON string listing required additional ingredients
-  equipment              Json // JSON string listing required equipment
-  timeEstimateHours      Int?
-  safetyWarnings         String?
-  baseCompatibilityScore Int                   @default(50)
-
-  createdAt              DateTime              @default(now())
-  updatedAt              DateTime              @updatedAt
-
-  productRecommendations ProductRecommendation[] @relation("SelectedProduct")
-}
-
-model ProductRecommendation {
-  id                      String    @id @default(cuid())
-  batchId                 String    @unique
-  recommendedProductsJson Json // JSON array of {productId, compatibilityScore, rank}
-  selectedProductId       String?
-  selectionDate           DateTime?
-  isCommercialOrientation Boolean   @default(false)
-  businessAnalysisJson    Json? // JSON object for COGS, SRP, profit projection
-
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-
-  fermentationBatch       FermentationBatch @relation(fields: [batchId], references: [id])
-  selectedProduct         ProductTemplate?  @relation("SelectedProduct", fields: [selectedProductId], references: [id])
-}
-```
+- `users.email` — unique index
+- `users.community_id` — FK index
+- `communities.name` — unique
+- `communities.region` — index
+- `product_templates.name` — unique
+- `fermentation_batches.user_id` → `users.id`
+- `fermentation_logs.batch_id` → `fermentation_batches.id`
+- `product_recommendations.batch_id` → `fermentation_batches.id`
+- `roadmap_progress.batch_id` / `product_template_id` / `user_id` — indexed FKs

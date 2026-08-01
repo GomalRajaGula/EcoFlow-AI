@@ -121,7 +121,7 @@ npm run dev
 3. Fermentation log tracking (aroma, color, gas, temperature)
 4. AI-based fermentation status classification (Normal/Caution/Failed)
 5. Health score calculation (0-100)
-6. Product recommendations (5 top matches ranked by compatibility)
+6. Product recommendations (8 products from DB, ranked by compatibility)
 7. Business analysis (COGS, margin, break-even, profit projection)
 8. Dashboard with batch overview and milestones
 9. Responsive UI (Chakra UI)

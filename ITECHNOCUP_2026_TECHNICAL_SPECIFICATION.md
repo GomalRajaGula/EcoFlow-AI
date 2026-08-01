@@ -231,53 +231,40 @@ Response:
 ```python
 # File: backend/app/services/product_recommendation.py
 class ProductRecommendationService:
-    PRODUCT_TEMPLATES = [
-        {"id": 1, "name": "Pembersih Rumah Tangga", "color_preference": ["dark_brown", "amber"], "aroma_score_factor": 1.2},
-        {"id": 2, "name": "Disinfektan", "color_preference": ["dark_brown"], "aroma_score_factor": 1.1},
-        {"id": 3, "name": "Pupuk Cair", "color_preference": ["amber", "gold"], "aroma_score_factor": 0.9},
-        {"id": 4, "name": "Pengusir Hama", "color_preference": ["dark_brown"], "aroma_score_factor": 1.3},
-        {"id": 5, "name": "Pembersih Saluran", "color_preference": ["dark_brown", "amber"], "aroma_score_factor": 1.0},
-        {"id": 6, "name": "Penghilang Bau", "color_preference": ["amber", "gold"], "aroma_score_factor": 1.4},
-        {"id": 7, "name": "Basis Kosmetik", "color_preference": ["gold", "honey"], "aroma_score_factor": 1.5},
-        {"id": 8, "name": "Aditif Pakan", "color_preference": ["amber", "brown"], "aroma_score_factor": 0.8},
-    ]
-    
+    # Fallback defaults; primary source is the product_templates table (FR-9)
+    PRODUCT_TEMPLATES_DEFAULT = {
+        1: {"name": "Household Cleaner", "ideal_ph": (3.0, 4.0), "ideal_aroma": "sour", "ideal_color": "brown"},
+        2: {"name": "Disinfectant", "ideal_ph": (2.5, 3.5), "ideal_aroma": "sour", "ideal_color": "dark_brown"},
+        3: {"name": "Liquid Fertilizer", "ideal_ph": (3.5, 5.0), "ideal_aroma": "sweet", "ideal_color": "amber"},
+        4: {"name": "Pest Repellent", "ideal_ph": (3.0, 4.0), "ideal_aroma": "sour", "ideal_color": "brown"},
+        5: {"name": "Drain Cleaner", "ideal_ph": (2.5, 3.5), "ideal_aroma": "sour", "ideal_color": "dark_brown"},
+        6: {"name": "Odor Neutralizer", "ideal_ph": (3.5, 5.0), "ideal_aroma": "sweet", "ideal_color": "light_brown"},
+        7: {"name": "Cosmetic Base", "ideal_ph": (4.0, 5.5), "ideal_aroma": "sweet", "ideal_color": "amber"},
+        8: {"name": "Animal Feed Additive", "ideal_ph": (3.5, 5.0), "ideal_aroma": "sweet", "ideal_color": "light_brown"},
+    }
+
     @staticmethod
-    def get_ranked_recommendations(final_color: str, aroma_intensity: float, 
-                                   final_volume_liters: float, user_intent: str) -> list:
+    def calculate_compatibility(product_id, final_color, aroma_intensity,
+                                final_volume_liters, user_intent, templates) -> float:
         """
-        Rank 8 products by compatibility score
-        Factors: color match (30%), aroma intensity (30%), volume viability (20%), user intent (20%)
+        Score: color match (40%), aroma match (40%), volume viability (20%)
+        Commercial intent bonus: 1.2x
         """
-        recommendations = []
-        
-        for product in ProductRecommendationService.PRODUCT_TEMPLATES:
-            # Color compatibility (0-30 points)
-            color_score = 30 if final_color in product["color_preference"] else 15
-            
-            # Aroma intensity (0-30 points)
-            aroma_score = min(aroma_intensity * 3, 30) * product["aroma_score_factor"]
-            
-            # Volume viability (0-20 points)
-            volume_score = min((final_volume_liters / 5) * 20, 20)  # 5L = full score
-            
-            # User intent (0-20 points)
-            intent_bonus = 20 if user_intent == "commercial" else 10
-            
-            # Total compatibility score
-            total_score = (color_score + aroma_score + volume_score + intent_bonus) / 100
-            compatibility_score = min(total_score * 100, 100)
-            
-            recommendations.append({
-                "product_id": product["id"],
-                "name": product["name"],
-                "compatibility_score": round(compatibility_score, 1),
-                "color_match": final_color in product["color_preference"],
-                "volume_suitable": final_volume_liters >= 1.0
-            })
-        
-        # Sort by compatibility score descending
-        return sorted(recommendations, key=lambda x: x["compatibility_score"], reverse=True)
+        product = templates[product_id]
+        color_match = ProductRecommendationService._color_similarity(final_color, product["ideal_color"])
+        aroma_match = ProductRecommendationService._aroma_similarity(aroma_intensity, product["ideal_aroma"])
+        volume_match = min(final_volume_liters / 10, 1.0)
+        intent_bonus = 1.2 if (user_intent == "commercial" and product_id not in [6, 7]) else 1.0
+        score = (color_match * 0.4 + aroma_match * 0.4 + volume_match * 0.2) * intent_bonus
+        return min(100, max(0, score * 100))
+
+    @staticmethod
+    def get_ranked_recommendations(final_color: str, aroma_intensity: str,
+                                   final_volume_liters: float, user_intent: str, db) -> list:
+        """Loads templates from DB (product_templates table), ranks top 8"""
+        templates = ProductRecommendationService.get_templates(db)  # DB-first, defaults fallback
+        recommendations = [...rank all templates by compatibility...]
+        return sorted(recommendations, key=lambda x: x["compatibility_score"], reverse=True)[:8]
 ```
 
 **Recommendation API:**
@@ -286,14 +273,14 @@ POST /api/v1/batches/{batch_id}/recommendation
 {
   "harvest_volume_liters": 8.5,
   "final_color": "dark_brown",
-  "aroma_intensity": 8,
+  "aroma_intensity": "sweet",
   "user_intent": "commercial"
 }
 Response:
 {
   "recommendations": [
-    {"product_id": 1, "name": "Pembersih...", "compatibility_score": 92.5},
-    {"product_id": 4, "name": "Pengusir...", "compatibility_score": 88.0},
+    {"product_id": 2, "name": "Disinfectant", "compatibility_score": 92.5},
+    {"product_id": 4, "name": "Pest Repellent", "compatibility_score": 88.0},
     ...
   ]
 }
@@ -317,11 +304,13 @@ class BusinessAnalysisService:
         return round(cogs_per_liter, 2)
     
     @staticmethod
-    def calculate_srp(cogs_per_liter: float, regional_average_price: float) -> float:
-        """Suggested Retail Price using markup formula"""
-        # Markup: 2.5x COGS (standard for consumer products in Indonesia)
-        suggested_price = max(cogs_per_liter * 2.5, regional_average_price)
-        return round(suggested_price, 2)
+    def calculate_srp(cogs_per_liter: float, regional_average_price: float, 
+                      markup_multiplier: float = 1.5) -> float:
+        """Suggested Retail Price using markup formula (default 1.5x COGS)"""
+        base_srp = cogs_per_liter * markup_multiplier
+        conservative_srp = regional_average_price * 0.9
+        final_srp = max(base_srp, conservative_srp)
+        return round(final_srp, 2)
     
     @staticmethod
     def calculate_12month_projection(monthly_sales_liters: float, 
@@ -387,7 +376,7 @@ Response:
 
 **Dashboard Endpoint:**
 ```
-GET /api/v1/batches/dashboard
+GET /api/v1/batches/{batch_id}/dashboard
 Response:
 {
   "total_users": 142,
@@ -498,7 +487,7 @@ CREATE TABLE product_recommendations (
 ### Input Validation
 ✅ Pydantic schemas with field constraints (type, length, range)  
 ✅ SQL injection prevention (SQLAlchemy ORM parameterized queries)  
-✅ CSRF protection via SameSite cookies  
+✅ JWT-based authorization with role checks (admin/community_admin/platform_admin)  
 
 ### API Rate Limiting
 ```python
@@ -534,7 +523,7 @@ async def get_batches():
 cd backend
 pytest tests/ -v
 # Results: 26+ tests passing ✅
-# Coverage: 85% core services
+# Coverage: all core services exercised
 ```
 
 **Test Coverage:**

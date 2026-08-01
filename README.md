@@ -157,15 +157,19 @@ EcoFlow-AI/
 └── README.md
 ```
 
+> Catatan: seluruh dokumentasi berada di file markdown pada root repo (API.md, DATABASE.md, ARCHITECTURE.md, dll), bukan folder `docs/`.
+
 ---
 
 ## 🔧 Technology Stack
 
 ### Backend
 - **Framework**: FastAPI (Python)
-- **Database**: SQLite (dev) / PostgreSQL (prod)
+- **Database**: PostgreSQL 16 (via Docker + Alembic migrations)
 - **Auth**: Firebase Authentication
-- **ORM**: SQLAlchemy
+- **ORM**: SQLAlchemy 2.x
+- **Storage**: MinIO (S3-compatible)
+- **Rate Limiting**: Redis-backed (fallback in-memory)
 
 ### Frontend
 - **Framework**: Next.js 15 (React 19)
@@ -218,15 +222,56 @@ Lihat dokumentasi interaktif di: http://localhost:8000/docs
 
 ---
 
+## 🚀 Quick Start
+
+### 1. Database (PostgreSQL + MinIO)
+```bash
+docker compose up -d postgres minio
+```
+
+### 2. Backend
+```bash
+cd backend
+python -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env          # isi FIREBASE_CREDENTIALS_PATH & SECRET_KEY
+alembic upgrade head          # jalankan migrasi schema
+uvicorn app.main:app --reload --port 8000
+```
+
+### 3. Frontend
+```bash
+cd frontend
+cp .env.example .env.local    # isi kredensial Firebase
+npm install
+npm run dev                   # http://localhost:3000
+```
+
+### 4. Tes
+```bash
+cd backend && pytest tests/ -q          # 26+ backend tests
+cd frontend && npm run lint && npm run build
+cd frontend && npm run test:e2e         # Playwright (landing + login)
+```
+
+---
+
 ## 🚨 Environment Variables
 
 ### Backend (.env)
 ```env
-DATABASE_URL=sqlite:///./ecoflow.db
+DATABASE_URL=postgresql://ecoflow_user:ecoflow_password@localhost:5432/ecoflow
 FIREBASE_CREDENTIALS_PATH=./firebase-credentials.json
 SECRET_KEY=your-secret-key
 ENVIRONMENT=development
+ADMIN_UIDS=firebase_uid_1,firebase_uid_2   # otomatis diberi role admin
+MINIO_ENDPOINT=http://localhost:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET_NAME=ecoflow-bucket
+# Optional: CORS_ORIGINS, ALLOWED_HOSTS, RATE_LIMIT, REDIS_URL, RETENTION_DAYS
 ```
+Lihat `backend/.env.example` untuk daftar lengkap.
 
 ### Frontend (.env.local)
 ```env
@@ -235,6 +280,7 @@ NEXT_PUBLIC_FIREBASE_API_KEY=your_key
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project
 ```
+Salin dari `frontend/.env.example`.
 
 ---
 
@@ -327,7 +373,7 @@ Baca [CONTRIBUTING.md](./CONTRIBUTING.md) untuk panduan berkontribusi.
 
 ## 📄 License
 
-MIT License - lihat [LICENSE](./LICENSE)
+Proyek ini dibuat untuk kompetisi ITechnoCup 2026. Hak cipta © 2026 EcoFlow AI Team. Semua hak dilindungi.
 
 ---
 

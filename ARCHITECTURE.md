@@ -2,7 +2,7 @@
 
 ## System Overview
 
-The EcoFlow AI platform employs a modular, service-oriented architecture designed for scalability, maintainability, and efficient AI integration. It leverages a modern web stack with a React/Next.js frontend for a responsive user experience, a Python FastAPI backend for robust API services and AI orchestration, and PostgreSQL as the primary data store. AI/ML components, built with TensorFlow and scikit-learn, are integrated as services to provide intelligent decision support for eco-enzyme fermentation and product optimization. Firebase Authentication handles secure user access, while MinIO provides scalable object storage for user-generated content. The entire system is designed to run efficiently on a Hostinger VPS for cost-effectiveness during the MVP phase.
+The EcoFlow AI platform employs a modular, service-oriented architecture designed for scalability, maintainability, and efficient AI integration. It leverages a modern web stack with a React/Next.js frontend for a responsive user experience, a Python FastAPI backend for robust API services and AI orchestration, and PostgreSQL as the primary data store. AI-assisted features (fermentation classification, product recommendation) are implemented as deterministic, data-driven services with heuristic scoring to provide intelligent decision support for eco-enzyme fermentation and product optimization. Firebase Authentication handles secure user access, while MinIO provides scalable object storage for user-generated content. The entire system is designed to run efficiently on a Hostinger VPS for cost-effectiveness during the MVP phase.
 
 ## High-Level Architecture Diagram
 
@@ -18,7 +18,7 @@ graph TD
 
     subgraph Backend Services
         C["Backend API (FastAPI)"]
-        D["AI/ML Service (TensorFlow/scikit-learn)"]
+        D["AI Service (heuristic classification & scoring)"]
     end
 
     subgraph Data & Storage
@@ -61,9 +61,9 @@ The Backend API, implemented with Python FastAPI, serves as the central applicat
 *   Managing user sessions and authorization by verifying Firebase Auth tokens.
 *   Implementing core business logic for `Smart Eco-Enzyme Roadmap`, `AI Fermentation Assistant`, `AI Product Recommendation`, `Adaptive Roadmap`, and `Business Analysis`.
 
-### AI/ML Service (TensorFlow/scikit-learn)
+### AI Service (heuristic classification & scoring)
 This service encapsulates all Artificial Intelligence and Machine Learning functionalities. It is responsible for:
-*   **Fermentation Status Classification:** Analyzing user-logged parameters (aroma, color, gas) to classify fermentation health (Normal/Caution/Failed) and suggest corrective actions. This uses rule-based logic combined with lightweight ML models (e.g., scikit-learn classifiers).
+*   **Fermentation Status Classification:** Analyzing user-logged parameters (aroma, color, gas) to classify fermentation health (Normal/Caution/Failed) and suggest corrective actions. This uses deterministic rule-based logic with weighted scoring (no external ML runtime dependencies).
 *   **Product Recommendation:** Matching harvested eco-enzyme characteristics with predefined product templates and user goals to recommend the most suitable derivative products. This involves similarity scoring and ranking.
 *   **Business Analysis:** Performing financial calculations (COGS, SRP, profit projections) based on user inputs and market data, potentially using statistical models for sensitivity analysis.
 *   The service interacts with PostgreSQL to retrieve historical fermentation data for model training/inference and to store model configurations or results.
@@ -109,7 +109,7 @@ sequenceDiagram
     Frontend->>Auth: Checks user authentication status
     Auth-->>Frontend: Returns authenticated status
     User->>Frontend: Enters log data (aroma, color, gas, temp) + Uploads image
-    Frontend->>Backend: POST /api/fermentation/log (with data & image)
+    Frontend->>Backend: POST /api/v1/batches/{id}/logs (with data & image)
     Backend->>Auth: Verifies user token
     Auth-->>Backend: Token valid
     Backend->>Storage: Uploads image to MinIO
@@ -133,7 +133,7 @@ The EcoFlow AI platform is designed for deployment on a single Virtual Private S
 *   **Hostinger VPS:** The primary hosting environment for all core application components.
     *   **Frontend (Next.js):** Deployed as a Node.js application, potentially using a process manager like PM2 or containerized with Docker and orchestrated by Docker Compose. It will serve the web application and handle SSR.
     *   **Backend API (FastAPI):** Deployed as a Python application, likely using a WSGI server like Gunicorn or Uvicorn, also managed by PM2 or Docker/Docker Compose.
-    *   **AI/ML Service:** Integrated directly within the FastAPI application or as a separate Python service running on the same VPS, communicating via internal network calls or shared memory. It will load TensorFlow/scikit-learn models.
+    *   **AI/ML Service:** Integrated directly within the FastAPI application or as a separate Python service running on the same VPS, communicating via internal network calls or shared memory. It implements heuristic classification and scoring services (no external ML runtime dependencies).
     *   **Database (PostgreSQL):** Installed directly on the VPS as a managed service or within a Docker container, configured for local access by the Backend API and AI/ML Service.
     *   **Object Storage (MinIO):** Installed as a standalone service on the VPS, configured to store data on the VPS's disk. It will expose an S3-compatible API for the Backend to interact with.
 *   **Firebase Auth:** This is a cloud-based service managed by Google. The frontend SDK directly communicates with Firebase, and the backend uses Firebase Admin SDK for token verification, requiring internet connectivity.
