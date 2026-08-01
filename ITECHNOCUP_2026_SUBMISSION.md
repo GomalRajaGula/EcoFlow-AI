@@ -295,7 +295,7 @@ EcoFlow AI is **ready for MVP launch** and **competition submission**.
 ---
 
 **Contact:**
-- GitHub: https://github.com/anomalyco/ecoflow-ai
+- GitHub: https://github.com/GomalRajaGula/EcoFlow-AI
 - Email: support@ecoflow.ai (setup on launch)
 - Demo: Available at http://localhost:3000 (local dev) or staging URL (on request)
 

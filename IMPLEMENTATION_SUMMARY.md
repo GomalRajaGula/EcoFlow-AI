@@ -172,8 +172,9 @@ User must:
 4. Copy Firebase config to `frontend/.env.local`
 
 ### Database
-- Currently using SQLite (`ecoflow.db`)
-- For production, migrate to PostgreSQL (update `DATABASE_URL` in `.env`)
+- Uses **PostgreSQL** via Docker (`docker-compose up -d postgres`)
+- Schema managed with **Alembic migrations** (5 migrations: base → c1d2e3f4a5b6)
+- Run `alembic upgrade head` after starting the database
 
 ---
 

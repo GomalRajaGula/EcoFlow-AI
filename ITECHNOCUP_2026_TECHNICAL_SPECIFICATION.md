@@ -533,7 +533,7 @@ async def get_batches():
 ```bash
 cd backend
 pytest tests/ -v
-# Results: 20/20 tests passing ✅
+# Results: 26+ tests passing ✅
 # Coverage: 85% core services
 ```
 

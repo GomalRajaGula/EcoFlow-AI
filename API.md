@@ -1,241 +1,614 @@
-# API.md: EcoFlow AI
+# API Documentation — EcoFlow AI
 
-## Authentication & Authorization
+## Base URL
+```
+http://localhost:8000/api/v1
+```
 
-EcoFlow AI utilizes Firebase Authentication for user management. Clients are expected to obtain a Firebase ID Token after successful user authentication (e.g., via email/password, Google Sign-In, etc.). This ID Token must be sent with every authenticated API request in the `Authorization` header.
+## Authentication
+All endpoints (except `/health`) require Firebase JWT token in `Authorization: Bearer <token>` header.
 
-**Method:** Firebase ID Token verification.
-**Header Format:** `Authorization: Bearer <Firebase_ID_Token>`
-**Authorization Levels:**
-*   **Public:** No authentication required.
-*   **User:** Authenticated user (Household User, UMKM Operator). Token must be valid.
-*   **Admin:** Authenticated user with `Platform Admin` or `Community Admin` role. Token must be valid and associated role verified on the backend.
+---
 
-## Standard Response & Pagination Formats
+## Health & Status
 
-All API responses will adhere to a consistent JSON structure to ensure predictability and ease of integration.
+### GET /health
+Health check endpoint.
+```
+Response: 200 OK
+{ "status": "ok" }
+```
 
-### Success Response
+---
 
-```json
+## Batches (Fermentation Management)
+
+### POST /batches
+Create a new fermentation batch.
+```
+Request:
+{
+  "name": "Batch 1",
+  "waste_weight_kg": 5.0,
+  "water_liters": 15.0,
+  "sugar_kg": 2.5,
+  "start_date": "2026-08-01T10:00:00Z"
+}
+
+Response: 201 Created
 {
   "status": "success",
-  "message": "Optional success message.",
   "data": {
-    // Primary response data
+    "id": 1,
+    "user_id": "uid",
+    "name": "Batch 1",
+    "status": "pending",
+    "waste_weight_kg": 5.0,
+    "water_liters": 15.0,
+    "sugar_kg": 2.5,
+    "start_date": "2026-08-01T10:00:00Z",
+    "created_at": "2026-08-01T13:00:00Z"
   }
 }
 ```
 
-### Error Response
-
-```json
-{
-  "status": "error",
-  "code": "ERROR_CODE_ENUM",
-  "message": "A human-readable error description.",
-  "details": {
-    // Optional, more specific error details (e.g., validation errors)
-  }
-}
+### GET /batches
+List all batches for the authenticated user.
 ```
-
-### Pagination Format
-
-For endpoints returning lists of resources, pagination details will be included in the `pagination` object.
-
-```json
+Response: 200 OK
 {
   "status": "success",
   "data": [
-    // Array of resource objects
-  ],
-  "pagination": {
-    "total_items": 100,
-    "total_pages": 10,
-    "current_page": 1,
-    "page_size": 10,
-    "next_page": 2,
-    "prev_page": null
+    { "id": 1, "name": "Batch 1", "status": "pending", ... },
+    { "id": 2, "name": "Batch 2", "status": "harvested", ... }
+  ]
+}
+```
+
+### GET /batches/{batch_id}
+Get batch details.
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": { "id": 1, "name": "Batch 1", ... }
+}
+```
+
+### GET /batches/{batch_id}/dashboard
+Get batch dashboard (metrics, milestones, harvest alerts).
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "batch": { ... },
+    "latest_health_score": 85.0,
+    "upcoming_milestones": ["Day 30 checkpoint", "Harvest ready"],
+    "harvest_alert": true
   }
 }
 ```
 
-## API Endpoints
+---
 
-### Fermentation Batch Management
+## Fermentation Logs
 
-#### 1. Create New Fermentation Batch
+### POST /batches/{batch_id}/logs
+Add a fermentation log entry.
+```
+Request:
+{
+  "log_date": "2026-08-02T10:00:00Z",
+  "aroma": "sweet",
+  "color": "amber",
+  "gas_presence": true,
+  "temperature_c": 28.5,
+  "notes": "Fermenting well"
+}
 
-*   **Method:** `POST`
-*   **Path:** `/api/v1/batches`
-*   **Description:** Initiates a new eco-enzyme fermentation batch, calculating initial ingredient ratios based on organic waste input.
-*   **Auth Level:** User
-*   **Request Body (JSON):**
-    ```json
+Response: 201 Created
+{
+  "status": "success",
+  "data": {
+    "id": 1,
+    "batch_id": 1,
+    "ai_status": "Normal",
+    "ai_confidence": 0.92,
+    "created_at": "2026-08-02T13:00:00Z"
+  }
+}
+```
+
+### GET /batches/{batch_id}/logs
+List all logs for a batch.
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": [
+    { "id": 1, "log_date": "...", "aroma": "sweet", ... },
+    { "id": 2, "log_date": "...", "aroma": "sour", ... }
+  ]
+}
+```
+
+---
+
+## Product Recommendations
+
+### POST /batches/{batch_id}/recommendation
+Get product recommendations based on batch harvest characteristics.
+```
+Request:
+{
+  "harvest_date": "2026-08-30T10:00:00Z",
+  "harvest_volume_liters": 20.0,
+  "final_color": "amber",
+  "aroma_intensity": "sweet",
+  "user_intent": "household"
+}
+
+Response: 201 Created
+{
+  "status": "success",
+  "message": "Product recommendations generated",
+  "data": {
+    "recommendations": [
+      {
+        "product_id": 3,
+        "name": "Liquid Fertilizer",
+        "compatibility_score": 92.5,
+        "description": "Liquid Fertilizer product recommendation",
+        "processing_instruction_summary": "Use for liquid fertilizer applications"
+      },
+      ...
+    ]
+  }
+}
+```
+
+### POST /batches/{batch_id}/select-product
+Select a recommended product to generate roadmap.
+```
+Request:
+{
+  "product_template_id": 3
+}
+
+Response: 200 OK
+{
+  "status": "success",
+  "message": "Product selected successfully",
+  "data": { "selected_product_id": 3 }
+}
+```
+
+### POST /check-ingredient-ratio
+Check ingredient ratio deviation (water/sugar vs ideal).
+```
+Request:
+{
+  "waste_kg": 5.0,
+  "water_liters": 15.0,
+  "sugar_kg": 2.5
+}
+
+Response: 200 OK
+{
+  "status": "success",
+  "message": "Ratio check complete",
+  "data": {
+    "ideal_water_liters": 15.0,
+    "ideal_sugar_kg": 2.5,
+    "deviation_warning": false
+  }
+}
+```
+
+---
+
+## Business Analysis
+
+### POST /batches/{batch_id}/business-analysis
+Run financial analysis for a product.
+```
+Request:
+{
+  "product_name": "Liquid Fertilizer",
+  "production_volume_liters": 20.0,
+  "target_market": "agricultural_retail",
+  "packaging_type": "bottle_1l",
+  "distribution_channel": "retail",
+  "raw_material_cost": 50000,
+  "packaging_cost": 30000,
+  "labor_cost": 20000,
+  "overhead_cost": 10000,
+  "monthly_fixed_costs": 100000,
+  "regional_average_price": 75000
+}
+
+Response: 201 Created
+{
+  "status": "success",
+  "data": {
+    "cogs_per_unit": 4500,
+    "srp_recommended": 6750,
+    "gross_margin_percent": 33.3,
+    "monthly_revenue_conservative": 1350000,
+    "monthly_profit_conservative": 450000,
+    "breakeven_units": 15,
+    "sensitivity_analysis": { ... }
+  }
+}
+```
+
+### GET /batches/{batch_id}/business-analysis/report
+Download financial analysis as PDF.
+```
+Response: 200 OK (application/pdf)
+[PDF content]
+```
+
+---
+
+## Roadmap (Processing Guide)
+
+### POST /batches/{batch_id}/roadmap
+Create a roadmap for producing the selected product.
+```
+Request:
+{
+  "product_template_id": 3
+}
+
+Response: 201 Created
+{
+  "status": "success",
+  "message": "Roadmap created successfully",
+  "data": {
+    "id": 1,
+    "batch_id": 1,
+    "product_template_id": 3,
+    "status": "not_started",
+    "current_step": 0,
+    "steps": [
+      { "step": 1, "title": "Prepare equipment", "duration_hours": 2, ... },
+      { "step": 2, "title": "Mix ingredients", "duration_hours": 1, ... }
+    ]
+  }
+}
+```
+
+### GET /batches/{batch_id}/roadmap
+Get roadmap details.
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": { "id": 1, "status": "not_started", ... }
+}
+```
+
+### PUT /batches/{batch_id}/roadmap/steps/{step_index}
+Update roadmap step status.
+```
+Request:
+{
+  "completed": true
+}
+
+Response: 200 OK
+{
+  "status": "success",
+  "message": "Step updated successfully",
+  "data": { ... }
+}
+```
+
+### GET /batches/{batch_id}/roadmap/report
+Download roadmap checklist as PDF.
+```
+Response: 200 OK (application/pdf)
+[PDF content]
+```
+
+### GET /roadmap/templates/{template_id}
+Get roadmap template (steps, safety warnings, processing details).
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "template_id": 3,
+    "name": "Liquid Fertilizer",
+    "steps": [ ... ],
+    "safety_warnings": "..."
+  }
+}
+```
+
+---
+
+## Environmental Impact
+
+### GET /impact/total
+Get cumulative environmental impact.
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "total_waste_kg": 50.0,
+    "co2_avoided_kg": 95.0,
+    "waste_diverted_percentage": 100.0
+  }
+}
+```
+
+### GET /impact/batch/{batch_id}
+Get environmental impact for a specific batch.
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "batch_id": 1,
+    "waste_diverted_kg": 5.0,
+    "co2_avoided_kg": 9.5,
+    "formula_kg_co2_per_kg_waste": 1.9
+  }
+}
+```
+
+---
+
+## Admin — Communities
+
+### GET /admin/communities
+List all communities (scoped by role: admin sees all, community_admin sees own).
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "communities": [
+      { "id": 1, "name": "Jakarta Community", "region": "Jakarta Selatan", ... },
+      { "id": 2, "name": "Bandung Community", "region": "Bandung", ... }
+    ]
+  }
+}
+```
+
+### POST /admin/communities
+Create a new community.
+```
+Request:
+{
+  "name": "Surabaya Community",
+  "region": "East Java"
+}
+
+Response: 201 Created
+{
+  "status": "success",
+  "data": { "id": 3, "name": "Surabaya Community", ... }
+}
+```
+
+---
+
+## Admin — Statistics & Reports
+
+### GET /admin/community-stats
+Get statistics for a community (members, batches, waste processed, success rates).
+```
+Query params: ?community_id=1&start_date=2026-07-01&end_date=2026-08-01
+
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "total_users": 10,
+    "total_batches": 25,
+    "total_waste_processed_kg": 100.0,
+    "success_rate_percentage": 92.0,
+    "normal_logs": 45,
+    "caution_logs": 3,
+    "failed_logs": 2,
+    "engagement": { "log_adoption_percentage": 75.0, ... }
+  }
+}
+```
+
+### GET /admin/community-trends
+Get trend data (30-day series) for a community.
+```
+Query params: ?community_id=1&days=30
+
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "days": 30,
+    "trends": [
+      { "date": "2026-07-03", "logs": 5, "normal": 4, "success_rate_percentage": 80.0 },
+      { "date": "2026-07-04", "logs": 6, "normal": 6, "success_rate_percentage": 100.0 }
+    ]
+  }
+}
+```
+
+### GET /admin/community-compliance-report
+Download compliance report (statistics + trends) as CSV.
+```
+Query params: ?community_id=1&start_date=2026-07-01&end_date=2026-08-01
+
+Response: 200 OK (text/csv)
+[CSV content]
+```
+
+---
+
+## Admin — Product Templates
+
+### GET /admin/product-templates
+List all product templates.
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": [
     {
-      "waste_weight_kg": 5.2,
-      "batch_name": "Kitchen Scraps Batch 1",
-      "start_date": "2024-07-20"
+      "id": 1,
+      "name": "Household Cleaner",
+      "description": "General-purpose eco-enzyme cleaner",
+      "time_estimate_hours": 24,
+      "base_compatibility_score": 0.85
     }
-    ```
-*   **Response Body (JSON):**
-    ```json
-    {
-      "status": "success",
-      "data": {
-        "batch_id": "ee_batch_abc123",
-        "batch_name": "Kitchen Scraps Batch 1",
-        "start_date": "2024-07-20",
-        "waste_weight_kg": 5.2,
-        "calculated_water_liters": 15.6,
-        "calculated_sugar_kg": 5.2,
-        "status": "active",
-        "expected_harvest_date": "2024-10-18"
-      }
-    }
-    ```
-*   **Status Codes:**
-    *   `201 Created`: Successfully created batch.
-    *   `400 Bad Request`: Invalid input data.
-    *   `401 Unauthorized`: Missing or invalid authentication token.
+  ]
+}
+```
 
-#### 2. Log Fermentation Progress
+### POST /admin/product-templates
+Create a new product template.
+```
+Request:
+{
+  "name": "New Product",
+  "description": "Description",
+  "processing_instructions": "Steps",
+  "ingredients": ["ingredient1", "ingredient2"],
+  "equipment": ["equipment1"],
+  "time_estimate_hours": 48,
+  "safety_warnings": "Warnings",
+  "base_compatibility_score": 0.9
+}
 
-*   **Method:** `POST`
-*   **Path:** `/api/v1/batches/{batch_id}/logs`
-*   **Description:** Records daily/weekly observations for an active fermentation batch and provides AI-driven status assessment.
-*   **Auth Level:** User
-*   **Request Body (JSON):**
-    ```json
-    {
-      "log_date": "2024-08-05",
-      "aroma": "sweet_sour",
-      "color": "#A0522D",
-      "gas_presence": true,
-      "temperature_celsius": 28.5,
-      "notes": "Slightly cloudy, active bubbling."
-    }
-    ```
-*   **Response Body (JSON):**
-    ```json
-    {
-      "status": "success",
-      "data": {
-        "log_id": "ee_log_xyz789",
-        "batch_id": "ee_batch_abc123",
-        "log_date": "2024-08-05",
-        "aroma": "sweet_sour",
-        "color": "#A0522D",
-        "gas_presence": true,
-        "temperature_celsius": 28.5,
-        "notes": "Slightly cloudy, active bubbling.",
-        "ai_status_prediction": "Normal",
-        "ai_confidence_score": 0.92,
-        "corrective_action_suggestion": "Continue monitoring. No action needed."
-      }
-    }
-    ```
-*   **Status Codes:**
-    *   `201 Created`: Successfully logged progress.
-    *   `400 Bad Request`: Invalid input data.
-    *   `401 Unauthorized`: Missing or invalid authentication token.
-    *   `404 Not Found`: Batch ID does not exist.
+Response: 201 Created
+{
+  "status": "success",
+  "data": { "id": 9, ... }
+}
+```
 
-### Product Optimization & Business Analysis
+### PATCH /admin/product-templates/{template_id}
+Update a product template.
+```
+Request: { "name": "Updated name", ... }
 
-#### 3. Get AI Product Recommendation
+Response: 200 OK
+{
+  "status": "success",
+  "message": "Product template updated",
+  "data": { "id": 9, ... }
+}
+```
 
-*   **Method:** `POST`
-*   **Path:** `/api/v1/batches/{batch_id}/recommendation`
-*   **Description:** Provides AI-driven product recommendations based on the harvested eco-enzyme's characteristics and user's intent.
-*   **Auth Level:** User
-*   **Request Body (JSON):**
-    ```json
-    {
-      "harvest_date": "2024-10-20",
-      "harvest_volume_liters": 12.5,
-      "final_color": "#8B4513",
-      "aroma_intensity": 7,
-      "user_intent": "household_use"
-    }
-    ```
-*   **Response Body (JSON):**
-    ```json
-    {
-      "status": "success",
-      "data": {
-        "batch_id": "ee_batch_abc123",
-        "recommendations": [
-          {
-            "product_name": "Household Cleaner",
-            "compatibility_score": 95,
-            "description": "Excellent for general cleaning, floor mopping, and kitchen surfaces.",
-            "processing_instructions_summary": "Dilute 1:10 for general use. Store in a cool, dark place.",
-            "roadmap_id": "roadmap_cleaner_v1"
-          },
-          {
-            "product_name": "Liquid Fertilizer",
-            "compatibility_score": 88,
-            "description": "Nutrient-rich liquid for plant growth and soil health.",
-            "processing_instructions_summary": "Dilute 1:500 for foliar spray. Apply weekly.",
-            "roadmap_id": "roadmap_fertilizer_v1"
-          }
-        ]
-      }
-    }
-    ```
-*   **Status Codes:**
-    *   `200 OK`: Successfully retrieved recommendations.
-    *   `400 Bad Request`: Invalid input data.
-    *   `401 Unauthorized`: Missing or invalid authentication token.
-    *   `404 Not Found`: Batch ID does not exist.
+### DELETE /admin/product-templates/{template_id}
+Delete a product template.
+```
+Response: 200 OK
+{
+  "status": "success",
+  "message": "Product template deleted"
+}
+```
 
-#### 4. Perform Business Analysis
+---
 
-*   **Method:** `POST`
-*   **Path:** `/api/v1/batches/{batch_id}/business-analysis`
-*   **Description:** Calculates financial metrics for commercializing a selected eco-enzyme derivative.
-*   **Auth Level:** User (UMKM Operator role recommended for full feature set)
-*   **Request Body (JSON):**
-    ```json
-    {
-      "product_name": "Household Cleaner",
-      "production_volume_liters": 100,
-      "target_market": "local_retail",
-      "packaging_type": "500ml_bottle",
-      "distribution_channel": "direct_sales",
-      "additional_costs": [
-        {"item": "bottle_labels", "cost_per_unit": 0.05},
-        {"item": "transportation", "cost_per_unit": 0.10}
-      ]
-    }
-    ```
-*   **Response Body (JSON):**
-    ```json
-    {
-      "status": "success",
-      "data": {
-        "batch_id": "ee_batch_abc123",
-        "product_name": "Household Cleaner",
-        "analysis_date": "2024-10-25",
-        "cost_of_goods_sold_per_liter": 0.75,
-        "suggested_retail_price_per_liter": 2.50,
-        "gross_margin_percentage": 70.0,
-        "break_even_units_liters": 40,
-        "profit_projection_12_months": {
-          "total_revenue": 2500.00,
-          "total_costs": 750.00,
-          "net_profit": 1750.00
-        },
-        "feasibility_rating": "Viable",
-        "report_download_url": "https://api.ecoflow.ai/reports/ee_batch_abc123_biz_analysis.pdf"
-      }
-    }
-    ```
-*   **Status Codes:**
-    *   `200 OK`: Successfully performed business analysis.
-    *   `400 Bad Request`: Invalid input data.
-    *   `401 Unauthorized`: Missing or invalid authentication token.
-    *   `403 Forbidden`: User does not have sufficient permissions (e.g., not UMKM Operator).
-    *   `404 Not Found`: Batch ID or product name does not exist.
+## Admin — Model Metrics
+
+### GET /admin/model-metrics
+Get AI/ML model performance metrics (computed from database).
+```
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "total_predictions": 150,
+    "normal_logs": 140,
+    "caution_logs": 8,
+    "failed_logs": 2,
+    "success_rate_percentage": 93.3,
+    "average_health_score": 0.88,
+    "uptime_percentage": 99.9
+  }
+}
+```
+
+---
+
+## Admin — User Management
+
+### PATCH /admin/users/{user_id}/role
+Update a user's role.
+```
+Request:
+{
+  "role": "admin" | "community_admin" | "platform_admin" | "user"
+}
+
+Response: 200 OK
+{
+  "status": "success",
+  "message": "User role updated to admin",
+  "data": { "user_id": "uid", "role": "admin" }
+}
+```
+
+---
+
+## File Upload
+
+### POST /upload
+Upload an image (fermentation log photo, product image).
+```
+Multipart form-data:
+- file: <image file> (MIME: image/jpeg, image/png, max 5MB)
+
+Response: 200 OK
+{
+  "status": "success",
+  "data": {
+    "file_url": "http://minio:9000/ecoflow-bucket/logs/uuid.jpg",
+    "file_size_bytes": 102400
+  }
+}
+```
+
+---
+
+## Error Responses
+
+All errors follow this format:
+```json
+{
+  "status": "error",
+  "message": "Error description",
+  "detail": "Additional context"
+}
+```
+
+Common HTTP status codes:
+- 200 OK — request successful
+- 201 Created — resource created
+- 400 Bad Request — invalid input
+- 401 Unauthorized — missing/invalid token
+- 403 Forbidden — insufficient permissions
+- 404 Not Found — resource not found
+- 429 Too Many Requests — rate limit exceeded
+- 500 Internal Server Error — server error
+
+---
+
+## Rate Limiting
+- **Limit:** 60 requests per minute per IP
+- **Headers:** Check `RateLimit-Remaining`, `RateLimit-Reset` in response
+- **Fallback:** In-memory counter if Redis unavailable
+
+## Authentication & Authorization
+- **Auth method:** Firebase JWT
+- **Roles:** `user` (default), `admin`, `community_admin`, `platform_admin`
+- **Admin routes:** Require `admin` or `platform_admin` role
+- **Community routes:** `community_admin` scoped to own community

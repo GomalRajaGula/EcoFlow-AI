@@ -90,11 +90,15 @@ except Exception as e:
 
 #### 4. Rate Limiting
 **File:** `backend/app/main.py`
-**Status:** Implemented with an in-memory per-IP request window. Requests exceeding 60 per minute receive HTTP 429. Production deployments should replace this with a shared Redis-backed limiter.
+**Status:** Implemented with a Redis-backed per-IP request window (60 requests/minute, configurable via `RATE_LIMIT`/`RATE_LIMIT_WINDOW` env). Falls back to in-memory when `REDIS_URL` is not set. Requests exceeding the limit receive HTTP 429.
 ```python
-# ADD THIS (Rate limiting middleware)
-from slowapi import Limiter
-from slowapi.util import get_remote_address
+# IMPLEMENTED (Rate limiting middleware in backend/app/main.py)
+import redis as redis_client
+_redis = redis_client.from_url(REDIS_URL, socket_connect_timeout=1) if REDIS_URL else None
+if _redis:
+    _redis.ping()
+    logger.info("Rate limiter: Redis-backed")
+# Falls back to in-memory buckets when Redis unavailable
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
@@ -170,7 +174,7 @@ class FermentationBatchCreate(BaseModel):
 # ADD THIS (Security headers)
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost:3000"])
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)  # env-configurable via ALLOWED_HOSTS
 
 # Add custom middleware for security headers
 @app.middleware("http")

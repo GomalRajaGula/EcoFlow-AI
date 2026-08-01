@@ -9,9 +9,10 @@
 ## 🧪 E2E TESTING STRATEGY
 
 ### Current State
-- ✅ Backend: 20/20 unit tests passing
+- ✅ Backend: 26+ unit tests passing
 - ✅ Frontend: ESLint clean, production build successful
-- ❌ E2E tests: Not automated (manual testing recommended for MVP)
+- ✅ E2E tests: 4 automated (landing page, login form, security regression via Playwright)
+- ⚠️ Scenarios 2-7: manual testing recommended for comprehensive coverage
 - ❌ Integration tests: Need verification
 
 ---

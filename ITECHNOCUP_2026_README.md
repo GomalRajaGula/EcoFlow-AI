@@ -210,7 +210,7 @@ python -m alembic upgrade head
 
 ### Backend
 ```
-✅ 20/20 unit tests passing
+✅ 26+ unit tests passing
 ✅ API response time: <500ms (tested)
 ✅ Database queries: <50ms (PostgreSQL indexed)
 ✅ PDF generation: <2s (ReportLab)
@@ -367,7 +367,7 @@ prd-ecoflow-ai/
 - **Questions:** Check README.md → Troubleshooting section
 
 **Project Repository:**
-- GitHub: https://github.com/anomalyco/prd-ecoflow-ai
+- GitHub: https://github.com/GomalRajaGula/EcoFlow-AI
 - Status: Public (open-source ready)
 
 **Team Contact:**
@@ -393,7 +393,7 @@ Before August 4, 2026 deadline:
   - ✅ Technical Specification
   - ✅ Impact & Business Case Analysis
 - ✅ All code committed to Git
-- ✅ Backend tests: 20/20 passing
+- ✅ Backend tests: 26+ passing
 - ✅ Frontend build: Production-ready
 
 ---
