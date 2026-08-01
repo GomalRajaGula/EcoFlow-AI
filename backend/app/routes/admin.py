@@ -1,21 +1,65 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import date
+import csv
+import io
+
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.auth import get_current_user, require_role
-from app.models.base import ProductTemplate, User
-from app.schemas.base import APIResponse, ProductTemplateCreate, ProductTemplateUpdate
+from app.models.base import Community, ProductTemplate, User
+from app.schemas.base import APIResponse, CommunityCreate, ProductTemplateCreate, ProductTemplateUpdate
 from app.services.admin import AdminService
 
 router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
+
+def scope_community_id(current_user: User, role: str, community_id: int | None) -> int | None:
+    if role == "community_admin":
+        return current_user.community_id
+    return community_id
+
+@router.get("/communities", response_model=APIResponse)
+async def list_communities(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    role: str = Depends(require_role("admin", "community_admin", "platform_admin")),
+):
+    query = db.query(Community).order_by(Community.name)
+    if role == "community_admin":
+        query = query.filter(Community.id == current_user.community_id)
+    communities = query.all()
+    return APIResponse(
+        status="success",
+        data={"communities": [{"id": item.id, "name": item.name, "region": item.region} for item in communities]},
+    )
+
+@router.post("/communities", response_model=APIResponse, status_code=status.HTTP_201_CREATED)
+async def create_community(
+    community_data: CommunityCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    role: str = Depends(require_role("admin", "platform_admin")),
+):
+    existing = db.query(Community).filter(Community.name == community_data.name).first()
+    if existing:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Community already exists")
+    community = Community(**community_data.model_dump())
+    db.add(community)
+    db.commit()
+    db.refresh(community)
+    return APIResponse(status="success", message="Community created", data={"id": community.id})
+
 @router.get("/community-stats", response_model=APIResponse)
 async def get_community_stats(
+    community_id: int | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     role: str = Depends(require_role("admin", "community_admin", "platform_admin"))
 ):
     try:
-        stats = AdminService.get_community_stats(db)
+        stats = AdminService.get_community_stats(db, scope_community_id(current_user, role, community_id), start_date, end_date)
         return APIResponse(
             status="success",
             data=stats
@@ -26,6 +70,7 @@ async def get_community_stats(
 @router.get("/community-trends", response_model=APIResponse)
 async def get_community_trends(
     days: int = 30,
+    community_id: int | None = None,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     role: str = Depends(require_role("admin", "community_admin", "platform_admin")),
@@ -33,10 +78,44 @@ async def get_community_trends(
     try:
         return APIResponse(
             status="success",
-            data=AdminService.get_community_trends(db, days),
+            data=AdminService.get_community_trends(db, days, scope_community_id(current_user, role, community_id)),
         )
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to load community trends")
+
+@router.get("/community-compliance-report")
+async def download_community_compliance_report(
+    community_id: int | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    role: str = Depends(require_role("admin", "community_admin", "platform_admin")),
+):
+    scoped_id = scope_community_id(current_user, role, community_id)
+    stats = AdminService.get_community_stats(db, scoped_id, start_date, end_date)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["metric", "value"])
+    writer.writerow(["community_id", scoped_id or "all"])
+    writer.writerow(["start_date", start_date.isoformat() if start_date else ""])
+    writer.writerow(["end_date", end_date.isoformat() if end_date else ""])
+    writer.writerow(["total_users", stats["total_users"]])
+    writer.writerow(["total_batches", stats["total_batches"]])
+    writer.writerow(["total_waste_processed_kg", stats["total_waste_processed_kg"]])
+    writer.writerow(["success_rate_percentage", stats["success_rate_percentage"]])
+    writer.writerow(["total_logs", stats["total_logs"]])
+    writer.writerow(["normal_logs", stats["normal_logs"]])
+    writer.writerow(["caution_logs", stats["caution_logs"]])
+    writer.writerow(["failed_logs", stats["failed_logs"]])
+    writer.writerow(["log_adoption_percentage", stats["engagement"]["log_adoption_percentage"]])
+    writer.writerow(["recommendation_adoption_percentage", stats["engagement"]["recommendation_adoption_percentage"]])
+    writer.writerow(["roadmap_adoption_percentage", stats["engagement"]["roadmap_adoption_percentage"]])
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=community-compliance-report.csv"},
+    )
 
 @router.get("/product-templates", response_model=APIResponse)
 async def list_product_templates(

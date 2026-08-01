@@ -2,6 +2,11 @@ from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional, List
 
+class CommunityCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    region: Optional[str] = Field(None, max_length=120)
+
+
 class UserBase(BaseModel):
     email: str = Field(min_length=3, max_length=254)
     name: str = Field(min_length=1, max_length=100)

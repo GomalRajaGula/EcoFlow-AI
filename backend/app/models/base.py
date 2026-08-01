@@ -8,6 +8,18 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
+class Community(Base):
+    __tablename__ = "communities"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    region = Column(String, nullable=True, index=True)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+    users = relationship("User", back_populates="community")
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -15,10 +27,12 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     name = Column(String)
     role = Column(String, default="user")
+    community_id = Column(Integer, ForeignKey("communities.id"), nullable=True, index=True)
     waste_diverted_kg = Column(Float, default=0.0)
     created_at = Column(DateTime, default=utcnow)
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 
+    community = relationship("Community", back_populates="users")
     batches = relationship("FermentationBatch", back_populates="user")
 
 

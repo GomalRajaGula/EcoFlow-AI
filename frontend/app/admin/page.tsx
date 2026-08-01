@@ -60,6 +60,12 @@ interface CommunityTrend {
   success_rate_percentage: number;
 }
 
+interface Community {
+  id: number;
+  name: string;
+  region: string | null;
+}
+
 interface ProductTemplate {
   id: number;
   name: string;
@@ -76,6 +82,10 @@ export default function AdminPage() {
   const [stats, setStats] = useState<CommunityStats | null>(null);
   const [metrics, setMetrics] = useState<ModelMetrics | null>(null);
   const [trends, setTrends] = useState<CommunityTrend[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [selectedCommunity, setSelectedCommunity] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [templates, setTemplates] = useState<ProductTemplate[]>([]);
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
@@ -97,16 +107,18 @@ export default function AdminPage() {
     const loadAdminData = async () => {
       try {
         setLoading(true);
-        const [statsRes, metricsRes, trendsRes, templatesRes] = await Promise.all([
+        const [statsRes, metricsRes, trendsRes, templatesRes, communitiesRes] = await Promise.all([
           apiClient.get('/api/v1/admin/community-stats'),
           apiClient.get('/api/v1/admin/model-metrics'),
           apiClient.get('/api/v1/admin/community-trends?days=30'),
           apiClient.get('/api/v1/admin/product-templates'),
+          apiClient.get('/api/v1/admin/communities'),
         ]);
         setStats(statsRes.data.data);
         setMetrics(metricsRes.data.data);
         setTrends(trendsRes.data.data.trends || []);
         setTemplates(templatesRes.data.data.templates || []);
+        setCommunities(communitiesRes.data.data.communities || []);
       } catch (error: unknown) {
         const err = error as { response?: { data?: { detail?: string } } };
         toast({
@@ -177,6 +189,36 @@ export default function AdminPage() {
     }
   };
 
+  const loadCommunityScope = async () => {
+    const params = new URLSearchParams();
+    if (selectedCommunity) params.set('community_id', selectedCommunity);
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const statsResponse = await apiClient.get(`/api/v1/admin/community-stats?${params.toString()}`);
+    const trendParams = new URLSearchParams();
+    if (selectedCommunity) trendParams.set('community_id', selectedCommunity);
+    trendParams.set('days', '30');
+    const trendsResponse = await apiClient.get(`/api/v1/admin/community-trends?${trendParams.toString()}`);
+    setStats(statsResponse.data.data);
+    setTrends(trendsResponse.data.data.trends || []);
+  };
+
+  const handleDownloadCompliance = async () => {
+    const params = new URLSearchParams();
+    if (selectedCommunity) params.set('community_id', selectedCommunity);
+    if (startDate) params.set('start_date', startDate);
+    if (endDate) params.set('end_date', endDate);
+    const response = await apiClient.get(`/api/v1/admin/community-compliance-report?${params.toString()}`, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'text/csv' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'community-compliance-report.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
   if (authLoading || loading) {
     return (
       <Center minH="100vh">
@@ -195,6 +237,28 @@ export default function AdminPage() {
           <Button variant="outline" onClick={() => router.push('/dashboard')}>
             Back to Dashboard
           </Button>
+        </Box>
+
+        <Box borderWidth="1px" borderRadius="lg" p={4} bg="white">
+          <Stack direction={{ base: 'column', md: 'row' }} spacing={3} align={{ base: 'stretch', md: 'end' }}>
+            <FormControl>
+              <FormLabel htmlFor="community-filter">Komunitas</FormLabel>
+              <select id="community-filter" value={selectedCommunity} onChange={(event) => setSelectedCommunity(event.target.value)} style={{ width: '100%', height: '40px', border: '1px solid #CBD5E0', borderRadius: '6px', padding: '0 12px' }}>
+                <option value="">Semua komunitas</option>
+                {communities.map((community) => <option key={community.id} value={community.id}>{community.name}{community.region ? ` - ${community.region}` : ''}</option>)}
+              </select>
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="admin-start-date">Tanggal mulai</FormLabel>
+              <Input id="admin-start-date" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+            </FormControl>
+            <FormControl>
+              <FormLabel htmlFor="admin-end-date">Tanggal akhir</FormLabel>
+              <Input id="admin-end-date" type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+            </FormControl>
+            <Button type="button" colorScheme="green" onClick={loadCommunityScope}>Terapkan Filter</Button>
+            <Button type="button" variant="outline" onClick={handleDownloadCompliance}>Unduh CSV</Button>
+          </Stack>
         </Box>
 
         {stats && (

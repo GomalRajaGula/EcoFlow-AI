@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session
@@ -8,22 +8,42 @@ from app.models.base import FermentationBatch, FermentationLog, ProductRecommend
 
 class AdminService:
     @staticmethod
-    def get_community_stats(db: Session) -> dict:
-        total_users = db.query(User).count()
-        total_batches = db.query(FermentationBatch).count()
-        total_waste = db.query(func.sum(FermentationBatch.waste_weight_kg)).scalar() or 0.0
-        normal_logs = db.query(FermentationLog).filter(FermentationLog.ai_status == "Normal").count()
-        failed_logs = db.query(FermentationLog).filter(FermentationLog.ai_status == "Failed").count()
-        caution_logs = db.query(FermentationLog).filter(FermentationLog.ai_status == "Caution").count()
+    def get_community_stats(db: Session, community_id: int | None = None, start_date: date | None = None, end_date: date | None = None) -> dict:
+        users_query = db.query(User)
+        batches_query = db.query(FermentationBatch).join(User, User.id == FermentationBatch.user_id)
+        logs_query = db.query(FermentationLog).join(FermentationBatch, FermentationBatch.id == FermentationLog.batch_id).join(User, User.id == FermentationBatch.user_id)
+        roadmaps_query = db.query(RoadmapProgress).join(User, User.id == RoadmapProgress.user_id)
+        recommendations_query = db.query(ProductRecommendation).join(FermentationBatch, ProductRecommendation.batch_id == FermentationBatch.id).join(User, User.id == FermentationBatch.user_id)
+
+        if community_id is not None:
+            users_query = users_query.filter(User.community_id == community_id)
+            batches_query = batches_query.filter(User.community_id == community_id)
+            logs_query = logs_query.filter(User.community_id == community_id)
+            roadmaps_query = roadmaps_query.filter(User.community_id == community_id)
+            recommendations_query = recommendations_query.filter(User.community_id == community_id)
+        if start_date:
+            batches_query = batches_query.filter(FermentationBatch.created_at >= start_date)
+            logs_query = logs_query.filter(FermentationLog.log_date >= start_date)
+            roadmaps_query = roadmaps_query.filter(RoadmapProgress.created_at >= start_date)
+            recommendations_query = recommendations_query.filter(ProductRecommendation.created_at >= start_date)
+        if end_date:
+            end_exclusive = end_date + timedelta(days=1)
+            batches_query = batches_query.filter(FermentationBatch.created_at < end_exclusive)
+            logs_query = logs_query.filter(FermentationLog.log_date < end_exclusive)
+            roadmaps_query = roadmaps_query.filter(RoadmapProgress.created_at < end_exclusive)
+            recommendations_query = recommendations_query.filter(ProductRecommendation.created_at < end_exclusive)
+
+        total_users = users_query.count()
+        total_batches = batches_query.count()
+        total_waste = batches_query.with_entities(func.sum(FermentationBatch.waste_weight_kg)).scalar() or 0.0
+        normal_logs = logs_query.filter(FermentationLog.ai_status == "Normal").count()
+        failed_logs = logs_query.filter(FermentationLog.ai_status == "Failed").count()
+        caution_logs = logs_query.filter(FermentationLog.ai_status == "Caution").count()
         total_logs = normal_logs + failed_logs + caution_logs
         success_rate = (normal_logs / total_logs * 100) if total_logs > 0 else 0.0
-        users_with_logs = db.query(func.count(func.distinct(FermentationBatch.user_id))).join(
-            FermentationLog, FermentationLog.batch_id == FermentationBatch.id
-        ).scalar() or 0
-        roadmap_users = db.query(func.count(func.distinct(RoadmapProgress.user_id))).scalar() or 0
-        recommendation_users = db.query(func.count(func.distinct(FermentationBatch.user_id))).join(
-            ProductRecommendation, ProductRecommendation.batch_id == FermentationBatch.id
-        ).scalar() or 0
+        users_with_logs = logs_query.with_entities(func.count(func.distinct(FermentationBatch.user_id))).scalar() or 0
+        roadmap_users = roadmaps_query.with_entities(func.count(func.distinct(RoadmapProgress.user_id))).scalar() or 0
+        recommendation_users = recommendations_query.with_entities(func.count(func.distinct(FermentationBatch.user_id))).scalar() or 0
 
         return {
             "total_users": total_users,
@@ -44,10 +64,13 @@ class AdminService:
         }
 
     @staticmethod
-    def get_community_trends(db: Session, days: int = 30) -> dict:
+    def get_community_trends(db: Session, days: int = 30, community_id: int | None = None) -> dict:
         safe_days = min(max(days, 7), 90)
         start_date = datetime.now(timezone.utc) - timedelta(days=safe_days - 1)
-        log_rows = db.query(
+        logs_query = db.query(FermentationLog).join(FermentationBatch, FermentationBatch.id == FermentationLog.batch_id).join(User, User.id == FermentationBatch.user_id)
+        if community_id is not None:
+            logs_query = logs_query.filter(User.community_id == community_id)
+        log_rows = logs_query.with_entities(
             func.date(FermentationLog.log_date).label("date"),
             func.count(FermentationLog.id).label("logs"),
             func.sum(case((FermentationLog.ai_status == "Normal", 1), else_=0)).label("normal"),
