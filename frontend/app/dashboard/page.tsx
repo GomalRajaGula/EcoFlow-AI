@@ -138,17 +138,17 @@ export default function DashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      <div className="flex items-center justify-center min-h-screen bg-emerald-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-slate-900">
+    <div className="flex h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-slate-50">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-3 focus:text-slate-900"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-3 focus:text-emerald-900"
       >
         Lewati ke konten utama
       </a>
@@ -174,16 +174,22 @@ export default function DashboardPage() {
               label="Total Batch"
               value={batches.length}
               icon="📦"
+              tint="bg-emerald-100"
+              accent="#059669"
             />
             <StatCard 
               label="Batch Aktif"
               value={activeBatches.length}
               icon="⚙️"
+              tint="bg-amber-100"
+              accent="#d97706"
             />
             <StatCard 
               label="Batch Selesai"
               value={completedBatches.length}
               icon="✅"
+              tint="bg-teal-100"
+              accent="#0d9488"
             />
           </div>
 
@@ -192,24 +198,45 @@ export default function DashboardPage() {
               label="Total Limbah Diproses"
               value={`${totalWasteDivertedKg.toFixed(2)} kg`}
               icon="♻️"
+              tint="bg-lime-100"
+              accent="#65a30d"
             />
             <StatCard 
               label="CO₂ Dihindari (estimasi)"
               value={`${totalCO2AvoidedKg.toFixed(2)} kg`}
               icon="🌍"
+              tint="bg-green-100"
+              accent="#16a34a"
               highlight
             />
           </div>
 
           <div className="mt-6 md:mt-8">
-            <h2 className="text-lg md:text-xl font-bold text-gray-100 mb-4">Batch Aktif</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg md:text-xl font-extrabold text-slate-800">
+                Batch Aktif
+              </h2>
+              <span className="text-xs font-semibold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
+                {activeBatches.length} berjalan
+              </span>
+            </div>
             {loadingBatches ? (
               <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-500"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-emerald-500"></div>
               </div>
             ) : activeBatches.length === 0 ? (
-              <div className="text-center py-12 bg-slate-800 rounded-xl border border-slate-700">
-                <p className="text-gray-400 text-sm md:text-base">Tidak ada batch aktif. Buat satu untuk memulai!</p>
+              <div className="text-center py-12 bg-white rounded-2xl border border-emerald-100 shadow-sm">
+                <span className="text-4xl" aria-hidden="true">🌱</span>
+                <p className="mt-3 text-slate-500 text-sm md:text-base">
+                  Belum ada batch aktif. Mulai satu untuk membuat eco-enzyme pertamamu!
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(true)}
+                  className="mt-4 min-h-11 px-5 py-2 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 transition-colors"
+                >
+                  Mulai Batch Baru
+                </button>
               </div>
             ) : (
               <div className="space-y-3 md:space-y-4">
@@ -241,10 +268,20 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-6 md:mt-8">
-            <h2 className="text-lg md:text-xl font-bold text-gray-100 mb-4">Batch Selesai</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg md:text-xl font-extrabold text-slate-800">
+                Batch Selesai
+              </h2>
+              <span className="text-xs font-semibold text-slate-500 bg-white border border-slate-200 px-3 py-1 rounded-full">
+                {completedBatches.length} selesai
+              </span>
+            </div>
             {completedBatches.length === 0 ? (
-              <div className="text-center py-12 bg-slate-800 rounded-xl border border-slate-700">
-                <p className="text-gray-400 text-sm md:text-base">Belum ada batch yang selesai.</p>
+              <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 shadow-sm">
+                <span className="text-3xl opacity-60" aria-hidden="true">🏁</span>
+                <p className="mt-3 text-slate-500 text-sm md:text-base">
+                  Belum ada batch yang selesai.
+                </p>
               </div>
             ) : (
               <div className="space-y-3 md:space-y-4">
@@ -346,20 +383,20 @@ return (
     <>
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          className="fixed inset-0 z-30 bg-emerald-900/40 backdrop-blur-sm md:hidden"
           aria-hidden="true"
           onClick={onClose}
         />
       )}
       <div
         aria-label="Navigasi utama"
-        className={`fixed h-full z-40 bg-slate-800 border-r border-slate-700 flex flex-col transition-all duration-300 ${
+        className={`fixed h-full z-40 bg-white border-r border-emerald-100 flex flex-col transition-all duration-300 shadow-xl shadow-emerald-900/5 ${
           sidebarOpen ? 'w-64' : 'w-20'
         } ${sidebarOpen ? 'left-0' : '-left-full'} md:left-0 md:-translate-x-0`}
       >
-        <div className="p-4 border-b border-slate-700">
-          <div className="flex items-center justify-center h-10 bg-gradient-to-r from-orange-500 to-green-500 rounded-lg overflow-hidden">
-            {sidebarOpen && <span className="text-white font-bold">EcoFlow</span>}
+        <div className="p-4 border-b border-emerald-50">
+          <div className="flex items-center justify-center h-10 w-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg overflow-hidden">
+            <span className="text-white font-extrabold">EcoFlow</span>
           </div>
         </div>
 
@@ -381,12 +418,12 @@ return (
           )}
         </nav>
 
-        <div className="p-4 border-t border-slate-700">
+        <div className="p-4 border-t border-emerald-50">
           <button
             type="button"
             aria-label="Keluar dari akun"
             onClick={onSignOut}
-            className="min-h-11 w-full py-2 px-4 bg-red-600 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white text-white rounded-lg transition-all font-medium text-sm flex items-center justify-center gap-2"
+            className="min-h-11 w-full py-2 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 text-white rounded-xl transition-all font-medium text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20"
           >
             <span>🚪</span>
             {sidebarOpen && <span>Keluar</span>}
@@ -416,10 +453,10 @@ function NavItem({
       aria-current={active ? 'page' : undefined}
       aria-label={label}
       onClick={onClick}
-      className={`min-h-11 w-full py-3 px-4 rounded-lg transition-colors flex items-center gap-3 text-sm font-medium focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-300 ${
+      className={`min-h-11 w-full py-3 px-4 rounded-xl transition-all flex items-center gap-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 ${
         active
-          ? 'bg-gradient-to-r from-orange-500 to-green-500 text-white'
-          : 'text-gray-300 hover:bg-slate-700'
+          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20'
+          : 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700'
       }`}
     >
       <span className="text-lg">{icon}</span>
@@ -442,39 +479,39 @@ function Navbar({
   userEmail: string;
 }) {
   return (
-    <nav className={`bg-slate-800 border-b border-slate-700 transition-all duration-300 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between md:justify-between`}>
+    <nav className={`bg-white/80 backdrop-blur border-b border-emerald-100 transition-all duration-300 px-4 md:px-6 py-3 md:py-4 flex items-center justify-between md:justify-between`}>
       <button
         type="button"
         aria-label="Buka atau tutup navigasi"
         aria-expanded={sidebarOpen}
         onClick={onToggleSidebar}
-        className="min-h-11 min-w-11 p-2 hover:bg-slate-700 rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-300 md:hidden"
+        className="min-h-11 min-w-11 p-2 hover:bg-emerald-50 rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 md:hidden"
       >
-        <span aria-hidden="true" className="text-2xl text-gray-300">☰</span>
+        <span aria-hidden="true" className="text-2xl text-emerald-700">☰</span>
       </button>
 
       <div className="hidden md:flex items-center gap-4 ml-auto">
         <div className="text-right">
-          <p className="text-sm font-medium text-gray-100">{userName}</p>
-          <p className="text-xs text-gray-400">{userEmail}</p>
+          <p className="text-sm font-bold text-slate-700">{userName}</p>
+          <p className="text-xs text-slate-400">{userEmail}</p>
         </div>
-        <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-green-500 rounded-full flex items-center justify-center">
+        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center shadow-md shadow-emerald-500/20">
           <span className="text-white font-bold text-sm">{userName.charAt(0).toUpperCase()}</span>
         </div>
       </div>
 
       <div className="flex md:hidden items-center gap-2">
         <div className="text-right">
-          <p className="text-xs font-medium text-gray-100">{userName.split(' ')[0]}</p>
+          <p className="text-xs font-bold text-slate-700">{userName.split(' ')[0]}</p>
         </div>
-        <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-green-500 rounded-full flex items-center justify-center">
+        <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center">
           <span className="text-white font-bold text-xs">{userName.charAt(0).toUpperCase()}</span>
         </div>
         <button
           type="button"
           onClick={onSignOut}
           aria-label="Keluar dari akun"
-          className="ml-1 p-2 text-gray-300 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors text-lg"
+          className="ml-1 p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors text-lg"
         >
           🚪
         </button>
@@ -491,17 +528,19 @@ function GreetingBanner({
   onCreateBatch: () => void;
 }) {
   return (
-    <section aria-labelledby="greeting-title" className="bg-gradient-to-r from-orange-500 via-green-500 to-teal-500 rounded-xl p-6 md:p-8 text-white shadow-lg">
-      <h1 id="greeting-title" className="text-2xl md:text-3xl font-bold mb-2">Halo {userName} <span aria-hidden="true">👋</span></h1>
-      <p className="text-lg mb-6 opacity-95">
-        Selamat datang di Dasbor Eco-Enzyme Anda! Pantau produksi dan lihat insight di sini.
+    <section aria-labelledby="greeting-title" className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 p-6 md:p-8 text-white shadow-lg shadow-emerald-500/20">
+      <div aria-hidden="true" className="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full"></div>
+      <div aria-hidden="true" className="absolute right-24 -bottom-10 w-32 h-32 bg-white/10 rounded-full"></div>
+      <h1 id="greeting-title" className="text-2xl md:text-3xl font-extrabold mb-2">Halo {userName} <span aria-hidden="true">👋</span></h1>
+      <p className="text-emerald-50 text-base md:text-lg mb-6 max-w-xl">
+        Selamat datang! Kelola eco-enzymemu dengan mudah dan lihat dampak positifmu bagi lingkungan.
       </p>
       <button
         type="button"
         onClick={onCreateBatch}
-        className="min-h-11 px-6 py-2 bg-white text-orange-600 font-bold rounded-lg hover:bg-gray-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-colors"
+        className="min-h-11 px-6 py-2 bg-white text-emerald-700 font-bold rounded-xl hover:bg-emerald-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white transition-colors shadow-md"
       >
-        Mulai Batch Baru
+        + Mulai Batch Baru
       </button>
     </section>
   );
@@ -511,29 +550,41 @@ function StatCard({
   label,
   value,
   icon,
+  tint,
+  accent,
   highlight = false,
 }: {
   label: string;
   value: string | number;
   icon: string;
+  tint: string;
+  accent: string;
   highlight?: boolean;
 }) {
   return (
     <div
-      className={`rounded-xl p-6 shadow-lg border transition-all ${
+      className={`group rounded-2xl p-6 border shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 cursor-default ${
         highlight
-          ? 'bg-gradient-to-br from-green-600 to-teal-600 border-green-500 text-white'
-          : 'bg-slate-800 border-slate-700 text-gray-100'
+          ? 'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400 text-white shadow-emerald-500/20'
+          : 'bg-white border-emerald-100 text-slate-800'
       }`}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className={`text-sm font-medium ${highlight ? 'text-green-100' : 'text-gray-400'}`}>
+          <p className={`text-sm font-semibold ${highlight ? 'text-emerald-50' : 'text-slate-500'}`}>
             {label}
           </p>
-          <p className="text-3xl font-bold mt-2">{value}</p>
+          <p className={`text-3xl font-extrabold mt-2 ${highlight ? 'text-white' : 'text-slate-800'}`}>{value}</p>
         </div>
-        <span className="text-5xl opacity-20">{icon}</span>
+        <span
+          aria-hidden="true"
+          className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm ${
+            highlight ? 'bg-white/20' : tint
+          }`}
+          style={highlight ? undefined : { color: accent }}
+        >
+          {icon}
+        </span>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="EcoFlow API", version="0.1.0")
 
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
-CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",") if o.strip()]
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001").split(",") if o.strip()]
 RATE_LIMIT = int(os.getenv("RATE_LIMIT", "60"))
 RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
 REDIS_URL = os.getenv("REDIS_URL", "")
