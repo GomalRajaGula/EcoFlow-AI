@@ -146,4 +146,24 @@ test.describe('Dashboard terautentikasi', () => {
       { timeout: 15000 }
     );
   });
+
+  test('roadmap tersimpan di cache dan tetap tampil saat offline', async ({ page, context }) => {
+    await signIn(page);
+
+    const card = await createBatch(page, `E2E Cache ${Date.now()}`);
+
+    await card.getByRole('button', { name: /lihat roadmap pemrosesan/i }).click();
+    await expect(page.getByRole('button', { name: 'Unduh Checklist PDF' })).toBeVisible({ timeout: 20000 });
+    await page.getByRole('button', { name: 'Tutup dialog roadmap' }).click();
+
+    const cachedCount = await page.evaluate(
+      () => Object.keys(JSON.parse(localStorage.getItem('ecoflow.roadmap-cache') || '{}')).length
+    );
+    expect(cachedCount).toBeGreaterThan(0);
+
+    await context.setOffline(true);
+    await card.getByRole('button', { name: /lihat roadmap pemrosesan/i }).click();
+    await expect(page.getByText(/mode offline/i).first()).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('button', { name: 'Unduh Checklist PDF' })).toBeVisible({ timeout: 10000 });
+  });
 });

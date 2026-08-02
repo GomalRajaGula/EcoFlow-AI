@@ -149,10 +149,11 @@
 ### Priority: MEDIUM
 
 #### E2E and Product Coverage
-- [x] Extend Playwright coverage to authenticated batch, log, recommendation, analysis, roadmap, upload, and admin flows — **16 automated tests** (auth-guard 3, dashboard 7, admin 2, landing/login 4); terautentikasi via Firebase test user + skip-safe untuk CI
+- [x] Extend Playwright coverage to authenticated batch, log, recommendation, analysis, roadmap, upload, and admin flows — **17 automated tests** (auth-guard 3, dashboard 8, admin 2, landing/login 4); terautentikasi via Firebase test user + skip-safe untuk CI
 - [x] Add image checkpoint verification — foto observasi di-upload ke MinIO dan `image_url` tersimpan di DB (E2E `mencatat fermentasi lengkap dengan foto`)
 - [x] Complete offline queue sync — catatan fermentasi di-queue saat offline (localStorage), tersinkron otomatis saat online (E2E `menyimpan catatan offline`)
-- [ ] Offline roadmap cache (roadmap dibaca penuh saat offline) + QR/video tutorial links
+- [x] Offline roadmap cache — roadmap per batch di-cache (localStorage), tampil saat offline (E2E `roadmap tersimpan di cache`); sekaligus fix race GET/POST roadmap StrictMode (re-GET saat 400/409)
+- [ ] QR/video tutorial links di PDF checklist roadmap
 
 ### Priority: LOW
 

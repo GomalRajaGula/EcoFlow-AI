@@ -21,6 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import apiClient from '@/lib/api';
+import { cacheRoadmap, getCachedRoadmap } from '@/lib/roadmap-cache';
 
 interface RoadmapModalProps {
   isOpen: boolean;
@@ -66,26 +67,68 @@ export default function RoadmapModal({
   useEffect(() => {
     let isMounted = true;
 
+    const tryGet = async () => {
+      const response = await apiClient.get(`/api/v1/batches/${batchId}/roadmap`);
+      if (isMounted) {
+        setRoadmap(response.data.data);
+        cacheRoadmap(batchId, productTemplateId, response.data.data);
+      }
+    };
+
+    const showCachedIfOffline = (): boolean => {
+      if (!navigator.onLine) {
+        const cached = getCachedRoadmap(batchId);
+        if (cached && isMounted) {
+          setRoadmap(cached.data as RoadmapData);
+          toast({
+            title: 'Mode offline',
+            description: 'Menampilkan roadmap tersimpan. Perubahan progress akan tersinkron saat online.',
+            status: 'info',
+            isClosable: true,
+            duration: 4000,
+          });
+          return true;
+        }
+      }
+      return false;
+    };
+
     const loadRoadmap = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get(`/api/v1/batches/${batchId}/roadmap`);
-        if (isMounted) setRoadmap(response.data.data);
-      } catch {
         try {
-          const createRes = await apiClient.post(`/api/v1/batches/${batchId}/roadmap`, {
-            product_template_id: productTemplateId,
-          });
-          if (isMounted) setRoadmap(createRes.data.data);
-        } catch (error: unknown) {
-          const err = error as { response?: { data?: { detail?: string } } };
-          if (isMounted) {
-            toast({
-              title: 'Error',
-              description: err.response?.data?.detail || 'Failed to load roadmap',
-              status: 'error',
-              isClosable: true,
+          await tryGet();
+          return;
+        } catch {
+          if (showCachedIfOffline()) return;
+          try {
+            const createRes = await apiClient.post(`/api/v1/batches/${batchId}/roadmap`, {
+              product_template_id: productTemplateId,
             });
+            if (isMounted) {
+              setRoadmap(createRes.data.data);
+              cacheRoadmap(batchId, productTemplateId, createRes.data.data);
+            }
+          } catch (error: unknown) {
+            const err = error as { response?: { data?: { detail?: string }; status?: number } };
+            const alreadyExists = err.response && [400, 409].includes(err.response.status ?? 0);
+            if (alreadyExists) {
+              try {
+                await tryGet();
+                return;
+              } catch {
+                // fall through ke cache offline
+              }
+            }
+            if (showCachedIfOffline()) return;
+            if (isMounted) {
+              toast({
+                title: 'Error',
+                description: err.response?.data?.detail || 'Failed to load roadmap',
+                status: 'error',
+                isClosable: true,
+              });
+            }
           }
         }
       } finally {
@@ -136,6 +179,7 @@ export default function RoadmapModal({
         { completed }
       );
       setRoadmap(response.data.data);
+      cacheRoadmap(batchId, productTemplateId, response.data.data);
       toast({
         title: 'Success',
         description: `Step ${completed ? 'completed' : 'uncompleted'}`,
