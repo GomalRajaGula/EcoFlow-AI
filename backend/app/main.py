@@ -226,6 +226,7 @@ async def list_batches(
             "waste_weight_kg": batch.waste_weight_kg,
             "water_liters": batch.water_liters,
             "sugar_kg": batch.sugar_kg,
+            "selected_product_id": batch.selected_product_id,
             "start_date": batch.start_date.isoformat(),
             "harvest_date": batch.harvest_date.isoformat() if batch.harvest_date else None,
             "created_at": batch.created_at.isoformat()
@@ -259,6 +260,7 @@ async def get_batch(
             "waste_weight_kg": batch.waste_weight_kg,
             "water_liters": batch.water_liters,
             "sugar_kg": batch.sugar_kg,
+            "selected_product_id": batch.selected_product_id,
             "start_date": batch.start_date.isoformat(),
             "harvest_date": batch.harvest_date.isoformat() if batch.harvest_date else None,
             "created_at": batch.created_at.isoformat()

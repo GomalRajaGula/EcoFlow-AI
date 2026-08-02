@@ -149,7 +149,7 @@
 ### Priority: MEDIUM
 
 #### E2E and Product Coverage
-- [ ] Extend Playwright coverage to authenticated batch, log, recommendation, analysis, roadmap, upload, and admin flows
+- [x] Extend Playwright coverage to authenticated batch, log, recommendation, analysis, roadmap, upload, and admin flows — **14 automated tests** (auth-guard 3, dashboard 5, admin 2, landing/login 4); terautentikasi via Firebase test user + skip-safe untuk CI
 - [ ] Add image checkpoint verification and QR/video tutorial links
 - [ ] Complete offline roadmap cache and queued image synchronization
 

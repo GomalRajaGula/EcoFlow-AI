@@ -122,6 +122,7 @@ async def select_product_for_batch(
     
     prod_rec.selected_product_id = req.product_template_id
     prod_rec.selection_date = datetime.now(timezone.utc)
+    batch.selected_product_id = req.product_template_id
     db.commit()
     
     return APIResponse(

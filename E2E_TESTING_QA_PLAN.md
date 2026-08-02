@@ -1,7 +1,7 @@
 # E2E Testing & QA Report - ITechnoCup 2026
 
-**Date:** July 31, 2026  
-**Status:** Testing Plan & Manual QA Guide  
+**Date:** August 2, 2026  
+**Status:** Automated E2E Coverage Expanded  
 **Deadline:** August 4, 2026
 
 ---
@@ -11,8 +11,15 @@
 ### Current State
 - ✅ Backend: 26+ unit tests passing
 - ✅ Frontend: ESLint clean, production build successful
-- ✅ E2E tests: 4 automated (landing page, login form, security regression via Playwright)
-- ⚠️ Scenarios 2-7: manual testing recommended for comprehensive coverage
+- ✅ E2E tests: **14 automated Playwright tests** across 4 spec files:
+  - `landing.spec.ts` (2): hero content, CTA → /login
+  - `login.spec.ts` (2): form render/toggle, browser validation
+  - `auth-guard.spec.ts` (3): route guards — /dashboard & /admin redirect unauthenticated → /login
+  - `dashboard.spec.ts` (5, terautentikasi): sign-in + stat cards, create batch dengan rasio air/gula otomatis, rekomendasi produk setelah harvest, analisis bisnis + kelayakan, modal catatan fermentasi & roadmap
+  - `admin.spec.ts` (2, admin role): load community stats + model metrics, create & delete product template
+- ✅ Tes terautentikasi otomatis di-skip jika env `E2E_EMAIL`/`E2E_PASSWORD` (dan `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) tidak diset — aman untuk CI
+- ✅ Test user Firebase: `e2e.test@ecoflow-ai.dev` (role admin via `ADMIN_UIDS`)
+- ⚠️ Scenarios yang masih manual (post-launch): upload foto observasi, offline queue sync, QR/video tutorial links
 - ❌ Integration tests: Need verification
 
 ---

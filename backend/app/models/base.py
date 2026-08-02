@@ -51,6 +51,7 @@ class FermentationBatch(Base):
     final_volume_liters = Column(Float, nullable=True)
     final_color = Column(String, nullable=True)
     final_aroma_intensity = Column(String, nullable=True)
+    selected_product_id = Column(Integer, ForeignKey("product_templates.id"), nullable=True)
     created_at = Column(DateTime, default=utcnow)
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 

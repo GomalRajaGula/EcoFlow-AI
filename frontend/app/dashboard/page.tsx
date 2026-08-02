@@ -19,6 +19,7 @@ interface Batch {
   waste_weight_kg: number;
   water_liters: number;
   sugar_kg: number;
+  selected_product_id: number | null;
   start_date: string;
   harvest_date: string;
   created_at: string;
@@ -219,7 +220,7 @@ export default function DashboardPage() {
                     }}
                     onRoadmapClick={() => {
                       setSelectedBatch(batch);
-                      setSelectedProductTemplateId(batch.selected_product_id || 1);
+                      setSelectedProductTemplateId(batch.selected_product_id ?? 1);
                       setShowRoadmapModal(true);
                     }}
                     onAnalysisClick={() => {
