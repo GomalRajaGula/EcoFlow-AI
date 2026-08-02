@@ -14,7 +14,7 @@ test.describe('Auth route guards', () => {
   test('login page is reachable and renders auth form', async ({ page }) => {
     await page.goto('/login');
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
+    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /^masuk$/i })).toBeVisible();
   });
 });

@@ -5,7 +5,7 @@ test.describe('Login page', () => {
     await page.goto('/login');
 
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByLabel('Password')).toBeVisible();
+    await expect(page.getByLabel('Password', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /^masuk$/i })).toBeVisible();
     await expect(page.getByRole('button', { name: /^masuk$/i }).last()).toBeVisible();
 

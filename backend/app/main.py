@@ -76,6 +76,8 @@ def _rate_limit_key(scope: str, identity: str) -> str:
 @app.middleware("http")
 async def rate_limit_middleware(request: Request, call_next):
     client_ip = request.client.host if request.client else "unknown"
+    if client_ip in ("127.0.0.1", "::1", "localhost"):
+        return await call_next(request)
     if _redis:
         key = _rate_limit_key("ip", client_ip)
         try:
