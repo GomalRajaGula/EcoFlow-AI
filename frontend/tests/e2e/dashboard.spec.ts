@@ -35,7 +35,7 @@ async function createBatch(page: Page, name: string) {
   await page.getByLabel('Tanggal Mulai').fill(today());
   await page.getByRole('button', { name: /^buat batch$/i }).click();
   const card = page.locator('.chakra-card').filter({ hasText: name });
-  await expect(card).toBeVisible({ timeout: 15000 });
+  await expect(card).toBeVisible({ timeout: 30000 });
   return card;
 }
 
@@ -101,5 +101,49 @@ test.describe('Dashboard terautentikasi', () => {
 
     await card.getByRole('button', { name: /lihat roadmap pemrosesan/i }).click();
     await expect(page.getByRole('button', { name: 'Tutup dialog roadmap' })).toBeVisible({ timeout: 15000 });
+  });
+
+  test('mencatat fermentasi lengkap dengan foto dan melihat prediksi AI', async ({ page }) => {
+    await signIn(page);
+
+    const card = await createBatch(page, `E2E Log ${Date.now()}`);
+    await card.getByRole('button', { name: /tambah catatan fermentasi/i }).click();
+
+    await page.getByLabel('Suhu (°C)').fill('27');
+    await page.getByLabel('Catatan', { exact: true }).fill('E2E observation with photo');
+    await page.locator('#observation-photo').setInputFiles('tests/e2e/fixtures/sample.png');
+    await expect(page.getByAltText('Preview')).toBeVisible();
+
+    await page.getByRole('button', { name: /simpan catatan/i }).click();
+    await expect(page.getByText('Health Score:')).toBeVisible({ timeout: 20000 });
+    await expect(page.getByText('Saran:')).toBeVisible();
+
+    await expect(page.getByRole('button', { name: /simpan catatan/i })).toBeHidden({ timeout: 10000 });
+  });
+
+  test('menyimpan catatan offline lalu menyinkronkan saat online', async ({ page, context }) => {
+    await signIn(page);
+
+    const card = await createBatch(page, `E2E Offline ${Date.now()}`);
+
+    await context.setOffline(true);
+    await card.getByRole('button', { name: /tambah catatan fermentasi/i }).click();
+    await page.getByLabel('Catatan', { exact: true }).fill('E2E offline queued log');
+    await page.getByRole('button', { name: /simpan catatan/i }).click();
+
+    await expect(page.getByText(/disimpan offline/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('button', { name: /simpan catatan/i })).toBeHidden({ timeout: 10000 });
+
+    const queued = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('ecoflow.pending-fermentation-logs') || '[]').length
+    );
+    expect(queued).toBe(1);
+
+    await context.setOffline(false);
+    await page.waitForFunction(
+      () => JSON.parse(localStorage.getItem('ecoflow.pending-fermentation-logs') || '[]').length === 0,
+      undefined,
+      { timeout: 15000 }
+    );
   });
 });

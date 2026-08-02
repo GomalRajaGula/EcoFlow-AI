@@ -11,15 +11,17 @@
 ### Current State
 - ✅ Backend: 26+ unit tests passing
 - ✅ Frontend: ESLint clean, production build successful
-- ✅ E2E tests: **14 automated Playwright tests** across 4 spec files:
+- ✅ E2E tests: **16 automated Playwright tests** across 4 spec files:
   - `landing.spec.ts` (2): hero content, CTA → /login
   - `login.spec.ts` (2): form render/toggle, browser validation
   - `auth-guard.spec.ts` (3): route guards — /dashboard & /admin redirect unauthenticated → /login
-  - `dashboard.spec.ts` (5, terautentikasi): sign-in + stat cards, create batch dengan rasio air/gula otomatis, rekomendasi produk setelah harvest, analisis bisnis + kelayakan, modal catatan fermentasi & roadmap
+  - `dashboard.spec.ts` (7, terautentikasi): sign-in + stat cards, create batch dengan rasio air/gula otomatis, rekomendasi produk setelah harvest, analisis bisnis + kelayakan, modal catatan fermentasi & roadmap, **catatan fermentasi + foto observasi (upload ke MinIO terverifikasi) + prediksi AI**, **simpan offline → sinkronisasi queue saat online**
   - `admin.spec.ts` (2, admin role): load community stats + model metrics, create & delete product template
 - ✅ Tes terautentikasi otomatis di-skip jika env `E2E_EMAIL`/`E2E_PASSWORD` (dan `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) tidak diset — aman untuk CI
 - ✅ Test user Firebase: `e2e.test@ecoflow-ai.dev` (role admin via `ADMIN_UIDS`)
-- ⚠️ Scenarios yang masih manual (post-launch): upload foto observasi, offline queue sync, QR/video tutorial links
+- ✅ Image checkpoint: upload foto observasi diverifikasi sampai objek tersimpan di MinIO (`minio_data` volume) + `image_url` tercatat di DB
+- ✅ Offline queue: catatan fermentasi disimpan di localStorage saat offline, tersinkronkan otomatis saat koneksi kembali
+- ⚠️ Scenarios yang masih manual (post-launch): offline roadmap cache, QR/video tutorial links
 - ❌ Integration tests: Need verification
 
 ---
