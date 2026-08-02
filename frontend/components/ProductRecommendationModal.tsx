@@ -133,14 +133,14 @@ export default function ProductRecommendationModal({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
-        <ModalHeader id="product-recommendations-title">Rekomendasi Produk</ModalHeader>
-        <ModalCloseButton aria-label="Tutup dialog rekomendasi produk" />
+      <ModalContent bg="gray.800" borderColor="gray.700" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+        <ModalHeader id="product-recommendations-title" color="gray.100">Rekomendasi Produk</ModalHeader>
+        <ModalCloseButton aria-label="Tutup dialog rekomendasi produk" color="gray.300" />
         <form onSubmit={handleSubmit} aria-label="Form rekomendasi produk">
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel htmlFor="harvest-volume">Volume Panen (Liter)</FormLabel>
+                <FormLabel htmlFor="harvest-volume" color="gray.300">Volume Panen (Liter)</FormLabel>
                 <Input
                   id="harvest-volume"
                   name="harvestVolume"
@@ -150,52 +150,56 @@ export default function ProductRecommendationModal({
                   placeholder="Misal, 5.5"
                   value={harvestVolume}
                   onChange={(e) => setHarvestVolume(e.target.value)}
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  color="gray.100"
+                  _placeholder={{ color: 'gray.500' }}
                 />
               </FormControl>
 
               <FormControl>
-                <FormLabel htmlFor="final-color">Warna Akhir</FormLabel>
-                <Select id="final-color" name="finalColor" value={finalColor} onChange={(e) => setFinalColor(e.target.value)}>
-                  <option value="light_brown">Cokelat Muda</option>
-                  <option value="dark_brown">Cokelat Gelap</option>
-                  <option value="amber">Amber</option>
+                <FormLabel htmlFor="final-color" color="gray.300">Warna Akhir</FormLabel>
+                <Select id="final-color" name="finalColor" value={finalColor} onChange={(e) => setFinalColor(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
+                  <option value="light_brown" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Cokelat Muda</option>
+                  <option value="dark_brown" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Cokelat Gelap</option>
+                  <option value="amber" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Amber</option>
                 </Select>
               </FormControl>
 
               <FormControl>
-                <FormLabel htmlFor="aroma-intensity">Intensitas Aroma</FormLabel>
-                <Select id="aroma-intensity" name="aromaIntensity" value={aromaIntensity} onChange={(e) => setAromaIntensity(e.target.value)}>
-                  <option value="mild">Ringan</option>
-                  <option value="medium">Sedang</option>
-                  <option value="strong">Kuat</option>
+                <FormLabel htmlFor="aroma-intensity" color="gray.300">Intensitas Aroma</FormLabel>
+                <Select id="aroma-intensity" name="aromaIntensity" value={aromaIntensity} onChange={(e) => setAromaIntensity(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
+                  <option value="mild" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Ringan</option>
+                  <option value="medium" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Sedang</option>
+                  <option value="strong" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Kuat</option>
                 </Select>
               </FormControl>
 
               <FormControl>
-                <FormLabel htmlFor="user-intent">Tujuan Penggunaan</FormLabel>
-                <Select id="user-intent" name="userIntent" value={userIntent} onChange={(e) => setUserIntent(e.target.value)}>
-                  <option value="household">Penggunaan Rumah Tangga</option>
-                  <option value="commercial">Komersial</option>
+                <FormLabel htmlFor="user-intent" color="gray.300">Tujuan Penggunaan</FormLabel>
+                <Select id="user-intent" name="userIntent" value={userIntent} onChange={(e) => setUserIntent(e.target.value)} bg="gray.700" borderColor="gray.600" color="gray.100">
+                  <option value="household" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Penggunaan Rumah Tangga</option>
+                  <option value="commercial" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Komersial</option>
                 </Select>
               </FormControl>
 
               {recommendations && (
-                <Box borderTop="1px" borderColor="gray.200" pt={4}>
-                  <Text fontWeight="bold" mb={3}>
+                <Box borderTop="1px" borderColor="gray.600" pt={4}>
+                  <Text fontWeight="bold" mb={3} color="gray.100">
                     Produk yang Direkomendasikan:
                   </Text>
                   <VStack spacing={3} align="start">
                     {recommendations.map((rec: Record<string, unknown>, idx: number) => (
-                      <Box key={idx} w="100%" p={3} borderRadius="md" bg="gray.50" borderWidth={selectedProductId === Number(rec.product_id) ? '2px' : '1px'} borderColor={selectedProductId === Number(rec.product_id) ? 'green.400' : 'gray.200'}>
+                      <Box key={idx} w="100%" p={3} borderRadius="md" bg="gray.700" borderWidth={selectedProductId === Number(rec.product_id) ? '2px' : '1px'} borderColor={selectedProductId === Number(rec.product_id) ? 'green.400' : 'gray.600'}>
                         <HStack justifyContent="space-between" mb={2}>
-                          <Text fontWeight="medium">{String(rec.name)}</Text>
+                          <Text fontWeight="medium" color="gray.100">{String(rec.name)}</Text>
                           <Badge colorScheme="green">#{idx + 1}</Badge>
                         </HStack>
-                        <Text fontSize="sm" color="gray.600">
+                        <Text fontSize="sm" color="gray.400">
                           Skor kecocokan: {Number(rec.compatibility_score).toFixed(2)}
                         </Text>
                         {Boolean(rec.processing_instruction_summary) && (
-                          <Text fontSize="sm" mt={2} color="gray.700">
+                          <Text fontSize="sm" mt={2} color="gray.300">
                             {String(rec.processing_instruction_summary)}
                           </Text>
                         )}
@@ -217,7 +221,7 @@ export default function ProductRecommendationModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button type="button" variant="ghost" mr={3} onClick={handleClose}>
+            <Button type="button" variant="ghost" mr={3} onClick={handleClose} color="gray.300">
               {recommendations ? 'Tutup' : 'Batal'}
             </Button>
             {!recommendations && (

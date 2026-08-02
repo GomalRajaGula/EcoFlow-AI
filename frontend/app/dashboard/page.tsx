@@ -40,6 +40,7 @@ export default function DashboardPage() {
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [showRoadmapModal, setShowRoadmapModal] = useState(false);
   const [selectedProductTemplateId, setSelectedProductTemplateId] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, loading: authLoading, signOut } = useAuth();
   const router = useRouter();
@@ -51,6 +52,11 @@ export default function DashboardPage() {
       router.push('/login');
       return;
     }
+    apiClient
+      .get('/api/v1/users/me')
+      .then((response) => setIsAdmin(response.data.data.role === 'admin'))
+      .catch(() => setIsAdmin(false));
+
     if (hasFetched.current) return;
     hasFetched.current = true;
 
@@ -146,12 +152,13 @@ export default function DashboardPage() {
       >
         Lewati ke konten utama
       </a>
-      <Sidebar sidebarOpen={sidebarOpen} onSignOut={handleSignOut} />
+      <Sidebar sidebarOpen={sidebarOpen} onSignOut={handleSignOut} isAdmin={isAdmin} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <Navbar 
           sidebarOpen={sidebarOpen} 
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          onSignOut={handleSignOut}
           userName={user?.displayName || 'User'}
           userEmail={user?.email || ''}
         />
@@ -246,6 +253,15 @@ export default function DashboardPage() {
                     key={batch.id}
                     batch={batch}
                     isCompleted={true}
+                    onRoadmapClick={() => {
+                      setSelectedBatch(batch);
+                      setSelectedProductTemplateId(batch.selected_product_id ?? 1);
+                      setShowRoadmapModal(true);
+                    }}
+                    onAnalysisClick={() => {
+                      setSelectedBatch(batch);
+                      setShowAnalysisModal(true);
+                    }}
                   />
                 ))}
               </div>
@@ -309,45 +325,75 @@ export default function DashboardPage() {
   );
 }
 
-function Sidebar({ sidebarOpen, onSignOut }: { sidebarOpen: boolean; onSignOut: () => void }) {
+function Sidebar({
+  sidebarOpen,
+  onSignOut,
+  isAdmin,
+  onClose,
+}: {
+  sidebarOpen: boolean;
+  onSignOut: () => void;
+  isAdmin: boolean;
+  onClose: () => void;
+}) {
   const router = useRouter();
+  const navigate = (path: string) => {
+    router.push(path);
+    onClose();
+  };
 
-  return (
-    <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-slate-800 border-r border-slate-700 transition-all duration-300 flex flex-col fixed h-full z-40 hidden md:flex`}>
-      <div className="p-4 border-b border-slate-700">
-        <div className="flex items-center justify-center h-10 bg-gradient-to-r from-orange-500 to-green-500 rounded-lg">
-          {sidebarOpen && <span className="text-white font-bold">EcoFlow</span>}
+return (
+    <>
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/50 md:hidden"
+          aria-hidden="true"
+          onClick={onClose}
+        />
+      )}
+      <div
+        aria-label="Navigasi utama"
+        className={`fixed h-full z-40 bg-slate-800 border-r border-slate-700 flex flex-col transition-all duration-300 ${
+          sidebarOpen ? 'w-64' : 'w-20'
+        } ${sidebarOpen ? 'left-0' : '-left-full'} md:left-0 md:-translate-x-0`}
+      >
+        <div className="p-4 border-b border-slate-700">
+          <div className="flex items-center justify-center h-10 bg-gradient-to-r from-orange-500 to-green-500 rounded-lg overflow-hidden">
+            {sidebarOpen && <span className="text-white font-bold">EcoFlow</span>}
+          </div>
+        </div>
+
+        <nav aria-label="Navigasi utama" className="flex-1 px-4 py-6 space-y-2">
+          <NavItem
+            label="Dasbor"
+            icon="📊"
+            onClick={() => navigate('/dashboard')}
+            sidebarOpen={sidebarOpen}
+            active
+          />
+          {isAdmin && (
+            <NavItem
+              label="Admin"
+              icon="⚙️"
+              onClick={() => navigate('/admin')}
+              sidebarOpen={sidebarOpen}
+            />
+          )}
+        </nav>
+
+        <div className="p-4 border-t border-slate-700">
+          <button
+            type="button"
+            aria-label="Keluar dari akun"
+            onClick={onSignOut}
+            className="min-h-11 w-full py-2 px-4 bg-red-600 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white text-white rounded-lg transition-all font-medium text-sm flex items-center justify-center gap-2"
+          >
+            <span>🚪</span>
+            {sidebarOpen && <span>Keluar</span>}
+          </button>
         </div>
       </div>
-
-      <nav aria-label="Navigasi utama" className="flex-1 px-4 py-6 space-y-2">
-        <NavItem 
-          label="Dasbor"
-          icon="📊"
-          onClick={() => router.push('/dashboard')}
-          sidebarOpen={sidebarOpen}
-          active
-        />
-        <NavItem 
-          label="Admin"
-          icon="⚙️"
-          onClick={() => router.push('/admin')}
-          sidebarOpen={sidebarOpen}
-        />
-      </nav>
-
-      <div className="p-4 border-t border-slate-700">
-        <button
-          type="button"
-          aria-label="Keluar dari akun"
-          onClick={onSignOut}
-          className="min-h-11 w-full py-2 px-4 bg-red-600 hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white text-white rounded-lg transition-colors font-medium text-sm flex items-center justify-center gap-2"
-        >
-          <span>🚪</span>
-          {sidebarOpen && <span>Keluar</span>}
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -385,11 +431,13 @@ function NavItem({
 function Navbar({
   sidebarOpen,
   onToggleSidebar,
+  onSignOut,
   userName,
   userEmail,
 }: {
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
+  onSignOut: () => void;
   userName: string;
   userEmail: string;
 }) {
@@ -422,6 +470,14 @@ function Navbar({
         <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-green-500 rounded-full flex items-center justify-center">
           <span className="text-white font-bold text-xs">{userName.charAt(0).toUpperCase()}</span>
         </div>
+        <button
+          type="button"
+          onClick={onSignOut}
+          aria-label="Keluar dari akun"
+          className="ml-1 p-2 text-gray-300 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-colors text-lg"
+        >
+          🚪
+        </button>
       </div>
     </nav>
   );

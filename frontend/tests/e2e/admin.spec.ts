@@ -18,7 +18,7 @@ async function signInAdmin(page: Page) {
   await page.goto('/login');
   await page.getByLabel('Email').fill(E2E_ADMIN_EMAIL!);
   await page.getByLabel('Password').fill(E2E_ADMIN_PASSWORD!);
-  await page.getByRole('button', { name: /^sign in$/i }).click();
+  await page.getByRole('button', { name: /^masuk$/i }).click();
   await expect(page.getByRole('heading', { name: /^Halo / })).toBeVisible({ timeout: 30000 });
   await page.goto('/admin');
   await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible({ timeout: 30000 });

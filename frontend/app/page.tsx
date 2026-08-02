@@ -1,8 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth-context';
 
 export default function Home() {
+  const { user } = useAuth();
+  const targetHref = user ? '/dashboard' : '/login';
+  const joinLabel = user ? 'Buka Dasbor' : 'Mulai Sekarang';
   const features = [
     {
       icon: "🤖",
@@ -52,11 +56,11 @@ export default function Home() {
               </span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors">
-                Masuk
+              <Link href={targetHref} className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors">
+                {user ? 'Dasbor' : 'Masuk'}
               </Link>
-              <Link href="/login" className="text-sm font-medium bg-green-600 text-white px-5 py-2.5 rounded-full shadow-sm hover:bg-green-700 hover:shadow transition-all hover:-translate-y-0.5">
-                Mulai Sekarang
+              <Link href={targetHref} className="text-sm font-medium bg-green-600 text-white px-5 py-2.5 rounded-full shadow-sm hover:bg-green-700 hover:shadow transition-all hover:-translate-y-0.5">
+                {joinLabel}
               </Link>
             </div>
           </div>
@@ -91,8 +95,8 @@ export default function Home() {
                 Platform inovatif untuk memonitor kesehatan fermentasi, mendapatkan rekomendasi produk turunan, dan menghitung analisis bisnis secara otomatis.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link href="/login" className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
-                  Buat Batch Pertamamu
+                <Link href={targetHref} className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
+                  {user ? 'Buka Dasbor' : 'Buat Batch Pertamamu'}
                 </Link>
                 <a href="#fitur" className="inline-flex justify-center items-center px-6 py-3.5 border border-gray-200 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 transition-all">
                   Pelajari Fitur
@@ -168,9 +172,10 @@ export default function Home() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, idx) => (
-              <div 
-                key={idx} 
-                className="bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              <Link
+                key={idx}
+                href={targetHref}
+                className="group bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="w-12 h-12 inline-flex items-center justify-center rounded-xl bg-green-50 text-2xl mb-6 shadow-sm border border-green-100">
                   {feature.icon}
@@ -179,7 +184,10 @@ export default function Home() {
                 <p className="text-gray-600 leading-relaxed">
                   {feature.description}
                 </p>
-              </div>
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-green-600 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {user ? 'Buka di Dasbor' : 'Coba Sekarang'} →
+                </span>
+              </Link>
             ))}
           </div>
         </div>
@@ -230,8 +238,8 @@ export default function Home() {
           <p className="text-xl text-green-100 mb-10">
             Bergabunglah dan gunakan AI untuk memastikan keberhasilan panen eco-enzyme Anda.
           </p>
-          <Link href="/login" className="inline-flex justify-center items-center px-8 py-4 border border-transparent text-lg font-bold rounded-full text-green-700 bg-white hover:bg-gray-50 hover:scale-105 transition-all shadow-lg">
-            Daftar Gratis Sekarang
+          <Link href={targetHref} className="inline-flex justify-center items-center px-8 py-4 border border-transparent text-lg font-bold rounded-full text-green-700 bg-white hover:bg-gray-50 hover:scale-105 transition-all shadow-lg">
+            {user ? 'Buka Dasbor' : 'Daftar Gratis Sekarang'}
           </Link>
         </div>
       </section>
@@ -249,8 +257,15 @@ export default function Home() {
             
             <div className="flex gap-6 text-sm text-gray-500 font-medium">
               <Link href="/" className="hover:text-green-600 transition-colors">Beranda</Link>
-              <Link href="/login" className="hover:text-green-600 transition-colors">Dasbor</Link>
-              <a href="https://github.com" target="_blank" rel="noreferrer" className="hover:text-green-600 transition-colors">GitHub</a>
+              <Link href={targetHref} className="hover:text-green-600 transition-colors">Dasbor</Link>
+              <a
+                href="https://github.com/GomalRajaGula/EcoFlow-AI"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-green-600 transition-colors"
+              >
+                GitHub
+              </a>
             </div>
           </div>
           

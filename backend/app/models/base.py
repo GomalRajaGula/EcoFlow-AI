@@ -26,6 +26,7 @@ class User(Base):
     id = Column(String, primary_key=True)
     email = Column(String, unique=True, index=True)
     name = Column(String)
+    phone = Column(String, nullable=True)
     role = Column(String, default="user")
     community_id = Column(Integer, ForeignKey("communities.id"), nullable=True, index=True)
     waste_diverted_kg = Column(Float, default=0.0)

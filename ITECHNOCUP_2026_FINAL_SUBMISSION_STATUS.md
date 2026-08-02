@@ -18,7 +18,7 @@
 - ITECHNOCUP_2026_TECHNICAL_SPECIFICATION.md (Technical Specs - 2,000 words)
 - ITECHNOCUP_2026_IMPACT_BUSINESS_CASE.md (Impact Analysis - 2,500 words)
 - ITECHNOCUP_2026_README.md (Quick Start Guide + Demo Script)
-- ITECHNOCUP_2026_FINAL_STATUS.md (Submission Checklist)
+- docs/archive/ITECHNOCUP_2026_FINAL_STATUS.md (Submission Checklist)
 - **Total:** 50+ pages comprehensive documentation
 
 **Key Content:**
@@ -176,8 +176,8 @@
 - [x] `FIREBASE_SETUP_COMPLETE.md` — DATABASE_URL PostgreSQL (bukan sqlite)
 - [x] `frontend/README.md` — boilerplate create-next-app diganti docs spesifik proyek
 - [x] `API.md` — section Pagination jujur (list endpoints saat ini full data, pagination pasca-MVP)
-- [x] `backend/VS_CODE_VENV_SETUP.md` — hapus hardcoded absolute path dev machine
-- [x] `VSCODE_SETUP_STATUS.md` — claim "dengan screenshots" dikoreksi (tanpa screenshots)
+- [x] `docs/archive/VS_CODE_VENV_SETUP.md` — hapus hardcoded absolute path dev machine
+- [x] `docs/archive/VSCODE_SETUP_STATUS.md` — claim "dengan screenshots" dikoreksi (tanpa screenshots)
 - [x] `backend/.env.example` — ADMIN_UIDS + komentar produksi
 - [x] `AI_ML_STRATEGY.md` — status header: deterministic rule-based saat ini, ML rencana pasca-MVP
 - [x] `PRD.md` — Data Retention (365 hari + erasure), AI/ML stack real, QR rencana

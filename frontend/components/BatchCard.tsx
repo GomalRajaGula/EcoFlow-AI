@@ -129,7 +129,28 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
             </HStack>
           </Stack>
 
-           {!isCompleted && batch.status !== 'failed' && (
+           {isCompleted ? (
+             <Stack spacing={2}>
+               <Button
+                 bg="orange.500"
+                 color="white"
+                 size="sm"
+                 onClick={onRoadmapClick}
+                 _hover={{ bg: 'orange.600' }}
+               >
+                 Lihat Roadmap Pemrosesan
+               </Button>
+               <Button
+                 bg="purple.500"
+                 color="white"
+                 size="sm"
+                 onClick={onAnalysisClick}
+                 _hover={{ bg: 'purple.600' }}
+               >
+                 Analisis Bisnis
+               </Button>
+             </Stack>
+           ) : batch.status !== 'failed' ? (
              <Stack spacing={2}>
                <Button
                  mt={4}
@@ -159,17 +180,17 @@ export default function BatchCard({ batch, onLogClick, onRecommendationClick, on
                >
                  Lihat Roadmap Pemrosesan
                </Button>
-               <Button
-                 bg="purple.500"
-                 color="white"
-                 size="sm"
-                 onClick={onAnalysisClick}
-                 _hover={{ bg: 'purple.600' }}
-               >
-                 Analisis Bisnis
-               </Button>
+<Button
+                  bg="purple.500"
+                  color="white"
+                  size="sm"
+                  onClick={onAnalysisClick}
+                  _hover={{ bg: 'purple.600' }}
+                >
+                  Analisis Bisnis
+                </Button>
              </Stack>
-           )}
+           ) : null}
 
         </Stack>
       </CardBody>

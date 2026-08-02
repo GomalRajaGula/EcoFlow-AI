@@ -153,29 +153,29 @@ export default function BusinessAnalysisModal({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
       <ModalOverlay />
-      <ModalContent maxH="90vh" overflowY="auto" bg="slate-800" borderColor="slate-700" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
+      <ModalContent maxH="90vh" overflowY="auto" bg="gray.800" borderColor="gray.700" w={{ base: 'calc(100% - 2rem)', md: '100%' }}>
         <ModalHeader id="business-analysis-title" color="gray.100">Analisis Bisnis</ModalHeader>
         <ModalCloseButton aria-label="Tutup dialog analisis bisnis" color="gray.300" />
         <form onSubmit={handleSubmit} aria-label="Form analisis bisnis">
           <ModalBody>
             <Stack spacing={4}>
               <FormControl isRequired>
-                <FormLabel htmlFor="business-product-name" color="gray-300">Nama Produk</FormLabel>
+                <FormLabel htmlFor="business-product-name" color="gray.300">Nama Produk</FormLabel>
                 <Input
                   id="business-product-name"
                   name="productName"
                   placeholder="Misal, Pembersih Eco-Enzyme"
                   value={productName}
                   onChange={(e) => setProductName(e.target.value)}
-                  bg="slate-700"
-                  borderColor="slate-600"
-                  color="gray-100"
-                  _placeholder={{ color: 'gray-500' }}
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  color="gray.100"
+                  _placeholder={{ color:'gray.500' }}
                 />
               </FormControl>
 
               <FormControl isRequired>
-                <FormLabel htmlFor="production-volume" color="gray-300">Volume Produksi (Liter)</FormLabel>
+                <FormLabel htmlFor="production-volume" color="gray.300">Volume Produksi (Liter)</FormLabel>
                 <Input
                   id="production-volume"
                   name="productionVolume"
@@ -185,24 +185,24 @@ export default function BusinessAnalysisModal({
                   value={productionVolume}
                   onChange={(e) => setProductionVolume(e.target.value)}
                   step="0.1"
-                  bg="slate-700"
-                  borderColor="slate-600"
-                  color="gray-100"
-                  _placeholder={{ color: 'gray-500' }}
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  color="gray.100"
+                  _placeholder={{ color:'gray.500' }}
                 />
               </FormControl>
 
               <HStack spacing={4}>
                 <FormControl>
-                  <FormLabel htmlFor="target-market" color="gray-300">Target Pasar</FormLabel>
+                  <FormLabel htmlFor="target-market" color="gray.300">Target Pasar</FormLabel>
                   <Select
                     id="target-market"
                     name="targetMarket"
                     value={targetMarket} 
                     onChange={(e) => setTargetMarket(e.target.value)}
-                    bg="slate-700"
-                    borderColor="slate-600"
-                    color="gray-100"
+                    bg="gray.700"
+                    borderColor="gray.600"
+                    color="gray.100"
                   >
                     <option value="local" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Lokal</option>
                     <option value="regional" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Regional</option>
@@ -211,15 +211,15 @@ export default function BusinessAnalysisModal({
                 </FormControl>
 
                 <FormControl>
-                  <FormLabel htmlFor="packaging-type" color="gray-300">Jenis Kemasan</FormLabel>
+                  <FormLabel htmlFor="packaging-type" color="gray.300">Jenis Kemasan</FormLabel>
                   <Select
                     id="packaging-type"
                     name="packagingType"
                     value={packagingType} 
                     onChange={(e) => setPackagingType(e.target.value)}
-                    bg="slate-700"
-                    borderColor="slate-600"
-                    color="gray-100"
+                    bg="gray.700"
+                    borderColor="gray.600"
+                    color="gray.100"
                   >
                     <option value="bottle" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Botol</option>
                     <option value="container" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Jerigen</option>
@@ -229,15 +229,15 @@ export default function BusinessAnalysisModal({
               </HStack>
 
               <FormControl>
-                <FormLabel htmlFor="distribution-channel" color="gray-300">Jalur Distribusi</FormLabel>
+                <FormLabel htmlFor="distribution-channel" color="gray.300">Jalur Distribusi</FormLabel>
                 <Select
                   id="distribution-channel"
                   name="distributionChannel"
                   value={distributionChannel} 
                   onChange={(e) => setDistributionChannel(e.target.value)}
-                  bg="slate-700"
-                  borderColor="slate-600"
-                  color="gray-100"
+                  bg="gray.700"
+                  borderColor="gray.600"
+                  color="gray.100"
                 >
                   <option value="direct" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Penjualan Langsung</option>
                   <option value="retail" style={{ backgroundColor: '#1e293b', color: '#f1f5f9' }}>Retail</option>
@@ -246,13 +246,13 @@ export default function BusinessAnalysisModal({
                 </Select>
               </FormControl>
 
-              <Divider borderColor="slate-600" />
+              <Divider borderColor="gray.600" />
 
               <VStack align="start" spacing={3}>
-                <Text fontWeight="bold" color="gray-100">Struktur Biaya</Text>
+                <Text fontWeight="bold" color="gray.100">Struktur Biaya</Text>
                 <HStack w="100%" spacing={2}>
                   <FormControl isRequired>
-                    <FormLabel htmlFor="raw-material-cost" fontSize="sm" color="gray-300">Bahan Baku (Rp)</FormLabel>
+                    <FormLabel htmlFor="raw-material-cost" fontSize="sm" color="gray.300">Bahan Baku (Rp)</FormLabel>
                     <Input
                       id="raw-material-cost"
                       name="rawMaterialCost"
@@ -261,14 +261,14 @@ export default function BusinessAnalysisModal({
                       value={rawMaterialCost}
                       onChange={(e) => setRawMaterialCost(e.target.value)}
                       step="0.01"
-                      bg="slate-700"
-                      borderColor="slate-600"
-                      color="gray-100"
-                      _placeholder={{ color: 'gray-500' }}
+                      bg="gray.700"
+                      borderColor="gray.600"
+                      color="gray.100"
+                      _placeholder={{ color:'gray.500' }}
                     />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel htmlFor="packaging-cost" fontSize="sm" color="gray-300">Kemasan (Rp)</FormLabel>
+                    <FormLabel htmlFor="packaging-cost" fontSize="sm" color="gray.300">Kemasan (Rp)</FormLabel>
                     <Input
                       id="packaging-cost"
                       name="packagingCost"
@@ -277,17 +277,17 @@ export default function BusinessAnalysisModal({
                       value={packagingCost}
                       onChange={(e) => setPackagingCost(e.target.value)}
                       step="0.01"
-                      bg="slate-700"
-                      borderColor="slate-600"
-                      color="gray-100"
-                      _placeholder={{ color: 'gray-500' }}
+                      bg="gray.700"
+                      borderColor="gray.600"
+                      color="gray.100"
+                      _placeholder={{ color:'gray.500' }}
                     />
                   </FormControl>
                 </HStack>
 
                 <HStack w="100%" spacing={2}>
                   <FormControl isRequired>
-                    <FormLabel htmlFor="labor-cost" fontSize="sm" color="gray-300">Tenaga Kerja (Rp)</FormLabel>
+                    <FormLabel htmlFor="labor-cost" fontSize="sm" color="gray.300">Tenaga Kerja (Rp)</FormLabel>
                     <Input
                       id="labor-cost"
                       name="laborCost"
@@ -296,14 +296,14 @@ export default function BusinessAnalysisModal({
                       value={laborCost}
                       onChange={(e) => setLaborCost(e.target.value)}
                       step="0.01"
-                      bg="slate-700"
-                      borderColor="slate-600"
-                      color="gray-100"
-                      _placeholder={{ color: 'gray-500' }}
+                      bg="gray.700"
+                      borderColor="gray.600"
+                      color="gray.100"
+                      _placeholder={{ color:'gray.500' }}
                     />
                   </FormControl>
                   <FormControl isRequired>
-                    <FormLabel htmlFor="overhead-cost" fontSize="sm" color="gray-300">Biaya Operasional (Rp)</FormLabel>
+                    <FormLabel htmlFor="overhead-cost" fontSize="sm" color="gray.300">Biaya Operasional (Rp)</FormLabel>
                     <Input
                       id="overhead-cost"
                       name="overheadCost"
@@ -312,16 +312,16 @@ export default function BusinessAnalysisModal({
                       value={overheadCost}
                       onChange={(e) => setOverheadCost(e.target.value)}
                       step="0.01"
-                      bg="slate-700"
-                      borderColor="slate-600"
-                      color="gray-100"
-                      _placeholder={{ color: 'gray-500' }}
+                      bg="gray.700"
+                      borderColor="gray.600"
+                      color="gray.100"
+                      _placeholder={{ color:'gray.500' }}
                     />
                   </FormControl>
                 </HStack>
 
                 <FormControl isRequired w="50%">
-                  <FormLabel htmlFor="monthly-fixed-costs" fontSize="sm" color="gray-300">Biaya Tetap Bulanan (Rp)</FormLabel>
+                  <FormLabel htmlFor="monthly-fixed-costs" fontSize="sm" color="gray.300">Biaya Tetap Bulanan (Rp)</FormLabel>
                   <Input
                     id="monthly-fixed-costs"
                     name="monthlyFixedCosts"
@@ -330,46 +330,46 @@ export default function BusinessAnalysisModal({
                     value={monthlyFixedCosts}
                     onChange={(e) => setMonthlyFixedCosts(e.target.value)}
                     step="0.01"
-                    bg="slate-700"
-                    borderColor="slate-600"
-                    color="gray-100"
-                    _placeholder={{ color: 'gray-500' }}
+                    bg="gray.700"
+                    borderColor="gray.600"
+                    color="gray.100"
+                    _placeholder={{ color:'gray.500' }}
                   />
                 </FormControl>
               </VStack>
 
               {analysis && (
-                <Box borderTop="1px" borderColor="slate-600" pt={4} bg="slate-700" p={4} rounded="lg">
-                  <Text fontWeight="bold" mb={3} color="gray-100">
+                <Box borderTop="1px" borderColor="gray.600" pt={4} bg="gray.700" p={4} rounded="lg">
+                  <Text fontWeight="bold" mb={3} color="gray.100">
                     Hasil Analisis:
                   </Text>
                   <VStack spacing={2} align="start" fontSize="sm">
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray-400">Biaya per Liter:</Text>
-                      <Text fontWeight="medium" color="gray-100">${typeof analysis.cogs_per_liter === 'number' ? analysis.cogs_per_liter.toFixed(2) : 'N/A'}</Text>
+                      <Text color="gray.400">Biaya per Liter (Rp):</Text>
+                      <Text fontWeight="medium" color="gray.100">Rp {typeof analysis.cogs_per_liter === 'number' ? analysis.cogs_per_liter.toLocaleString('id-ID') : 'N/A'}</Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray-400">Harga Jual Saran:</Text>
-                      <Text fontWeight="medium" color="gray-100">${typeof analysis.suggested_retail_price === 'number' ? analysis.suggested_retail_price.toFixed(2) : 'N/A'}</Text>
+                      <Text color="gray.400">Harga Jual Saran (Rp):</Text>
+                      <Text fontWeight="medium" color="gray.100">Rp {typeof analysis.suggested_retail_price === 'number' ? analysis.suggested_retail_price.toLocaleString('id-ID') : 'N/A'}</Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray-400">Margin Kotor:</Text>
+                      <Text color="gray.400">Margin Kotor:</Text>
                       <Text fontWeight="medium" color="green.400">
                         {typeof analysis.gross_margin_percentage === 'number' ? analysis.gross_margin_percentage.toFixed(1) : 'N/A'}%
                       </Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray-400">BEP (Liter):</Text>
-                      <Text fontWeight="medium" color="gray-100">{Math.ceil(typeof analysis.break_even_units_liters === 'number' ? analysis.break_even_units_liters : 0)}</Text>
+                      <Text color="gray.400">BEP (Liter):</Text>
+                      <Text fontWeight="medium" color="gray.100">{Math.ceil(typeof analysis.break_even_units_liters === 'number' ? analysis.break_even_units_liters : 0)}</Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray-400">Profit Tahunan:</Text>
+                      <Text color="gray.400">Profit Tahunan (Rp):</Text>
                       <Text fontWeight="medium" color="blue.400">
-                        ${typeof analysis.yearly_net_profit === 'number' ? analysis.yearly_net_profit.toFixed(2) : 'N/A'}
+                        Rp {typeof analysis.yearly_net_profit === 'number' ? analysis.yearly_net_profit.toLocaleString('id-ID') : 'N/A'}
                       </Text>
                     </HStack>
                     <HStack justifyContent="space-between" w="100%">
-                      <Text color="gray-400">Kelayakan:</Text>
+                      <Text color="gray.400">Kelayakan:</Text>
                       <Text fontWeight="bold" color={analysis.viability_rating === 'Viable' ? 'green.400' : analysis.viability_rating === 'Marginal' ? 'orange.400' : 'red.400'}>
                         {String(analysis.viability_rating || 'N/A')}
                       </Text>
@@ -381,7 +381,7 @@ export default function BusinessAnalysisModal({
           </ModalBody>
 
           <ModalFooter>
-            <Button type="button" variant="ghost" mr={3} onClick={handleClose} color="gray-300">
+            <Button type="button" variant="ghost" mr={3} onClick={handleClose} color="gray.300">
               {analysis ? 'Tutup' : 'Batal'}
             </Button>
             {!analysis && (
@@ -397,7 +397,7 @@ export default function BusinessAnalysisModal({
             )}
             {analysis && (
               <>
-                <Button variant="outline" mr={3} onClick={handleDownloadReport} color="gray-300" borderColor="slate-600">
+                <Button variant="outline" mr={3} onClick={handleDownloadReport} color="gray.300" borderColor="gray.600">
                   Download PDF
                 </Button>
                 <Button
