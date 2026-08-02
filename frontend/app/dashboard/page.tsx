@@ -390,17 +390,26 @@ return (
       )}
       <div
         aria-label="Navigasi utama"
-        className={`fixed h-full z-40 bg-white border-r border-emerald-100 flex flex-col transition-all duration-300 shadow-xl shadow-emerald-900/5 ${
+        className={`fixed h-full z-40 bg-white/95 backdrop-blur border-r border-emerald-100 flex flex-col transition-all duration-300 shadow-xl shadow-emerald-900/10 ${
           sidebarOpen ? 'w-64' : 'w-20'
         } ${sidebarOpen ? 'left-0' : '-left-full'} md:left-0 md:-translate-x-0`}
       >
-        <div className="p-4 border-b border-emerald-50">
-          <div className="flex items-center justify-center h-10 w-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg overflow-hidden">
-            <span className="text-white font-extrabold">EcoFlow</span>
+        <div className="p-4 border-b border-emerald-50 flex items-center gap-3">
+          <div className="shrink-0 w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md shadow-emerald-500/30">
+            <span className="text-white font-extrabold text-lg" aria-hidden="true">E</span>
           </div>
+          {sidebarOpen && (
+            <div className="overflow-hidden">
+              <p className="text-emerald-800 font-extrabold leading-tight truncate">EcoFlow</p>
+              <p className="text-[11px] text-slate-400 font-medium truncate">Eco-Enzyme AI</p>
+            </div>
+          )}
         </div>
 
-        <nav aria-label="Navigasi utama" className="flex-1 px-4 py-6 space-y-2">
+        <nav aria-label="Navigasi utama" className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+          <p className={`px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 ${sidebarOpen ? '' : 'sr-only'}`}>
+            Menu
+          </p>
           <NavItem
             label="Dasbor"
             icon="📊"
@@ -418,14 +427,17 @@ return (
           )}
         </nav>
 
-        <div className="p-4 border-t border-emerald-50">
+        <div className="p-3 border-t border-emerald-50">
           <button
             type="button"
             aria-label="Keluar dari akun"
+            title={sidebarOpen ? undefined : 'Keluar dari akun'}
             onClick={onSignOut}
-            className="min-h-11 w-full py-2 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 text-white rounded-xl transition-all font-medium text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20"
+            className={`w-full min-h-11 py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 text-white rounded-xl transition-all font-semibold text-sm flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 active:scale-[0.98] ${
+              sidebarOpen ? '' : 'flex-col'
+            }`}
           >
-            <span>🚪</span>
+            <span className="text-lg" aria-hidden="true">🚪</span>
             {sidebarOpen && <span>Keluar</span>}
           </button>
         </div>
@@ -452,15 +464,30 @@ function NavItem({
       type="button"
       aria-current={active ? 'page' : undefined}
       aria-label={label}
+      title={sidebarOpen ? undefined : label}
       onClick={onClick}
-      className={`min-h-11 w-full py-3 px-4 rounded-xl transition-all flex items-center gap-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 ${
+      className={`group relative min-h-11 w-full py-2.5 px-3 rounded-xl transition-all flex items-center gap-3 text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 active:scale-[0.97] ${
         active
-          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/20'
+          ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/25'
           : 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700'
       }`}
     >
-      <span className="text-lg">{icon}</span>
-      {sidebarOpen && <span>{label}</span>}
+      {active && (
+        <span
+          aria-hidden="true"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-emerald-300"
+        />
+      )}
+      <span
+        className={`text-lg transition-transform duration-200 ${sidebarOpen ? 'group-hover:scale-110' : 'mx-auto'}`}
+        aria-hidden="true"
+      >
+        {icon}
+      </span>
+      {sidebarOpen && <span className="truncate">{label}</span>}
+      {!sidebarOpen && active && (
+        <span className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+      )}
     </button>
   );
 }
