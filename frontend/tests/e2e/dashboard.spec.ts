@@ -60,7 +60,7 @@ test.describe('Dashboard terautentikasi', () => {
     await expect(card.getByText('2 kg')).toHaveCount(2);
   });
 
-  test('mendapatkan rekomendasi produk setelah harvest', async ({ page }) => {
+  test('mendapatkan rekomendasi produk setelah harvest dan memilih produk untuk roadmap', async ({ page }) => {
     await signIn(page);
 
     const card = await createBatch(page, `E2E Rekom ${Date.now()}`);
@@ -69,7 +69,9 @@ test.describe('Dashboard terautentikasi', () => {
     await page.getByRole('button', { name: /^dapatkan rekomendasi$/i }).click();
 
     await expect(page.getByText('Produk yang Direkomendasikan:')).toBeVisible({ timeout: 15000 });
-    await expect(page.getByText(/Skor kecocokan:/).first()).toBeVisible();
+    const firstProduct = page.getByRole('button', { name: /pilih untuk roadmap/i }).first();
+    await firstProduct.click();
+    await expect(page.getByText(/✓ terpilih/i).first()).toBeVisible({ timeout: 10000 });
   });
 
   test('menjalankan analisis bisnis dan melihat hasil kelayakan', async ({ page }) => {

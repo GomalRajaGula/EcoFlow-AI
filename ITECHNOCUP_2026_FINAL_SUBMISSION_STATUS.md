@@ -144,6 +144,7 @@
 #### Complete Admin/Community Scope
 - [x] Add community and regional entities with scoped access
 - [x] Add region/date filters and compliance report export
+- [x] Wire `POST /batches/{id}/select-product` di UI — rekomendasi produk kini bisa dipilih user ("Pilih untuk Roadmap") dan tersimpan ke batch; roadmap terbuka sesuai produk terpilih (bukan fallback produk 1)
 - [ ] Add roadmap/tutorial versioning and bulk pricing import
 
 ### Priority: MEDIUM

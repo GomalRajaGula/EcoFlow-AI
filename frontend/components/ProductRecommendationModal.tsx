@@ -43,6 +43,8 @@ export default function ProductRecommendationModal({
   const [userIntent, setUserIntent] = useState('household');
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<Array<Record<string, unknown>> | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectingProduct, setSelectingProduct] = useState(false);
   const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,12 +93,40 @@ export default function ProductRecommendationModal({
     }
   };
 
+  const handleSelectProduct = async (productTemplateId: number) => {
+    try {
+      setSelectingProduct(true);
+      const response = await apiClient.post(`/api/v1/batches/${batchId}/select-product`, {
+        product_template_id: productTemplateId,
+      });
+      setSelectedProductId(response.data.data.selected_product_id);
+      toast({
+        title: 'Produk dipilih',
+        description: 'Produk ini akan digunakan untuk roadmap pemrosesan.',
+        status: 'success',
+        isClosable: true,
+        duration: 3000,
+      });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast({
+        title: 'Error',
+        description: err.response?.data?.detail || 'Gagal memilih produk',
+        status: 'error',
+        isClosable: true,
+      });
+    } finally {
+      setSelectingProduct(false);
+    }
+  };
+
   const handleClose = () => {
     setHarvestVolume('');
     setFinalColor('dark_brown');
     setAromaIntensity('medium');
     setUserIntent('household');
     setRecommendations(null);
+    setSelectedProductId(null);
     onClose();
   };
 
@@ -156,7 +186,7 @@ export default function ProductRecommendationModal({
                   </Text>
                   <VStack spacing={3} align="start">
                     {recommendations.map((rec: Record<string, unknown>, idx: number) => (
-                      <Box key={idx} w="100%" p={3} borderRadius="md" bg="gray.50">
+                      <Box key={idx} w="100%" p={3} borderRadius="md" bg="gray.50" borderWidth={selectedProductId === Number(rec.product_id) ? '2px' : '1px'} borderColor={selectedProductId === Number(rec.product_id) ? 'green.400' : 'gray.200'}>
                         <HStack justifyContent="space-between" mb={2}>
                           <Text fontWeight="medium">{String(rec.name)}</Text>
                           <Badge colorScheme="green">#{idx + 1}</Badge>
@@ -169,6 +199,15 @@ export default function ProductRecommendationModal({
                             {String(rec.processing_instruction_summary)}
                           </Text>
                         )}
+                        <Button
+                          mt={3}
+                          size="xs"
+                          colorScheme={selectedProductId === Number(rec.product_id) ? 'green' : 'gray'}
+                          isDisabled={selectingProduct}
+                          onClick={() => handleSelectProduct(Number(rec.product_id))}
+                        >
+                          {selectedProductId === Number(rec.product_id) ? '✓ Terpilih' : 'Pilih untuk Roadmap'}
+                        </Button>
                       </Box>
                     ))}
                   </VStack>

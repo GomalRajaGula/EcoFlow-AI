@@ -15,7 +15,7 @@
   - `landing.spec.ts` (2): hero content, CTA → /login
   - `login.spec.ts` (2): form render/toggle, browser validation
   - `auth-guard.spec.ts` (3): route guards — /dashboard & /admin redirect unauthenticated → /login
-  - `dashboard.spec.ts` (8, terautentikasi): sign-in + stat cards, create batch dengan rasio air/gula otomatis, rekomendasi produk setelah harvest, analisis bisnis + kelayakan, modal catatan fermentasi & roadmap, **catatan fermentasi + foto observasi (upload ke MinIO terverifikasi) + prediksi AI**, **simpan offline → sinkronisasi queue saat online**, **roadmap di-cache (localStorage) → tetap tampil saat offline**
+  - `dashboard.spec.ts` (8, terautentikasi): sign-in + stat cards, create batch dengan rasio air/gula otomatis, **rekomendasi produk + pilih produk untuk roadmap** (men-sinkronkan `POST /batches/{id}/select-product`), analisis bisnis + kelayakan, modal catatan fermentasi & roadmap, **catatan fermentasi + foto observasi (upload ke MinIO terverifikasi) + prediksi AI**, **simpan offline → sinkronisasi queue saat online**, **roadmap di-cache (localStorage) → tetap tampil saat offline**
   - `admin.spec.ts` (2, admin role): load community stats + model metrics, create & delete product template
 - ✅ Tes terautentikasi otomatis di-skip jika env `E2E_EMAIL`/`E2E_PASSWORD` (dan `E2E_ADMIN_EMAIL`/`E2E_ADMIN_PASSWORD`) tidak diset — aman untuk CI
 - ✅ Test user Firebase: `e2e.test@ecoflow-ai.dev` (role admin via `ADMIN_UIDS`)
