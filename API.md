@@ -53,15 +53,25 @@ Response: 201 Created
 ```
 
 ### GET /batches
-List all batches for the authenticated user.
+List all batches for the authenticated user. Supports pagination.
 ```
+Query params:
+- limit (optional, default 100): number of items per page
+- offset (optional, default 0): starting position
+
 Response: 200 OK
 {
   "status": "success",
-  "data": [
-    { "id": 1, "name": "Batch 1", "status": "pending", ... },
-    { "id": 2, "name": "Batch 2", "status": "harvested", ... }
-  ]
+  "data": {
+    "batches": [
+      { "id": 1, "name": "Batch 1", "status": "pending", ... },
+      { "id": 2, "name": "Batch 2", "status": "harvested", ... }
+    ],
+    "total": 15,
+    "limit": 100,
+    "offset": 0,
+    "has_more": false
+  }
 }
 ```
 
@@ -121,15 +131,25 @@ Response: 201 Created
 ```
 
 ### GET /batches/{batch_id}/logs
-List all logs for a batch.
+List all logs for a batch. Supports pagination.
 ```
+Query params:
+- limit (optional, default 50): number of items per page
+- offset (optional, default 0): starting position
+
 Response: 200 OK
 {
   "status": "success",
-  "data": [
-    { "id": 1, "log_date": "...", "aroma": "sweet", ... },
-    { "id": 2, "log_date": "...", "aroma": "sour", ... }
-  ]
+  "data": {
+    "logs": [
+      { "id": 1, "log_date": "...", "aroma": "sweet", ... },
+      { "id": 2, "log_date": "...", "aroma": "sour", ... }
+    ],
+    "total": 25,
+    "limit": 50,
+    "offset": 0,
+    "has_more": false
+  }
 }
 ```
 
@@ -332,8 +352,8 @@ Response: 200 OK
 
 ## Environmental Impact
 
-### GET /impact/total
-Get cumulative environmental impact.
+### GET /impact/user
+Get cumulative environmental impact for the authenticated user.
 ```
 Response: 200 OK
 {
@@ -346,7 +366,7 @@ Response: 200 OK
 }
 ```
 
-### GET /impact/batch/{batch_id}
+### GET /batches/{batch_id}/impact
 Get environmental impact for a specific batch.
 ```
 Response: 200 OK

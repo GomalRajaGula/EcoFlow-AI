@@ -3,10 +3,24 @@ import io
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
+from reportlab.graphics.barcode.qr import QrCodeWidget
+from reportlab.graphics.shapes import Drawing
+from reportlab.graphics import renderPDF
 
 class ReportService:
+    """Generasi laporan PDF (business report & roadmap checklist) via ReportLab."""
+
     @staticmethod
     def generate_business_report(batch_id: int, analysis_data: dict) -> dict:
+        """Generate PDF laporan kelayakan bisnis untuk satu batch.
+
+        Args:
+            batch_id: ID batch (hanya untuk label di PDF).
+            analysis_data: Hasil BusinessAnalysisService.run_analysis().
+
+        Returns:
+            dict: {"title", "batch_id", "generated_at", "content" (PDF bytes)}.
+        """
         timestamp = datetime.now(timezone.utc).isoformat()
 
         buffer = io.BytesIO()
@@ -46,6 +60,41 @@ class ReportService:
             display_value = f"{value:.2f}" if isinstance(value, (float, int)) else str(value)
             pdf.drawString(50, y, f"{label}: {display_value}")
 
+        y -= 28
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(50, y, "12-Month Projection")
+        pdf.setFont("Helvetica", 10)
+        projection_rows = [
+            ("Monthly Revenue", analysis_data.get("monthly_revenue")),
+            ("Monthly Net Profit", analysis_data.get("monthly_net_profit")),
+            ("Yearly Net Profit", analysis_data.get("yearly_net_profit")),
+            ("Breakeven Months", analysis_data.get("breakeven_months")),
+        ]
+        for label, value in projection_rows:
+            y -= 18
+            if isinstance(value, (float, int)):
+                display_value = f"{value:.2f}"
+            elif value is None:
+                display_value = "N/A"
+            else:
+                display_value = str(value)
+            pdf.drawString(50, y, f"{label}: {display_value}")
+
+        sensitivity = analysis_data.get("sensitivity_analysis") or {}
+        y -= 28
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawString(50, y, f"Sensitivity Analysis (Variance: {sensitivity.get('variance_percentage', 10)}%)")
+        pdf.setFont("Helvetica", 10)
+        sensitivity_rows = [
+            ("Base Case", sensitivity.get("base_case")),
+            ("Pessimistic", sensitivity.get("pessimistic")),
+            ("Optimistic", sensitivity.get("optimistic")),
+        ]
+        for label, value in sensitivity_rows:
+            y -= 18
+            display_value = f"{value:.2f}" if isinstance(value, (float, int)) else str(value)
+            pdf.drawString(50, y, f"{label}: {display_value}")
+
         pdf.showPage()
         pdf.save()
         buffer.seek(0)
@@ -59,6 +108,11 @@ class ReportService:
 
     @staticmethod
     def generate_roadmap_pdf(batch_id: int, roadmap_data: dict) -> bytes:
+        """Generate PDF checklist roadmap (steps dengan checkbox + QR tutorial).
+
+        Returns:
+            bytes: Raw PDF bytes siap dikirim sebagai attachment.
+        """
         buffer = io.BytesIO()
         pdf = canvas.Canvas(buffer, pagesize=A4)
         width, height = A4
@@ -98,6 +152,35 @@ class ReportService:
         pdf.setFont("Helvetica", 10)
         y -= 16
         pdf.drawString(50, y, str(roadmap_data.get("safety_warnings", "Follow safe handling practices."))[:130])
+
+        tutorial_url = roadmap_data.get("tutorial_url")
+        if tutorial_url:
+            y -= 28
+            if y < 120:
+                pdf.showPage()
+                y = height - 50
+            pdf.setFont("Helvetica-Bold", 10)
+            pdf.drawString(50, y, "Tutorial Link")
+            pdf.setFont("Helvetica", 9)
+            y -= 16
+            pdf.drawString(50, y, str(tutorial_url)[:100])
+            y -= 12
+            try:
+                qr_widget = QrCodeWidget(tutorial_url)
+                qr_size = 80
+                bounds = qr_widget.getBounds()
+                w = bounds[2] - bounds[0]
+                h = bounds[3] - bounds[1]
+                d = Drawing(qr_size, qr_size, transform=[qr_size / w, 0, 0, qr_size / h, 0, 0])
+                d.add(qr_widget)
+                if y - qr_size < 50:
+                    pdf.showPage()
+                    y = height - 50
+                renderPDF.draw(d, pdf, 50, y - qr_size)
+                y -= qr_size + 10
+            except Exception:
+                pass
+
         pdf.showPage()
         pdf.save()
         buffer.seek(0)
@@ -105,6 +188,11 @@ class ReportService:
 
     @staticmethod
     def generate_roadmap_report(batch_id: int, roadmap_data: dict) -> dict:
+        """Versi JSON structured dari roadmap report (bukan PDF).
+
+        Returns:
+            dict: {"title", "batch_id", "generated_at", "summary", "sections", "raw_data"}.
+        """
         timestamp = datetime.now(timezone.utc).isoformat()
         
         return {

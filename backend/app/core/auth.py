@@ -15,6 +15,16 @@ async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
+    """Dependency FastAPI: verifikasi token dan return User saat ini.
+
+    Verifikasi ID token via Firebase Admin SDK, lalu ambil user dari DB.
+    User baru di-auto-register dengan role 'user' (atau 'admin' jika UID ada
+    di env ADMIN_UIDS). UID yang masuk ADMIN_UIDS akan di-upgrade role-nya
+    menjadi 'admin' secara otomatis.
+
+    Raises:
+        HTTPException: 401 jika token invalid/expired atau tanpa UID valid.
+    """
     token = credentials.credentials
     decoded_token = verify_token(token)
     user_id = decoded_token.get("uid")
@@ -47,10 +57,19 @@ async def get_current_user(
 
 
 async def get_current_user_role(current_user: User = Depends(get_current_user)) -> str:
+    """Dependency FastAPI: return role dari user yang sedang login."""
     return current_user.role
 
 
 def require_role(*allowed_roles: str):
+    """Factory dependency FastAPI: batasi endpoint hanya untuk role tertentu.
+
+    Args:
+        *allowed_roles: Role yang diizinkan, misal ("admin", "platform_admin").
+
+    Returns:
+        Async callable dependency yang raise 403 jika role tidak termasuk.
+    """
     async def role_checker(role: str = Depends(get_current_user_role)):
         if role not in allowed_roles:
             raise HTTPException(

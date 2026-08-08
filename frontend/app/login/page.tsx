@@ -51,6 +51,24 @@ function GoogleLogo() {
   );
 }
 
+const getFirebaseErrorMessage = (errorCode: string): string => {
+  const errorMessages: Record<string, string> = {
+    'auth/user-not-found': 'Akun tidak ditemukan. Silakan daftar terlebih dahulu.',
+    'auth/wrong-password': 'Kata sandi salah. Silakan coba lagi.',
+    'auth/invalid-email': 'Format email tidak valid.',
+    'auth/email-already-in-use': 'Email sudah terdaftar. Gunakan email lain atau masuk.',
+    'auth/weak-password': 'Kata sandi terlalu lemah. Gunakan minimal 6 karakter.',
+    'auth/operation-not-allowed': 'Metode autentikasi tidak diizinkan.',
+    'auth/invalid-credential': 'Email atau kata sandi salah.',
+    'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi nanti.',
+    'auth/network-request-failed': 'Koneksi jaringan gagal. Periksa internet Anda.',
+    'auth/popup-closed-by-user': 'Popup sign-in ditutup sebelum selesai.',
+    'auth/cancelled-popup-request': 'Permintaan popup dibatalkan.',
+    'auth/account-exists-with-different-credential': 'Akun sudah ada dengan metode sign-in berbeda.',
+  };
+  return errorMessages[errorCode] || 'Autentikasi gagal. Silakan coba lagi.';
+};
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -101,12 +119,14 @@ export default function LoginPage() {
         handleSuccess();
       }
     } catch (error: unknown) {
-      const err = error as { message?: string };
+      const err = error as { code?: string; message?: string };
+      const errorMessage = err.code ? getFirebaseErrorMessage(err.code) : (err.message || 'Autentikasi gagal');
       toast({
-        title: 'Authentication Error',
-        description: err.message || 'Authentication failed',
+        title: 'Gagal masuk',
+        description: errorMessage,
         status: 'error',
         isClosable: true,
+        duration: 5000,
       });
     } finally {
       setLoading(false);
@@ -121,12 +141,14 @@ export default function LoginPage() {
       persistProfile(result.user.displayName || '', '');
       handleSuccess();
     } catch (error: unknown) {
-      const err = error as { message?: string };
+      const err = error as { code?: string; message?: string };
+      const errorMessage = err.code ? getFirebaseErrorMessage(err.code) : (err.message || 'Google sign-in gagal');
       toast({
-        title: 'Google Sign-In Error',
-        description: err.message || 'Google sign-in failed',
+        title: 'Gagal masuk dengan Google',
+        description: errorMessage,
         status: 'error',
         isClosable: true,
+        duration: 5000,
       });
     } finally {
       setGoogleLoading(false);

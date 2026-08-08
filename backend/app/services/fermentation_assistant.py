@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 from typing import Tuple
 
 class FermentationAssistantService:
+    """AI klasifikasi status fermentasi eco-enzyme (deterministic rule-based)."""
+
     AROMA_NORMAL = ["sweet", "sour"]
     AROMA_CAUTION = ["slightly_rotten", "unusual"]
     AROMA_FAILED = ["strongly_rotten", "moldy"]
@@ -19,6 +21,22 @@ class FermentationAssistantService:
         incubation_day: int,
         initial_ratio_ok: bool = True
     ) -> Tuple[str, float, str]:
+        """Klasifikasikan status fermentasi berdasarkan observasi user.
+
+        Aturan: >=1 indikator failed -> "Failed"; >=2 indikator caution ->
+        "Caution"; selainnya "Normal".
+
+        Args:
+            aroma: Nilai aroma (lihat AROMA_* constants).
+            color: Nilai warna (lihat COLOR_* constants).
+            gas_presence: Ada gelembung gas atau tidak.
+            temperature_c: Suhu ruangan (°C); optimal 20-30.
+            incubation_day: Hari ke-berapa fermentasi (sejak start).
+            initial_ratio_ok: Apakah rasio bahan awal sesuai.
+
+        Returns:
+            Tuple[str, float, str]: (status, confidence, suggestion).
+        """
         status = "Normal"
         confidence = 0.8
         suggestion = ""
@@ -79,6 +97,11 @@ class FermentationAssistantService:
         confidence: float,
         days_elapsed: int
     ) -> float:
+        """Hitung health score 0-100 dari status, confidence, dan durasi.
+
+        Rumus: base(Normal=80/Caution=50/Failed=10) + (confidence*20-10)
+               + min(days/90*10, 10), di-clamp 0-100.
+        """
         base_score = {
             "Normal": 80,
             "Caution": 50,
@@ -98,6 +121,11 @@ class FermentationAssistantService:
         gas_presence: bool,
         aroma: str
     ) -> bool:
+        """Tentukan apakah batch sudah masuk jendela panen (hari 83-97).
+
+        True jika: incubation_day di 83-97, status "Normal", ada gas,
+        dan aroma normal (sweet/sour).
+        """
         ideal_range = 83 <= incubation_day <= 97
         is_normal = status == "Normal"
         ready_signs = gas_presence and aroma.lower() in FermentationAssistantService.AROMA_NORMAL

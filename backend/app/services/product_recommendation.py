@@ -3,6 +3,8 @@ import math
 from sqlalchemy.orm import Session
 
 class ProductRecommendationService:
+    """Ranking rekomendasi produk berdasarkan kesesuaian karakteristik panen."""
+
     PRODUCT_TEMPLATES_DEFAULT = {
         1: {"name": "Household Cleaner", "ideal_ph": (3.0, 4.0), "ideal_aroma": "sour", "ideal_color": "brown"},
         2: {"name": "Disinfectant", "ideal_ph": (2.5, 3.5), "ideal_aroma": "sour", "ideal_color": "dark_brown"},
@@ -16,6 +18,7 @@ class ProductRecommendationService:
     
     @staticmethod
     def get_templates(db: Session = None) -> dict:
+        """Ambil template produk dari DB; fallback ke default jika tanpa DB/kosong."""
         if db is None:
             return ProductRecommendationService.PRODUCT_TEMPLATES_DEFAULT
         
@@ -44,6 +47,11 @@ class ProductRecommendationService:
         user_intent: str = "household",
         templates: dict = None
     ) -> float:
+        """Hitung skor kompatibilitas 0-100 antara hasil panen dan produk.
+
+        Rumus: (color*0.4 + aroma*0.4 + volume*0.2) x intent_bonus x 100.
+        Intent commercial memberi bonus 1.2x kecuali produk 6/7.
+        """
         if templates is None:
             templates = ProductRecommendationService.PRODUCT_TEMPLATES_DEFAULT
         
@@ -62,6 +70,7 @@ class ProductRecommendationService:
     
     @staticmethod
     def _color_similarity(user_color: str, ideal_color: str) -> float:
+        """Skor kemiripan warna: 1.0 sama persis, 0.75 segrup, 0.3 lainnya."""
         user_color_lower = user_color.lower()
         ideal_color_lower = ideal_color.lower()
         
@@ -82,6 +91,7 @@ class ProductRecommendationService:
     
     @staticmethod
     def _aroma_similarity(user_aroma: str, ideal_aroma: str) -> float:
+        """Skor kemiripan aroma: 1.0 sama, 0.85 sweet<->fruity / sour<->tangy, 0.4 lainnya."""
         user_aroma_lower = user_aroma.lower()
         ideal_aroma_lower = ideal_aroma.lower()
         
@@ -103,6 +113,12 @@ class ProductRecommendationService:
         user_intent: str = "household",
         db: Session = None
     ) -> List[dict]:
+        """Ranking semua template produk by compatibility score (desc).
+
+        Returns:
+            List[dict]: Top 8 rekomendasi, masing-masing berisi product_id,
+                name, compatibility_score, description, summary.
+        """
         templates = ProductRecommendationService.get_templates(db)
         recommendations = []
         

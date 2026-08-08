@@ -7,8 +7,21 @@ from app.models.base import FermentationBatch, FermentationLog, ProductRecommend
 
 
 class AdminService:
+    """Statistik & agregasi untuk dashboard admin (komunitas, tren, model)."""
+
     @staticmethod
     def get_community_stats(db: Session, community_id: int | None = None, start_date: date | None = None, end_date: date | None = None) -> dict:
+        """Statistik agregat komunitas: users, batches, waste, success rate, engagement.
+
+        Args:
+            db: SQLAlchemy session.
+            community_id: Filter per komunitas (None = semua).
+            start_date: Batas bawah tanggal (inclusive).
+            end_date: Batas atas tanggal (inclusive, dihitung +1 hari).
+
+        Returns:
+            dict: Statistik lengkap termasuk dict "engagement".
+        """
         users_query = db.query(User)
         batches_query = db.query(FermentationBatch).join(User, User.id == FermentationBatch.user_id)
         logs_query = db.query(FermentationLog).join(FermentationBatch, FermentationBatch.id == FermentationLog.batch_id).join(User, User.id == FermentationBatch.user_id)
@@ -65,6 +78,17 @@ class AdminService:
 
     @staticmethod
     def get_community_trends(db: Session, days: int = 30, community_id: int | None = None) -> dict:
+        """Tren harian jumlah log & success rate untuk N hari terakhir.
+
+        Args:
+            db: SQLAlchemy session.
+            days: Rentang hari (di-clamp ke 7-90).
+            community_id: Filter per komunitas (None = semua).
+
+        Returns:
+            dict: {"days", "trends": [{"date", "logs", "normal", "success_rate_percentage"}]}.
+                Tanggal tanpa data diisi 0.
+        """
         safe_days = min(max(days, 7), 90)
         start_date = datetime.now(timezone.utc) - timedelta(days=safe_days - 1)
         logs_query = db.query(FermentationLog).join(FermentationBatch, FermentationBatch.id == FermentationLog.batch_id).join(User, User.id == FermentationBatch.user_id)
@@ -95,6 +119,16 @@ class AdminService:
 
     @staticmethod
     def get_model_metrics(db: Session = None) -> dict:
+        """Metrik performa AI classifier: distribusi status, success rate, avg health score.
+
+        Args:
+            db: SQLAlchemy session (default: buat session baru).
+
+        Returns:
+            dict: {"total_predictions", "normal_logs", "caution_logs",
+                   "failed_logs", "success_rate_percentage",
+                   "average_health_score", "uptime_percentage"}.
+        """
         if db is None:
             from app.core.database import SessionLocal
             db = SessionLocal()

@@ -82,6 +82,8 @@ class ProductTemplateBase(BaseModel):
     time_estimate_hours: float = Field(gt=0, le=10000, description="Time estimate must be positive")
     safety_warnings: str = Field(min_length=1, max_length=2000)
     base_compatibility_score: float = Field(default=0.5, ge=0, le=1)
+    tutorial_url: Optional[str] = Field(None, max_length=500)
+    regional_average_price: Optional[float] = Field(None, ge=0)
 
 class ProductTemplateCreate(ProductTemplateBase):
     pass
@@ -95,6 +97,8 @@ class ProductTemplateUpdate(BaseModel):
     time_estimate_hours: Optional[float] = Field(None, gt=0, le=10000)
     safety_warnings: Optional[str] = Field(None, min_length=1, max_length=2000)
     base_compatibility_score: Optional[float] = Field(None, ge=0, le=1)
+    tutorial_url: Optional[str] = Field(None, max_length=500)
+    regional_average_price: Optional[float] = Field(None, ge=0)
 
 class ProductTemplate(ProductTemplateBase):
     id: int

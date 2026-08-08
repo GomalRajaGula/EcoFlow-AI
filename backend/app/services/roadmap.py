@@ -1,8 +1,23 @@
 from app.models.base import ProductTemplate, RoadmapProgress
 
 class RoadmapService:
+    """Generate & track roadmap pengolahan produk eco-enzyme."""
+
     @staticmethod
     def generate_roadmap(product_template_id: int, db) -> dict:
+        """Generate langkah-langkah roadmap dari template produk.
+
+        Args:
+            product_template_id: ID template produk (1-8 memiliki langkah khusus).
+            db: SQLAlchemy session.
+
+        Returns:
+            dict: {"template_name", "time_estimate_hours", "safety_warnings",
+                   "steps": [{"title", "description", "details", "completed"}]}.
+
+        Raises:
+            ValueError: Jika template tidak ditemukan.
+        """
         template = db.query(ProductTemplate).filter(ProductTemplate.id == product_template_id).first()
         if not template:
             raise ValueError("Product template not found")
@@ -77,6 +92,14 @@ class RoadmapService:
 
     @staticmethod
     def update_step_status(roadmap: RoadmapProgress, step_index: int, completed: bool, db) -> dict:
+        """Update status satu step dan recompute progres roadmap.
+
+        Transisi status: 0 selesai -> not_started; semua selesai -> completed;
+        sebagian -> in_progress. `started_at`/`completed_at` di-set sekali.
+
+        Raises:
+            ValueError: Jika step_index di luar rentang.
+        """
         if step_index < 0 or step_index >= len(roadmap.steps_json):
             raise ValueError("Invalid step index")
 
@@ -115,6 +138,7 @@ class RoadmapService:
 
     @staticmethod
     def get_progress_summary(roadmap: RoadmapProgress) -> dict:
+        """Ringkasan progres roadmap: status, step aktif, persentase, steps."""
         total_steps = len(roadmap.steps_json)
         completed_steps = sum(1 for step in roadmap.steps_json if step.get("completed", False))
         progress_percentage = (completed_steps / total_steps * 100) if total_steps > 0 else 0

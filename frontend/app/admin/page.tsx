@@ -76,6 +76,8 @@ interface ProductTemplate {
   time_estimate_hours: number;
   safety_warnings: string;
   base_compatibility_score: number;
+  tutorial_url?: string | null;
+  regional_average_price?: number | null;
 }
 
 export default function AdminPage() {
@@ -91,7 +93,13 @@ export default function AdminPage() {
   const [templateDescription, setTemplateDescription] = useState('');
   const [templateInstructions, setTemplateInstructions] = useState('');
   const [templateSafety, setTemplateSafety] = useState('');
+  const [templateTutorialUrl, setTemplateTutorialUrl] = useState('');
   const [savingTemplate, setSavingTemplate] = useState(false);
+  const [editingTemplateId, setEditingTemplateId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Partial<ProductTemplate>>({});
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [pricingJson, setPricingJson] = useState('');
+  const [importingPricing, setImportingPricing] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -150,6 +158,7 @@ export default function AdminPage() {
         time_estimate_hours: 1,
         safety_warnings: templateSafety.trim(),
         base_compatibility_score: 0.5,
+        tutorial_url: templateTutorialUrl.trim() || undefined,
       });
       const created = templates.find((template) => template.id === response.data.data.id);
       if (!created) {
@@ -163,12 +172,15 @@ export default function AdminPage() {
           time_estimate_hours: 1,
           safety_warnings: templateSafety.trim(),
           base_compatibility_score: 0.5,
+          tutorial_url: templateTutorialUrl.trim() || null,
+          regional_average_price: null,
         }]);
       }
       setTemplateName('');
       setTemplateDescription('');
       setTemplateInstructions('');
       setTemplateSafety('');
+      setTemplateTutorialUrl('');
       toast({ title: 'Berhasil', description: 'Template produk dibuat', status: 'success', isClosable: true });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
@@ -186,6 +198,77 @@ export default function AdminPage() {
     } catch (error: unknown) {
       const err = error as { response?: { data?: { detail?: string } } };
       toast({ title: 'Gagal', description: err.response?.data?.detail || 'Template tidak dapat dihapus', status: 'error', isClosable: true });
+    }
+  };
+
+  const startEditTemplate = (template: ProductTemplate) => {
+    setEditingTemplateId(template.id);
+    setEditForm({
+      name: template.name,
+      description: template.description,
+      processing_instructions: template.processing_instructions,
+      safety_warnings: template.safety_warnings,
+      tutorial_url: template.tutorial_url ?? '',
+      regional_average_price: template.regional_average_price ?? undefined,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingTemplateId(null);
+    setEditForm({});
+  };
+
+  const handleSaveEdit = async (templateId: number) => {
+    try {
+      setSavingEdit(true);
+      const payload: Partial<ProductTemplate> = { ...editForm };
+      if (payload.tutorial_url === '') delete payload.tutorial_url;
+      await apiClient.patch(`/api/v1/admin/product-templates/${templateId}`, payload);
+      setTemplates((current) =>
+        current.map((t) => (t.id === templateId ? { ...t, ...payload } : t))
+      );
+      setEditingTemplateId(null);
+      setEditForm({});
+      toast({ title: 'Berhasil', description: 'Template diperbarui', status: 'success', isClosable: true });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast({ title: 'Gagal', description: err.response?.data?.detail || 'Gagal memperbarui template', status: 'error', isClosable: true });
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleImportPricing = async () => {
+    try {
+      const parsed = JSON.parse(pricingJson);
+      if (!Array.isArray(parsed)) {
+        toast({ title: 'Format salah', description: 'JSON harus berupa array: [{"name":"...","regional_average_price":0}]', status: 'error', isClosable: true });
+        return;
+      }
+      setImportingPricing(true);
+      const response = await apiClient.post('/api/v1/admin/product-templates/import-pricing', { items: parsed });
+      const { updated, not_found } = response.data.data;
+      toast({
+        title: 'Import selesai',
+        description: `${updated.length} diperbarui${not_found.length > 0 ? `, ${not_found.length} tidak ditemukan: ${not_found.join(', ')}` : ''}`,
+        status: updated.length > 0 ? 'success' : 'warning',
+        isClosable: true,
+        duration: 8000,
+      });
+      if (updated.length > 0) {
+        const res = await apiClient.get('/api/v1/admin/product-templates');
+        setTemplates(res.data.data.templates || []);
+      }
+      setPricingJson('');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { detail?: string } }; message?: string };
+      if (err.message?.includes('JSON')) {
+        toast({ title: 'JSON tidak valid', description: 'Periksa format JSON Anda', status: 'error', isClosable: true });
+      } else {
+        toast({ title: 'Gagal', description: err.response?.data?.detail || 'Gagal import pricing', status: 'error', isClosable: true });
+      }
+    } finally {
+      setImportingPricing(false);
     }
   };
 
@@ -420,24 +503,92 @@ export default function AdminPage() {
                   <FormLabel htmlFor="template-safety">Peringatan Keamanan</FormLabel>
                   <Textarea id="template-safety" value={templateSafety} onChange={(event) => setTemplateSafety(event.target.value)} maxLength={2000} />
                 </FormControl>
+                <FormControl>
+                  <FormLabel htmlFor="template-tutorial-url">URL Tutorial (opsional)</FormLabel>
+                  <Input id="template-tutorial-url" type="url" placeholder="https://..." value={templateTutorialUrl} onChange={(event) => setTemplateTutorialUrl(event.target.value)} maxLength={500} />
+                </FormControl>
                 <Button type="submit" colorScheme="green" isLoading={savingTemplate}>Tambah Template</Button>
               </Stack>
             </Box>
             <Stack spacing={3}>
               {templates.map((template) => (
                 <Box key={template.id} borderWidth="1px" borderRadius="lg" p={4} bg="white">
-                  <Box display="flex" justifyContent="space-between" gap={4} alignItems="start">
-                    <Box>
-                      <Heading size="sm">{template.name}</Heading>
-                      <Text fontSize="sm" color="gray.600" mt={1}>{template.description}</Text>
+                  {editingTemplateId === template.id ? (
+                    <Stack spacing={3}>
+                      <FormControl>
+                        <FormLabel fontSize="sm">Nama</FormLabel>
+                        <Input size="sm" value={editForm.name ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))} />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel fontSize="sm">Deskripsi</FormLabel>
+                        <Textarea size="sm" rows={2} value={editForm.description ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))} />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel fontSize="sm">Instruksi Pemrosesan</FormLabel>
+                        <Textarea size="sm" rows={3} value={editForm.processing_instructions ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, processing_instructions: e.target.value }))} />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel fontSize="sm">Peringatan Keamanan</FormLabel>
+                        <Textarea size="sm" rows={2} value={editForm.safety_warnings ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, safety_warnings: e.target.value }))} />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel fontSize="sm">URL Tutorial</FormLabel>
+                        <Input size="sm" type="url" placeholder="https://..." value={editForm.tutorial_url ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, tutorial_url: e.target.value }))} />
+                      </FormControl>
+                      <FormControl>
+                        <FormLabel fontSize="sm">Harga Pasar Regional (Rp/L)</FormLabel>
+                        <Input size="sm" type="number" min={0} step={0.01} placeholder="0" value={editForm.regional_average_price ?? ''} onChange={(e) => setEditForm((f) => ({ ...f, regional_average_price: e.target.value ? parseFloat(e.target.value) : undefined }))} />
+                      </FormControl>
+                      <Box display="flex" gap={2}>
+                        <Button type="button" size="sm" colorScheme="green" isLoading={savingEdit} onClick={() => handleSaveEdit(template.id)}>Simpan</Button>
+                        <Button type="button" size="sm" variant="ghost" onClick={cancelEdit}>Batal</Button>
+                      </Box>
+                    </Stack>
+                  ) : (
+                    <Box display="flex" justifyContent="space-between" gap={4} alignItems="start">
+                      <Box flex={1}>
+                        <Heading size="sm">{template.name}</Heading>
+                        <Text fontSize="sm" color="gray.600" mt={1}>{template.description}</Text>
+                        {template.tutorial_url && (
+                          <Text fontSize="xs" color="blue.500" mt={1} noOfLines={1}>🔗 {template.tutorial_url}</Text>
+                        )}
+                        {template.regional_average_price != null && (
+                          <Text fontSize="xs" color="green.600" mt={1}>Harga pasar: Rp {template.regional_average_price.toLocaleString('id-ID')}/L</Text>
+                        )}
+                      </Box>
+                      <Box display="flex" flexDir="column" gap={2} alignItems="flex-end">
+                        <Button type="button" size="sm" colorScheme="blue" variant="outline" onClick={() => startEditTemplate(template)}>Edit</Button>
+                        <Button type="button" size="sm" colorScheme="red" variant="outline" onClick={() => handleDeleteTemplate(template.id)}>Hapus</Button>
+                      </Box>
                     </Box>
-                    <Button type="button" size="sm" colorScheme="red" variant="outline" onClick={() => handleDeleteTemplate(template.id)}>Hapus</Button>
-                  </Box>
+                  )}
                 </Box>
               ))}
               {!templates.length && <Text color="gray.500">Belum ada template produk.</Text>}
             </Stack>
           </Grid>
+        </Box>
+
+        <Box>
+          <Heading size="md" mb={4}>Import Harga Pasar Regional</Heading>
+          <Box borderWidth="1px" borderRadius="lg" p={6} bg="white">
+            <Text fontSize="sm" color="gray.600" mb={3}>
+              Tempel JSON array untuk memperbarui <strong>regional_average_price</strong> per template.
+              Format: <code>[{'{'}&#34;name&#34;: &#34;Pembersih&#34;, &#34;regional_average_price&#34;: 25000{'}'}]</code>
+            </Text>
+            <Textarea
+              value={pricingJson}
+              onChange={(e) => setPricingJson(e.target.value)}
+              placeholder={'[\n  {"name": "Nama Template", "regional_average_price": 25000}\n]'}
+              rows={6}
+              fontFamily="mono"
+              fontSize="sm"
+              mb={3}
+            />
+            <Button colorScheme="green" isLoading={importingPricing} onClick={handleImportPricing} isDisabled={!pricingJson.trim()}>
+              Import Pricing
+            </Button>
+          </Box>
         </Box>
 
         {metrics && (

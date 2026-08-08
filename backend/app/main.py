@@ -216,10 +216,14 @@ async def create_batch(
 
 @app.get("/api/v1/batches", response_model=APIResponse)
 async def list_batches(
+    limit: int = 100,
+    offset: int = 0,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    batches = db.query(FermentationBatch).filter(FermentationBatch.user_id == current_user.id).all()
+    query = db.query(FermentationBatch).filter(FermentationBatch.user_id == current_user.id)
+    total = query.count()
+    batches = query.order_by(FermentationBatch.created_at.desc()).limit(limit).offset(offset).all()
     
     batch_data = []
     for batch in batches:
@@ -238,7 +242,13 @@ async def list_batches(
     
     return APIResponse(
         status="success",
-        data={"batches": batch_data, "total": len(batch_data)}
+        data={
+            "batches": batch_data,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "has_more": offset + len(batch_data) < total
+        }
     )
 
 @app.get("/api/v1/batches/{batch_id}", response_model=APIResponse)
@@ -350,6 +360,8 @@ async def create_fermentation_log(
 @app.get("/api/v1/batches/{batch_id}/logs", response_model=APIResponse)
 async def get_batch_logs(
     batch_id: int,
+    limit: int = 50,
+    offset: int = 0,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -361,7 +373,9 @@ async def get_batch_logs(
     if not batch:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Batch not found")
     
-    logs = db.query(FermentationLog).filter(FermentationLog.batch_id == batch_id).order_by(FermentationLog.log_date).all()
+    query = db.query(FermentationLog).filter(FermentationLog.batch_id == batch_id)
+    total = query.count()
+    logs = query.order_by(FermentationLog.log_date.desc()).limit(limit).offset(offset).all()
     
     logs_data = []
     for log in logs:
@@ -380,7 +394,13 @@ async def get_batch_logs(
     
     return APIResponse(
         status="success",
-        data={"logs": logs_data, "total": len(logs_data)}
+        data={
+            "logs": logs_data,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "has_more": offset + len(logs_data) < total
+        }
     )
 
 @app.get("/health")

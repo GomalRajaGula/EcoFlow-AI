@@ -16,8 +16,14 @@ import {
   useToast,
   NumberInput,
   NumberInputField,
+  Alert,
+  AlertIcon,
+  AlertDescription,
+  Text,
+  Spinner,
+  HStack,
 } from '@chakra-ui/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import apiClient from '@/lib/api';
 
 interface CreateBatchModalProps {
@@ -26,17 +32,71 @@ interface CreateBatchModalProps {
   onSuccess: () => void;
 }
 
+interface RatioCheckResult {
+  ideal_water_liters: number;
+  ideal_sugar_kg: number;
+  deviation_warning: {
+    water_deviation: number;
+    sugar_deviation: number;
+    has_warning: boolean;
+    warnings: string[];
+  };
+}
+
 export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateBatchModalProps) {
   const [name, setName] = useState('');
   const [wasteWeight, setWasteWeight] = useState('');
+  const [waterLiters, setWaterLiters] = useState('');
+  const [sugarKg, setSugarKg] = useState('');
   const [startDate, setStartDate] = useState('');
   const [loading, setLoading] = useState(false);
+  const [ratioCheck, setRatioCheck] = useState<RatioCheckResult | null>(null);
+  const [checkingRatio, setCheckingRatio] = useState(false);
   const toast = useToast();
+  const checkTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (checkTimer.current) {
+      clearTimeout(checkTimer.current);
+    }
+
+    const waste = parseFloat(wasteWeight);
+    const water = parseFloat(waterLiters);
+    const sugar = parseFloat(sugarKg);
+
+    const valid = waste > 0 && water > 0 && sugar > 0;
+
+    checkTimer.current = setTimeout(async () => {
+      if (!valid) {
+        setRatioCheck(null);
+        return;
+      }
+      setCheckingRatio(true);
+      try {
+        const response = await apiClient.post('/api/v1/check-ingredient-ratio', {
+          waste_kg: waste,
+          water_liters: water,
+          sugar_kg: sugar,
+        });
+        setRatioCheck(response.data.data);
+      } catch {
+        setRatioCheck(null);
+      } finally {
+        setCheckingRatio(false);
+      }
+    }, 500);
+
+    return () => {
+      if (checkTimer.current) {
+        clearTimeout(checkTimer.current);
+      }
+    };
+  }, [wasteWeight, waterLiters, sugarKg]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !wasteWeight || !startDate) {
+    if (!name || !wasteWeight || !waterLiters || !sugarKg || !startDate) {
       toast({
         title: 'Validation Error',
         description: 'Please fill in all fields',
@@ -64,7 +124,10 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
 
       setName('');
       setWasteWeight('');
+      setWaterLiters('');
+      setSugarKg('');
       setStartDate('');
+      setRatioCheck(null);
       onSuccess();
       onClose();
     } catch (error: unknown) {
@@ -80,8 +143,18 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
     }
   };
 
+  const handleClose = () => {
+    setName('');
+    setWasteWeight('');
+    setWaterLiters('');
+    setSugarKg('');
+    setStartDate('');
+    setRatioCheck(null);
+    onClose();
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="md" isCentered>
+    <Modal isOpen={isOpen} onClose={handleClose} size="md" isCentered>
       <ModalOverlay />
       <ModalContent
         as="section"
@@ -112,6 +185,20 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
               </FormControl>
 
               <FormControl isRequired>
+                <FormLabel htmlFor="water-liters">Air (Liter)</FormLabel>
+                <NumberInput value={waterLiters} onChange={setWaterLiters} min={0}>
+                  <NumberInputField id="water-liters" name="waterLiters" placeholder="Misal, 30 (3x berat limbah)" />
+                </NumberInput>
+              </FormControl>
+
+              <FormControl isRequired>
+                <FormLabel htmlFor="sugar-kg">Gula (kg)</FormLabel>
+                <NumberInput value={sugarKg} onChange={setSugarKg} min={0}>
+                  <NumberInputField id="sugar-kg" name="sugarKg" placeholder="Misal, 10 (1x berat limbah)" />
+                </NumberInput>
+              </FormControl>
+
+              <FormControl isRequired>
                 <FormLabel htmlFor="start-date">Tanggal Mulai</FormLabel>
                 <Input
                   id="start-date"
@@ -121,11 +208,42 @@ export default function CreateBatchModal({ isOpen, onClose, onSuccess }: CreateB
                   onChange={(e) => setStartDate(e.target.value)}
                 />
               </FormControl>
+
+              {checkingRatio && (
+                <HStack spacing={2}>
+                  <Spinner size="sm" color="#34A853" />
+                  <Text fontSize="sm" color="gray.500">Memeriksa rasio bahan...</Text>
+                </HStack>
+              )}
+
+              {ratioCheck && ratioCheck.deviation_warning.has_warning && (
+                <Alert status="warning" borderRadius="md">
+                  <AlertIcon />
+                  <AlertDescription fontSize="sm">
+                    <Text fontWeight="bold" mb={1}>Rasio bahan menyimpang dari ideal!</Text>
+                    <Text fontSize="sm">Ideal: {ratioCheck.ideal_water_liters} L air, {ratioCheck.ideal_sugar_kg} kg gula</Text>
+                    <ul style={{ marginTop: 4, paddingLeft: 16 }}>
+                      {ratioCheck.deviation_warning.warnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {ratioCheck && !ratioCheck.deviation_warning.has_warning && (
+                <Alert status="success" borderRadius="md">
+                  <AlertIcon />
+                  <AlertDescription fontSize="sm">
+                    Rasio bahan sudah sesuai (air {ratioCheck.ideal_water_liters} L, gula {ratioCheck.ideal_sugar_kg} kg).
+                  </AlertDescription>
+                </Alert>
+              )}
             </Stack>
           </ModalBody>
 
           <ModalFooter>
-            <Button type="button" variant="ghost" mr={3} onClick={onClose}>
+            <Button type="button" variant="ghost" mr={3} onClick={handleClose}>
               Batal
             </Button>
             <Button

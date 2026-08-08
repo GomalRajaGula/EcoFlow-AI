@@ -1,6 +1,8 @@
 from typing import Dict
 
 class BusinessAnalysisService:
+    """Analisis kelayakan bisnis produksi eco-enzyme (COGS, SRP, margin, BEP)."""
+
     @staticmethod
     def calculate_cogs(
         production_volume_liters: float,
@@ -9,6 +11,11 @@ class BusinessAnalysisService:
         labor_cost: float,
         overhead_cost: float
     ) -> dict:
+        """Hitung COGS (Cost of Goods Sold) per liter.
+
+        Returns:
+            dict: {"total_cost", "cogs_per_liter"}.
+        """
         total_cost = raw_material_cost + packaging_cost + labor_cost + overhead_cost
         cogs_per_liter = total_cost / production_volume_liters if production_volume_liters > 0 else 0
         
@@ -23,6 +30,11 @@ class BusinessAnalysisService:
         regional_average_price: float = None,
         markup_multiplier: float = 1.5
     ) -> float:
+        """Hitung harga jual yang disarankan (SRP).
+
+        Base = COGS x markup (1.5). Jika regional price ada, pakai nilai
+        terbesar antara base dan 90% harga regional.
+        """
         base_srp = cogs_per_liter * markup_multiplier
         
         if regional_average_price:
@@ -39,6 +51,7 @@ class BusinessAnalysisService:
         srp_per_liter: float,
         production_volume_liters: float
     ) -> dict:
+        """Hitung gross margin, total revenue, dan gross profit."""
         gross_margin_per_unit = srp_per_liter - cogs_per_liter
         gross_margin_percentage = (gross_margin_per_unit / srp_per_liter * 100) if srp_per_liter > 0 else 0
         total_revenue = srp_per_liter * production_volume_liters
@@ -57,6 +70,7 @@ class BusinessAnalysisService:
         srp_per_liter: float,
         fixed_costs: float
     ) -> dict:
+        """Hitung break-even point dalam unit (liter) dan revenue."""
         contribution_margin = srp_per_liter - cogs_per_liter
         break_even_units = fixed_costs / contribution_margin if contribution_margin > 0 else 0
         break_even_revenue = break_even_units * srp_per_liter
@@ -73,6 +87,7 @@ class BusinessAnalysisService:
         cogs_per_liter: float,
         monthly_fixed_costs: float
     ) -> dict:
+        """Proyeksi 12 bulan dengan asumsi produksi merata tiap bulan."""
         monthly_revenue = (production_volume_liters / 12) * srp_per_liter
         monthly_cogs = (production_volume_liters / 12) * cogs_per_liter
         monthly_gross_profit = monthly_revenue - monthly_cogs
@@ -93,6 +108,7 @@ class BusinessAnalysisService:
         yearly_net_profit: float,
         variance_percentage: float = 0.1
     ) -> dict:
+        """Analisis sensitivitas profit terhadap variance (default +-10%)."""
         variance = yearly_net_profit * variance_percentage
         pessimistic = yearly_net_profit - variance
         optimistic = yearly_net_profit + variance
@@ -110,6 +126,11 @@ class BusinessAnalysisService:
         gross_margin_percentage: float,
         breakeven_months: float = None
     ) -> str:
+        """Tentukan rating kelayakan: Viable / Marginal / Not Viable.
+
+        Viable: profit > 5000 dan margin > 30%.
+        Marginal: profit > 1000 dan margin > 20%.
+        """
         if yearly_net_profit > 5000 and gross_margin_percentage > 30:
             return "Viable"
         elif yearly_net_profit > 1000 and gross_margin_percentage > 20:
@@ -127,6 +148,12 @@ class BusinessAnalysisService:
         monthly_fixed_costs: float,
         regional_average_price: float = None
     ) -> dict:
+        """Jalankan pipeline analisis bisnis lengkap (COGS -> viability rating).
+
+        Returns:
+            dict: Semua metrik finansial termasuk sensitivity_analysis
+                dan viability_rating.
+        """
         cogs_data = BusinessAnalysisService.calculate_cogs(
             production_volume_liters, raw_material_cost, packaging_cost, labor_cost, overhead_cost
         )

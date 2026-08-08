@@ -1,10 +1,11 @@
 from datetime import date
 import csv
 import io
+from typing import List as TList, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.core.database import get_db
 from app.core.auth import get_current_user, require_role
 from app.models.base import Community, ProductTemplate, User
@@ -15,6 +16,15 @@ router = APIRouter(prefix="/api/v1/admin", tags=["admin"])
 
 class UserRoleUpdate(BaseModel):
     role: str
+
+
+class PricingImportItem(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    regional_average_price: float = Field(ge=0)
+
+
+class PricingImportRequest(BaseModel):
+    items: TList[PricingImportItem]
 
 
 def scope_community_id(current_user: User, role: str, community_id: int | None) -> int | None:
@@ -141,6 +151,8 @@ async def list_product_templates(
                 "time_estimate_hours": template.time_estimate_hours,
                 "safety_warnings": template.safety_warnings,
                 "base_compatibility_score": template.base_compatibility_score,
+                "tutorial_url": template.tutorial_url,
+                "regional_average_price": template.regional_average_price,
             }
             for template in templates
         ]},
@@ -191,6 +203,29 @@ async def delete_product_template(
     db.delete(template)
     db.commit()
     return APIResponse(status="success", message="Product template deleted", data={"id": template_id})
+
+@router.post("/product-templates/import-pricing", response_model=APIResponse)
+async def import_product_pricing(
+    req: PricingImportRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    role: str = Depends(require_role("admin", "platform_admin")),
+):
+    updated = []
+    not_found = []
+    for item in req.items:
+        template = db.query(ProductTemplate).filter(ProductTemplate.name == item.name).first()
+        if template:
+            template.regional_average_price = item.regional_average_price
+            updated.append(item.name)
+        else:
+            not_found.append(item.name)
+    db.commit()
+    return APIResponse(
+        status="success",
+        message=f"Updated {len(updated)} template(s)",
+        data={"updated": updated, "not_found": not_found},
+    )
 
 @router.get("/model-metrics", response_model=APIResponse)
 async def get_model_metrics(

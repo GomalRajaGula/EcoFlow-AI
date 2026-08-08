@@ -1,8 +1,20 @@
 from datetime import datetime, timedelta
 
 class EcoEnzymeService:
+    """Perhitungan rasio bahan eco-enzyme (1 : 3 : 10 = gula : sampah : air)."""
+
     @staticmethod
     def calculate_ingredients(waste_kg: float, start_date: datetime = None) -> dict:
+        """Hitung kebutuhan air, gula, dan tanggal panen dari berat sampah.
+
+        Args:
+            waste_kg: Berat sampah organik (kg).
+            start_date: Tanggal mulai fermentasi (default: sekarang).
+
+        Returns:
+            dict: {"ideal_water_liters", "ideal_sugar_kg", "expected_harvest_date"}.
+                Air = 3x berat sampah, gula = 1x berat, panen = +90 hari.
+        """
         ideal_water = waste_kg * 3
         ideal_sugar = waste_kg * 1
         expected_harvest_days = 90
@@ -22,6 +34,17 @@ class EcoEnzymeService:
         user_sugar: float,
         threshold: float = 0.1
     ) -> dict:
+        """Cek deviasi bahan user terhadap rasio ideal.
+
+        Args:
+            waste_kg: Berat sampah (kg).
+            user_water: Air yang dipakai user (L).
+            user_sugar: Gula yang dipakai user (kg).
+            threshold: Ambang deviasi yang ditoleransi (default 0.1 = 10%).
+
+        Returns:
+            dict: {"water_deviation", "sugar_deviation", "has_warning", "warnings"}.
+        """
         ideal = EcoEnzymeService.calculate_ingredients(waste_kg)
         ideal_water = ideal["ideal_water_liters"]
         ideal_sugar = ideal["ideal_sugar_kg"]

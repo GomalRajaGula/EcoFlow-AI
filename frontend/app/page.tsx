@@ -2,190 +2,283 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth-context';
+import {
+  FiCheckCircle,
+  FiBarChart2,
+  FiLayers,
+  FiZap,
+  FiArrowRight,
+  FiGithub,
+  FiActivity,
+} from 'react-icons/fi';
+import { LuBot, LuLightbulb } from 'react-icons/lu';
 
 export default function Home() {
   const { user } = useAuth();
   const targetHref = user ? '/dashboard' : '/login';
   const joinLabel = user ? 'Buka Dasbor' : 'Mulai Sekarang';
+
   const features = [
     {
-      icon: "🤖",
+      icon: <LuBot className="h-6 w-6" />,
       title: 'Asisten Fermentasi AI',
-      description: 'Pemantauan real-time dengan AI untuk prediksi status fermentasi (Normal, Hati-hati, Gagal)'
+      description: 'Pemantauan real-time dengan AI untuk prediksi status fermentasi (Normal, Hati-hati, Gagal).'
     },
     {
-      icon: "✅",
+      icon: <FiCheckCircle className="h-6 w-6" />,
       title: 'Rekomendasi Produk Cerdas',
-      description: 'Rekomendasi produk otomatis berdasarkan karakteristik hasil fermentasi eco-enzyme'
+      description: 'Rekomendasi produk otomatis berdasarkan karakteristik hasil fermentasi eco-enzyme Anda.'
     },
     {
-      icon: "📊",
+      icon: <FiBarChart2 className="h-6 w-6" />,
       title: 'Analisis Bisnis',
-      description: 'Analisis kelayakan bisnis lengkap: COGS, margin profit, break-even, dan proyeksi pendapatan'
+      description: 'Analisis kelayakan bisnis lengkap: COGS, margin profit, break-even, dan proyeksi pendapatan.'
     },
     {
-      icon: "📈",
+      icon: <FiLayers className="h-6 w-6" />,
       title: 'Manajemen Batch',
-      description: 'Kelola seluruh siklus fermentasi dari pembuatan batch hingga panen dengan pelacakan detail'
+      description: 'Kelola seluruh siklus fermentasi dari pembuatan batch hingga panen dengan pelacakan detail.'
     },
     {
-      icon: "⚡",
+      icon: <FiZap className="h-6 w-6" />,
       title: 'Perhitungan Otomatis',
-      description: 'Kalkulasi otomatis kebutuhan air & gula, estimasi panen 90 hari, dan skor kesehatan'
+      description: 'Kalkulasi otomatis kebutuhan air & gula, estimasi panen 90 hari, dan skor kesehatan.'
     },
     {
-      icon: "💡",
+      icon: <LuLightbulb className="h-6 w-6" />,
       title: 'Wawasan Cerdas',
-      description: 'Dasbor komprehensif dengan pelacakan pencapaian dan rekomendasi tindakan preventif'
+      description: 'Dasbor komprehensif dengan pelacakan pencapaian dan rekomendasi tindakan preventif.'
     }
   ];
 
+  const steps = [
+    { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik. Sistem otomatis hitung kebutuhan air (3x) & gula (1x).' },
+    { num: '2', title: 'Monitor Fermentasi', desc: 'Catat observasi harian. AI memprediksi status & kesehatan batch dari aroma, warna, dan gas.' },
+    { num: '3', title: 'Rekomendasi Produk', desc: 'Setelah panen 90 hari, AI merekomendasikan produk turunan terbaik berdasarkan karakteristik hasil.' },
+    { num: '4', title: 'Analisis Kelayakan', desc: 'Sistem menghitung COGS, margin, break-even point, dan proyeksi profit bisnis.' }
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-gray-900 selection:bg-green-100 selection:text-green-900">
-      
+    <div className="min-h-screen bg-[#0B0F17] font-sans text-slate-100 selection:bg-emerald-500/30 selection:text-emerald-100">
       {/* NAVBAR */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white font-bold text-xl">
-                E
-              </div>
-              <span className="font-bold text-xl tracking-tight text-gray-900">
-                EcoFlow
-              </span>
+      <header className="fixed top-0 z-50 w-full border-b border-white/5 bg-[#0B0F17]/70 backdrop-blur-md">
+        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/25">
+              <span className="text-lg font-extrabold text-white" aria-hidden="true">E</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <Link href={targetHref} className="text-sm font-medium text-gray-600 hover:text-green-600 transition-colors">
-                {user ? 'Dasbor' : 'Masuk'}
-              </Link>
-              <Link href={targetHref} className="text-sm font-medium bg-green-600 text-white px-5 py-2.5 rounded-full shadow-sm hover:bg-green-700 hover:shadow transition-all hover:-translate-y-0.5">
-                {joinLabel}
-              </Link>
-            </div>
+            <span className="text-xl font-bold tracking-tight text-white">
+              Eco<span className="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Flow</span>
+            </span>
           </div>
-        </div>
-      </nav>
+
+          <div className="hidden items-center gap-8 md:flex">
+            {[
+              { label: 'Fitur', href: '#fitur' },
+              { label: 'Cara Kerja', href: '#cara-kerja' },
+              { label: 'GitHub', href: 'https://github.com/GomalRajaGula/EcoFlow-AI', external: true },
+            ].map((item) =>
+              item.external ? (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm font-medium text-slate-400 transition-colors hover:text-emerald-300"
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="text-sm font-medium text-slate-400 transition-colors hover:text-emerald-300"
+                >
+                  {item.label}
+                </a>
+              )
+            )}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href={targetHref}
+              className="text-sm font-semibold text-slate-300 transition-colors hover:text-emerald-300"
+            >
+              {user ? 'Dasbor' : 'Masuk'}
+            </Link>
+            <Link
+              href={targetHref}
+              className="rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-bold text-[#0B0F17] shadow-[0_0_24px_rgba(16,185,129,0.45)] transition-all hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-[0_0_36px_rgba(16,185,129,0.6)]"
+            >
+              {joinLabel}
+            </Link>
+          </div>
+        </nav>
+      </header>
 
       {/* HERO SECTION */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        {/* Background Decorative Elements */}
-        <div className="absolute top-0 right-0 -translate-y-12 translate-x-1/3">
-          <div className="w-96 h-96 bg-green-100/50 rounded-full blur-3xl" />
-        </div>
-        <div className="absolute bottom-0 left-0 translate-y-1/3 -translate-x-1/3">
-          <div className="w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl" />
-        </div>
+      <section className="relative overflow-hidden pb-24 pt-36 lg:pb-36 lg:pt-48">
+        {/* Radial glows */}
+        <div aria-hidden="true" className="pointer-events-none absolute -top-32 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-500/15 blur-[140px]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-teal-500/10 blur-[120px]" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-emerald-600/10 blur-[120px]" />
+        {/* Subtle grid overlay */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.15]"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(148,163,184,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.12) 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+            maskImage: 'radial-gradient(ellipse 70% 60% at 50% 35%, black, transparent)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 60% at 50% 35%, black, transparent)',
+          }}
+        />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-            {/* Left Content */}
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 border border-green-100 text-green-700 text-sm font-medium mb-6">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm font-medium text-emerald-300 backdrop-blur">
+              <span aria-hidden="true">✨</span>
+              Platform Fermentasi Eco-Enzyme Berbasis AI
+            </span>
+
+            <h1 className="mt-7 text-4xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              Kelola Fermentasi Eco-Enzyme{' '}
+              <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent">
+                Lebih Cerdas
+              </span>{' '}
+              dengan AI
+            </h1>
+
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-400 sm:text-xl">
+              Platform inovatif untuk memonitor kesehatan fermentasi, mendapatkan rekomendasi produk
+              turunan, dan menghitung analisis bisnis secara otomatis.
+            </p>
+
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Link
+                href={targetHref}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-base font-bold text-[#0B0F17] shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-[0_0_56px_rgba(16,185,129,0.65)] sm:w-auto"
+              >
+                {user ? 'Buka Dasbor' : 'Mulai Sekarang'}
+                <FiArrowRight className="h-5 w-5" aria-hidden="true" />
+              </Link>
+              <a
+                href="#fitur"
+                className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/5 px-8 py-4 text-base font-semibold text-slate-200 backdrop-blur transition-all hover:border-emerald-500/40 hover:bg-white/10 sm:w-auto"
+              >
+                Pelajari Fitur
+              </a>
+            </div>
+          </div>
+
+          {/* Floating glassmorphism mockup */}
+          <div className="relative mx-auto mt-20 max-w-3xl">
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-8 -top-6 bottom-8 rounded-3xl bg-emerald-500/20 blur-3xl"
+            />
+            <div className="relative rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-8">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-3 w-3 rounded-full bg-rose-400/80" />
+                  <div className="h-3 w-3 rounded-full bg-amber-400/80" />
+                  <div className="h-3 w-3 rounded-full bg-emerald-400/80" />
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-300">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  </span>
+                  SEDANG DIPROSES
                 </span>
-                Tersedia Sekarang v0.1.0
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 mb-6 leading-tight">
-                Kelola Fermentasi Eco-Enzyme Lebih Cerdas dengan <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">AI</span>
-              </h1>
-              <p className="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed">
-                Platform inovatif untuk memonitor kesehatan fermentasi, mendapatkan rekomendasi produk turunan, dan menghitung analisis bisnis secara otomatis.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link href={targetHref} className="inline-flex justify-center items-center px-6 py-3.5 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 hover:shadow-md hover:-translate-y-0.5 transition-all">
-                  {user ? 'Buka Dasbor' : 'Buat Batch Pertamamu'}
-                </Link>
-                <a href="#fitur" className="inline-flex justify-center items-center px-6 py-3.5 border border-gray-200 text-base font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 transition-all">
-                  Pelajari Fitur
-                </a>
+
+              <div className="mt-6">
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-400">Batch: Sampah Dapur — Juli</p>
+                    <p className="mt-1 text-xs text-slate-500">AI Status: <span className="font-semibold text-emerald-400">Sehat</span> · Skor Kesehatan 90.3</p>
+                  </div>
+                  <p className="text-sm font-bold text-slate-200">Hari 45 dari 90</p>
+                </div>
+                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
+                  <div className="h-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400" style={{ width: '50%' }} />
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
+                {[
+                  { label: 'Bahan Baku', value: '3.0 kg' },
+                  { label: 'Kebutuhan Air', value: '30.0 L' },
+                  { label: 'Gula', value: '10.0 kg' },
+                ].map((stat) => (
+                  <div key={stat.label} className="rounded-xl border border-white/10 bg-white/[0.03] p-3 sm:p-4">
+                    <p className="text-[11px] font-medium text-slate-500 sm:text-xs">{stat.label}</p>
+                    <p className="mt-1 text-base font-extrabold text-white sm:text-xl">{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex items-start gap-3 rounded-xl border border-emerald-400/20 bg-emerald-500/[0.06] p-4">
+                <LuBot className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-bold text-emerald-300">Saran AI</p>
+                  <p className="mt-0.5 text-sm text-slate-400">
+                    Fermentasi berjalan normal. Lanjutkan pemantauan gas mingguan. Perkiraan panen dalam 45 hari.
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Right Mockup/Illustration */}
-            <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
-              <div className="relative rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform rotate-2 hover:rotate-0 transition-transform duration-500 ease-out">
-                {/* Mockup Top Bar */}
-                <div className="bg-gray-50 border-b border-gray-100 px-4 py-3 flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-400" />
-                  <div className="w-3 h-3 rounded-full bg-amber-400" />
-                  <div className="w-3 h-3 rounded-full bg-green-400" />
-                </div>
-                {/* Mockup Content */}
-                <div className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <div>
-                      <div className="h-2 w-20 bg-gray-200 rounded-full mb-2" />
-                      <div className="h-4 w-32 bg-gray-300 rounded-full" />
-                    </div>
-                    <div className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                      SEDANG DIPROSES
-                    </div>
-                  </div>
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-gray-500 font-medium">Progres Fermentasi</span>
-                        <span className="text-gray-500">Hari 45 dari 90</span>
-                      </div>
-                      <div className="w-full bg-gray-100 rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full w-1/2" />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <div className="text-xs text-gray-500 mb-1">Bahan Baku</div>
-                        <div className="font-bold text-gray-900">3.0 kg</div>
-                      </div>
-                      <div className="bg-gray-50 p-3 rounded-lg border border-gray-100">
-                        <div className="text-xs text-gray-500 mb-1">Kebutuhan Air</div>
-                        <div className="font-bold text-gray-900">30.0 L</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3">
-                    <div className="text-xl">🤖</div>
-                    <div>
-                      <div className="text-xs font-bold text-blue-900 mb-1">Status AI: Sehat</div>
-                      <div className="text-xs text-blue-700">Fermentasi berjalan normal. Lanjutkan pemantauan gas mingguan.</div>
-                    </div>
-                  </div>
-                </div>
+            {/* Floating chips */}
+            <div className="absolute -right-6 -top-8 hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 shadow-xl backdrop-blur-xl lg:block">
+              <div className="flex items-center gap-2">
+                <FiActivity className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+                <span className="text-xs font-bold text-white">CO₂ Dihindari: 5.7 kg</span>
+              </div>
+            </div>
+            <div className="absolute -bottom-8 -left-6 hidden rounded-2xl border border-white/10 bg-white/5 px-4 py-3 shadow-xl backdrop-blur-xl lg:block">
+              <div className="flex items-center gap-2">
+                <FiCheckCircle className="h-4 w-4 text-teal-300" aria-hidden="true" />
+                <span className="text-xs font-bold text-white">8 Produk Direkomendasikan</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FITUR SECTION */}
-      <section id="fitur" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-base text-green-600 font-semibold tracking-wide uppercase mb-2">Platform Terpadu</h2>
-            <h3 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Fitur Utama EcoFlow</h3>
-            <p className="text-lg text-gray-600">
-              Semua yang Anda butuhkan untuk memproduksi eco-enzyme berkualitas tinggi dengan tingkat keberhasilan maksimal.
+      {/* FEATURES SECTION */}
+      <section id="fitur" className="relative py-24 lg:py-32">
+        <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-72 w-[700px] -translate-x-1/2 rounded-full bg-emerald-500/10 blur-[120px]" />
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-16 max-w-3xl text-center">
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-emerald-400">Platform Terpadu</p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              Fitur Utama EcoFlow
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-slate-400">
+              Semua yang Anda butuhkan untuk memproduksi eco-enzyme berkualitas tinggi dengan tingkat
+              keberhasilan maksimal.
             </p>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature, idx) => (
               <Link
                 key={idx}
                 href={targetHref}
-                className="group bg-white border border-gray-100 rounded-2xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                className="group rounded-2xl border border-white/10 bg-white/[0.03] p-8 transition-all duration-300 hover:-translate-y-1.5 hover:border-emerald-500/50 hover:bg-white/[0.05] hover:shadow-[0_0_36px_rgba(16,185,129,0.15)]"
               >
-                <div className="w-12 h-12 inline-flex items-center justify-center rounded-xl bg-green-50 text-2xl mb-6 shadow-sm border border-green-100">
+                <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl border border-emerald-400/20 bg-emerald-500/10 text-emerald-400 transition-colors group-hover:bg-emerald-500/20">
                   {feature.icon}
                 </div>
-                <h4 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h4>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
-                <span className="inline-flex items-center gap-1 text-sm font-semibold text-green-600 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {user ? 'Buka di Dasbor' : 'Coba Sekarang'} →
+                <h3 className="text-xl font-bold text-white">{feature.title}</h3>
+                <p className="mt-3 leading-relaxed text-slate-400">{feature.description}</p>
+                <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400 opacity-0 transition-opacity group-hover:opacity-100">
+                  {user ? 'Buka di Dasbor' : 'Coba Sekarang'}
+                  <FiArrowRight className="h-4 w-4" aria-hidden="true" />
                 </span>
               </Link>
             ))}
@@ -193,89 +286,93 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CARA KERJA SECTION */}
-      <section className="py-20 bg-slate-50 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h3 className="text-3xl font-bold text-gray-900 sm:text-4xl mb-4">Bagaimana Cara Kerjanya?</h3>
-            <p className="text-lg text-gray-600">
-              4 langkah sederhana dari sampah organik menjadi produk bernilai ekonomis.
+      {/* HOW IT WORKS */}
+      <section id="cara-kerja" className="relative border-t border-white/5 py-24 lg:py-32">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-16 max-w-3xl text-center">
+            <p className="mb-3 text-sm font-bold uppercase tracking-[0.2em] text-emerald-400">Cara Kerja</p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+              Dari Sampah Organik Menjadi Produk Bernilai
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-slate-400">
+              4 langkah sederhana, didampingi AI di setiap tahap.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            {[
-              { num: '1', title: 'Buat Batch', desc: 'Input berat sampah organik. Sistem otomatis hitung kebutuhan air (3x) & gula (1x).' },
-              { num: '2', title: 'Monitor Fermentasi', desc: 'Catat observasi harian. AI memprediksi status & kesehatan batch dari aroma, warna, dan gas.' },
-              { num: '3', title: 'Rekomendasi Produk', desc: 'Setelah panen 90 hari, AI merekomendasikan produk turunan terbaik berdasarkan karakteristik hasil.' },
-              { num: '4', title: 'Analisis Kelayakan', desc: 'Sistem menghitung COGS, margin, break-even point, dan proyeksi profit bisnis.' }
-            ].map((step, idx) => (
-              <div key={idx} className="flex gap-6">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 flex items-center justify-center rounded-full bg-green-100 text-green-700 font-bold text-xl border-4 border-white shadow-sm">
-                    {step.num}
-                  </div>
+          <div className="grid gap-10 md:grid-cols-4 md:gap-6">
+            {steps.map((step, idx) => (
+              <div key={idx} className="relative">
+                {idx < steps.length - 1 && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute left-16 top-7 hidden h-px w-[calc(100%-4rem)] bg-gradient-to-r from-emerald-500/50 to-transparent md:block"
+                  />
+                )}
+                <div className="relative inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10 text-lg font-extrabold text-emerald-300 shadow-[0_0_24px_rgba(16,185,129,0.2)]">
+                  {step.num}
                 </div>
-                <div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">{step.title}</h4>
-                  <p className="text-gray-600 leading-relaxed">{step.desc}</p>
-                </div>
+                <h3 className="mt-5 text-lg font-bold text-white">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-400">{step.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA SECTION */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-green-600"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-green-700 to-transparent opacity-90"></div>
-        
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+      {/* CTA BANNER */}
+      <section className="px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-600/30 via-teal-600/20 to-[#0B0F17] p-10 text-center shadow-[0_0_80px_rgba(16,185,129,0.15)] sm:p-16">
+          <div aria-hidden="true" className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl" />
+          <div aria-hidden="true" className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-teal-500/20 blur-3xl" />
+          <h2 className="relative text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
             Mulai Transformasi Sampah Organik Anda Hari Ini
           </h2>
-          <p className="text-xl text-green-100 mb-10">
-            Bergabunglah dan gunakan AI untuk memastikan keberhasilan panen eco-enzyme Anda.
+          <p className="relative mx-auto mt-4 max-w-xl text-lg text-emerald-100/80">
+            Gunakan AI untuk memastikan keberhasilan panen eco-enzyme Anda. Gratis untuk memulai.
           </p>
-          <Link href={targetHref} className="inline-flex justify-center items-center px-8 py-4 border border-transparent text-lg font-bold rounded-full text-green-700 bg-white hover:bg-gray-50 hover:scale-105 transition-all shadow-lg">
+          <Link
+            href={targetHref}
+            className="relative mt-8 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-lg font-bold text-[#0B0F17] shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all hover:-translate-y-0.5 hover:bg-emerald-400 hover:shadow-[0_0_56px_rgba(16,185,129,0.7)]"
+          >
             {user ? 'Buka Dasbor' : 'Daftar Gratis Sekarang'}
+            <FiArrowRight className="h-5 w-5" aria-hidden="true" />
           </Link>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-gray-100 pt-12 pb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-green-600 flex items-center justify-center text-white font-bold text-sm">
-                E
+      <footer className="border-t border-white/5 pb-10 pt-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-400 to-teal-600">
+                <span className="text-sm font-extrabold text-white" aria-hidden="true">E</span>
               </div>
-              <span className="font-bold text-gray-900">EcoFlow AI</span>
+              <span className="font-bold text-white">EcoFlow AI</span>
             </div>
-            
-            <div className="flex gap-6 text-sm text-gray-500 font-medium">
-              <Link href="/" className="hover:text-green-600 transition-colors">Beranda</Link>
-              <Link href={targetHref} className="hover:text-green-600 transition-colors">Dasbor</Link>
+
+            <div className="flex gap-8 text-sm font-medium text-slate-400">
+              <a href="#fitur" className="transition-colors hover:text-emerald-300">Fitur</a>
+              <a href="#cara-kerja" className="transition-colors hover:text-emerald-300">Cara Kerja</a>
+              <Link href={targetHref} className="transition-colors hover:text-emerald-300">Dasbor</Link>
               <a
                 href="https://github.com/GomalRajaGula/EcoFlow-AI"
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-green-600 transition-colors"
+                className="inline-flex items-center gap-1.5 transition-colors hover:text-emerald-300"
               >
+                <FiGithub className="h-4 w-4" aria-hidden="true" />
                 GitHub
               </a>
             </div>
           </div>
-          
-          <div className="mt-8 pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+
+          <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 text-sm text-slate-500 md:flex-row">
             <p>© {new Date().getFullYear()} EcoFlow AI. Hak Cipta Dilindungi.</p>
             <p>Smart Eco-Enzyme Assistant v0.1.0</p>
           </div>
         </div>
       </footer>
-      
     </div>
   );
 }

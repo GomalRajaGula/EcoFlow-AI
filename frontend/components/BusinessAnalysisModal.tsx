@@ -375,6 +375,49 @@ export default function BusinessAnalysisModal({
                       </Text>
                     </HStack>
                   </VStack>
+
+                  <Divider my={3} borderColor="gray.600" />
+
+                  <Text fontWeight="bold" mb={3} color="gray.100">
+                    Proyeksi 12 Bulan:
+                  </Text>
+                  <VStack spacing={2} align="start" fontSize="sm">
+                    <HStack justifyContent="space-between" w="100%">
+                      <Text color="gray.400">Pendapatan Bulanan (Rp):</Text>
+                      <Text fontWeight="medium" color="gray.100">Rp {typeof analysis.monthly_revenue === 'number' ? analysis.monthly_revenue.toLocaleString('id-ID') : 'N/A'}</Text>
+                    </HStack>
+                    <HStack justifyContent="space-between" w="100%">
+                      <Text color="gray.400">Profit Bersih Bulanan (Rp):</Text>
+                      <Text fontWeight="medium" color="blue.400">Rp {typeof analysis.monthly_net_profit === 'number' ? analysis.monthly_net_profit.toLocaleString('id-ID') : 'N/A'}</Text>
+                    </HStack>
+                    <HStack justifyContent="space-between" w="100%">
+                      <Text color="gray.400">Profit Bersih Tahunan (Rp):</Text>
+                      <Text fontWeight="medium" color="blue.400">Rp {typeof analysis.yearly_net_profit === 'number' ? analysis.yearly_net_profit.toLocaleString('id-ID') : 'N/A'}</Text>
+                    </HStack>
+                    <HStack justifyContent="space-between" w="100%">
+                      <Text color="gray.400">Titik Impas (Bulan):</Text>
+                      <Text fontWeight="medium" color="gray.100">{analysis.breakeven_months != null ? String(analysis.breakeven_months) : 'N/A'}</Text>
+                    </HStack>
+                  </VStack>
+
+                  {typeof analysis.sensitivity_analysis === 'object' && analysis.sensitivity_analysis && (
+                    <>
+                      <Divider my={3} borderColor="gray.600" />
+                      <Text fontWeight="bold" mb={3} color="gray.100">
+                        Analisis Sensitivitas (±{String((analysis.sensitivity_analysis as Record<string, unknown>).variance_percentage ?? 10)}%):
+                      </Text>
+                      <VStack spacing={2} align="start" fontSize="sm">
+                        <HStack justifyContent="space-between" w="100%">
+                          <Text color="gray.400">Skenario Pesimis (Rp):</Text>
+                          <Text fontWeight="medium" color="red.400">Rp {typeof (analysis.sensitivity_analysis as Record<string, unknown>).pessimistic === 'number' ? ((analysis.sensitivity_analysis as Record<string, number>).pessimistic).toLocaleString('id-ID') : 'N/A'}</Text>
+                        </HStack>
+                        <HStack justifyContent="space-between" w="100%">
+                          <Text color="gray.400">Skenario Optimis (Rp):</Text>
+                          <Text fontWeight="medium" color="green.400">Rp {typeof (analysis.sensitivity_analysis as Record<string, unknown>).optimistic === 'number' ? ((analysis.sensitivity_analysis as Record<string, number>).optimistic).toLocaleString('id-ID') : 'N/A'}</Text>
+                        </HStack>
+                      </VStack>
+                    </>
+                  )}
                 </Box>
               )}
             </Stack>

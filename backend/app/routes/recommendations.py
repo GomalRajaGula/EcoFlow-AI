@@ -139,19 +139,18 @@ async def check_ingredient_ratio(
     from app.services.eco_enzyme import EcoEnzymeService
     ideal = EcoEnzymeService.calculate_ingredients(req.waste_kg)
     warning = EcoEnzymeService.check_ingredient_deviation(
-        actual_water=req.water_liters,
-        ideal_water=ideal["water_liters"],
-        actual_sugar=req.sugar_kg,
-        ideal_sugar=ideal["sugar_kg"],
-        threshold_percent=10
+        waste_kg=req.waste_kg,
+        user_water=req.water_liters,
+        user_sugar=req.sugar_kg,
+        threshold=0.1
     )
     
     return APIResponse(
         status="success",
         message="Ratio check complete",
         data={
-            "ideal_water_liters": ideal["water_liters"],
-            "ideal_sugar_kg": ideal["sugar_kg"],
+            "ideal_water_liters": ideal["ideal_water_liters"],
+            "ideal_sugar_kg": ideal["ideal_sugar_kg"],
             "deviation_warning": warning
         }
     )

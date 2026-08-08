@@ -32,7 +32,10 @@ async function createBatch(page: Page, name: string) {
   await page.getByRole('button', { name: /mulai batch baru/i }).click();
   await page.getByLabel('Nama Batch').fill(name);
   await page.getByLabel('Berat Limbah (kg)').fill('2');
+  await page.getByLabel('Air (Liter)').fill('6');
+  await page.getByLabel('Gula (kg)').fill('2');
   await page.getByLabel('Tanggal Mulai').fill(today());
+  await expect(page.getByText(/rasio bahan sudah sesuai/i)).toBeVisible({ timeout: 10000 });
   await page.getByRole('button', { name: /^buat batch$/i }).click();
   const card = page.locator('.chakra-card').filter({ hasText: name });
   await expect(card).toBeVisible({ timeout: 30000 });

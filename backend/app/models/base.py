@@ -97,6 +97,8 @@ class ProductTemplate(Base):
     ideal_ph_max = Column(Float, nullable=True)
     ideal_aroma = Column(String, nullable=True)
     ideal_color = Column(String, nullable=True)
+    tutorial_url = Column(String, nullable=True)
+    regional_average_price = Column(Float, nullable=True)
     created_at = Column(DateTime, default=utcnow)
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 

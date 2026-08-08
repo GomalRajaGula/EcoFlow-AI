@@ -26,7 +26,10 @@ import {
   Badge,
   Image,
   Icon,
-  IconButton
+  IconButton,
+  Alert,
+  AlertIcon,
+  AlertDescription,
 } from '@chakra-ui/react';
 import { useState, useCallback, useRef } from 'react';
 import { FiUpload, FiX } from 'react-icons/fi';
@@ -429,11 +432,12 @@ export default function FermentationLogModal({
                        <Text fontWeight="bold" mb={1} color="gray.100">Saran:</Text>
                        <Text fontSize="sm" color="gray.300">{String(prediction.corrective_action_suggestion)}</Text>
                      </Box>
-                     {Boolean(prediction.harvest_alert_triggered) && (
-                       <Badge colorScheme="purple" mt={2}>
-                         🌾 Siap Panen!
-                       </Badge>
-                     )}
+                      {Boolean(prediction.harvest_alert_triggered) && (
+                        <Alert status="success" mt={2} borderRadius="md" bg="purple.500" color="white">
+                          <AlertIcon color="white" />
+                          <AlertDescription fontWeight="bold">🌾 Siap Panen!</AlertDescription>
+                        </Alert>
+                      )}
                   </VStack>
                 </Box>
               )}

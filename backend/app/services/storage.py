@@ -22,6 +22,7 @@ s3_client = boto3.client(
 )
 
 def ensure_bucket_exists():
+    """Pastikan bucket MinIO ada; buat + set policy public-read jika belum."""
     try:
         s3_client.head_bucket(Bucket=MINIO_BUCKET_NAME)
     except ClientError as e:

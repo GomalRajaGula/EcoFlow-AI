@@ -90,6 +90,7 @@ async def download_roadmap_report(
             "template_name": roadmap.template.name if roadmap.template else "Eco-Enzyme Product",
             "steps": roadmap.steps_json,
             "safety_warnings": roadmap.template.safety_warnings if roadmap.template else "Follow safe handling practices.",
+            "tutorial_url": roadmap.template.tutorial_url if roadmap.template else None,
         },
     )
     return Response(
